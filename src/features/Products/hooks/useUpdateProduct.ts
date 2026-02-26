@@ -1,44 +1,45 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { productService } from "../services/productService";
 import type { IProduct } from "../types/Product";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { productService } from "../services/productService";
 
 type UpdateProductPayload = {
-    id: number;
-    name: string;
-    price: number;
-    category: string;
+  id: string;
+  name: string;
+  price: number;
+  category: string;
 };
 
-
 export function useUpdateProduct() {
+  const queryClient = useQueryClient();
 
-    const queryClient = useQueryClient();
+  return useMutation<IProduct, Error, UpdateProductPayload>({
+    mutationFn: (updatedData) =>
+      productService.update(updatedData.id, {
+        ...updatedData,
+        categories: [{ id: updatedData.category, name: "" }], // Backend likely only needs ID
+      }),
 
-    return useMutation<IProduct, Error, UpdateProductPayload>({
+    onSuccess: (updatedProduct) => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
 
+      queryClient.setQueryData<IProduct[]>(["products"], (oldProducts) => {
+        if (!oldProducts) return [];
 
-        mutationFn: (updatedData) => productService.update(updatedData.id, updatedData),
+        return oldProducts.map((p) =>
+          p.id === updatedProduct.id ? updatedProduct : p,
+        );
+      });
 
-        onSuccess: (updatedProduct) => {
+      queryClient.setQueryData<IProduct>(
+        ["products", updatedProduct.id],
+        updatedProduct,
+      );
+    },
 
-            queryClient.invalidateQueries({ queryKey: ["products"] });
-
-
-            queryClient.setQueryData<IProduct[]>(["products"], (oldProducts) => {
-                if (!oldProducts) return [];
-
-                return oldProducts.map((p) =>
-                    p.id === updatedProduct.id ? updatedProduct : p
-                );
-            });
-
-
-            queryClient.setQueryData<IProduct>(["products", updatedProduct.id], updatedProduct);
-        },
-
-        onError: (error, variables) => {
-            console.error("Error al actualizar el producto:", error);
-        },
-    });
+    onError: (error) => {
+      console.error("Error al actualizar el producto:", error);
+    },
+  });
 }

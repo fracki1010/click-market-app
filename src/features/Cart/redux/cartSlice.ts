@@ -1,10 +1,10 @@
-import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { ICart, ICartItem } from "../types/Cart";
-import { removeItemFromCart } from "../services/apiCart";
+
+import { createSlice } from "@reduxjs/toolkit";
 
 interface CartState {
-  cartId: number | null;
+  cartId: string | null;
   items: ICartItem[];
   total: number;
   loading: boolean;
@@ -13,7 +13,7 @@ interface CartState {
 }
 
 const initialState: CartState = {
-  cartId: 0,
+  cartId: "0",
   items: [],
   total: 0,
   loading: false,
@@ -43,18 +43,19 @@ const cartSlice = createSlice({
       state.items = [];
       state.total = 0;
     },
-    cartRemoveItem: (state, actions: PayloadAction<number>) => {
-
+    cartRemoveItem: (state, actions: PayloadAction<string>) => {
       const productIdToRemove = actions.payload;
+
       state.items = state.items.filter(
-        (item) => item.productId !== productIdToRemove
+        (item) => item.productId !== productIdToRemove,
       );
     },
     cartAddItem: (state, action: PayloadAction<ICartItem>) => {
       //Sumar productos iguales
       const existingItemIndex = state.items.findIndex(
-        (item) => item.productId === action.payload.productId
+        (item) => item.productId === action.payload.productId,
       );
+
       if (existingItemIndex !== -1) {
         state.items[existingItemIndex].quantity += action.payload.quantity;
       } else {

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { Card, CardBody, Button, Skeleton } from "@heroui/react";
 import {
   BarChart,
@@ -29,7 +29,8 @@ const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
 export const AdminDashboard = () => {
   const { data: response, isLoading: loadingProducts } = useProducts({});
-  const { data: orders = [], isLoading: loadingOrders } = useAdminOrders();
+  const { data: ordersResponse, isLoading: loadingOrders } = useAdminOrders();
+  const orders = ordersResponse?.orders || [];
 
   const products = response?.data || [];
 
@@ -61,10 +62,12 @@ export const AdminDashboard = () => {
     // GRÁFICO 1: TOP 5 PRODUCTOS VENDIDOS
     // Mapa para sumar cantidades por nombre de producto
     const productSalesMap: Record<string, number> = {};
+
     orders.forEach((order: { items: any[] }) => {
       order.items.forEach(
         (item: { product: { name: any }; quantity: number }) => {
           const name = item.product.name;
+
           productSalesMap[name] = (productSalesMap[name] || 0) + item.quantity;
         },
       );
@@ -77,10 +80,53 @@ export const AdminDashboard = () => {
       .slice(0, 5);
 
     // GRÁFICO 2: DISTRIBUCIÓN POR CATEGORÍA
+    const MAIN_CATEGORIES = [
+      "ALMACEN",
+      "OFERTAS",
+      "BEBIDAS",
+      "LACTEOS/FIAMBRES",
+      "SUPLEMENTOS Y DIETÉTICA",
+      "CARNES Y CONGELADOS",
+      "SIN T.A.C.C.",
+      "PERFUMERIA",
+      "LIMPIEZA",
+      "MUNDO BEBÉ",
+      "MASCOTAS",
+      "HOGAR/BAZAR",
+      "JUGUETERÍA Y LIBRERÍA",
+    ];
+
+    // Inicializar mapa con las categorías principales en 0
     const categoryMap: Record<string, number> = {};
+
+    MAIN_CATEGORIES.forEach((cat) => {
+      categoryMap[cat] = 0;
+    });
+
+    // Categoría "Otros" para los que no tengan match
+    categoryMap["Otros"] = 0;
+
     products.forEach((p) => {
-      const catName = p.category || "Sin Categoría";
-      categoryMap[catName] = (categoryMap[catName] || 0) + 1;
+      let foundMainCategory = false;
+
+      if (p.categories && p.categories.length > 0) {
+        // Buscamos si alguna categoría del producto coincide con las principales
+        // Normalizamos a mayúsculas para comparar
+        const matchedCategory = p.categories.find((cat) =>
+          MAIN_CATEGORIES.includes(cat.name.toUpperCase()),
+        );
+
+        if (matchedCategory) {
+          const mainCatName = matchedCategory.name.toUpperCase();
+
+          categoryMap[mainCatName] = (categoryMap[mainCatName] || 0) + 1;
+          foundMainCategory = true;
+        }
+      }
+
+      if (!foundMainCategory) {
+        categoryMap["Otros"] = (categoryMap["Otros"] || 0) + 1;
+      }
     });
 
     const categoryData = Object.entries(categoryMap).map(([name, value]) => ({
@@ -151,15 +197,27 @@ export const AdminDashboard = () => {
           </h1>
           <p className="text-gray-500">Métricas en tiempo real de tu negocio</p>
         </div>
-        <Button
-          as={Link}
-          to="/admin/inventory"
-          color="primary"
-          variant="flat"
-          endContent={<FaArrowRight />}
-        >
-          Gestionar Inventario
-        </Button>
+
+        <div className="flex gap-2">
+          <Button
+            as={Link}
+            color="secondary"
+            endContent={<FaArrowRight />}
+            to="/admin/orders"
+            variant="flat"
+          >
+            Ver Órdenes
+          </Button>
+          <Button
+            as={Link}
+            color="primary"
+            endContent={<FaArrowRight />}
+            to="/admin/inventory"
+            variant="flat"
+          >
+            Gestionar Inventario
+          </Button>
+        </div>
       </div>
 
       {/* SECCIÓN DE KPIS */}
@@ -192,20 +250,20 @@ export const AdminDashboard = () => {
           </h3>
           <div className="h-[300px] w-full">
             {dashboardData.topProducts.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer height="100%" width="100%">
                 <BarChart
                   data={dashboardData.topProducts}
                   layout="vertical"
                   margin={{ left: 10, right: 30 }}
                   style={{ color: "blue" }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                  <CartesianGrid horizontal={false} strokeDasharray="3 3" />
                   <XAxis type="number" />
                   <YAxis
                     dataKey="name"
+                    tick={{ fontSize: 11 }}
                     type="category"
                     width={120}
-                    tick={{ fontSize: 11 }}
                   />
                   <Tooltip
                     contentStyle={{
@@ -216,10 +274,10 @@ export const AdminDashboard = () => {
                     cursor={{ fill: "transparent" }}
                   />
                   <Bar
+                    barSize={30}
                     dataKey="sales"
                     fill="#6366f1"
                     radius={[0, 4, 4, 0]}
-                    barSize={30}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -237,19 +295,19 @@ export const AdminDashboard = () => {
             Distribución por Categoría
           </h3>
           <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer height="100%" width="100%">
               <PieChart>
                 <Pie
-                  data={dashboardData.categoryData}
                   cx="50%"
                   cy="50%"
+                  data={dashboardData.categoryData}
+                  dataKey="value"
+                  fill="#8884d8"
                   innerRadius={60}
                   outerRadius={100}
-                  fill="#8884d8"
                   paddingAngle={5}
-                  dataKey="value"
                 >
-                  {dashboardData.categoryData.map((entry, index) => (
+                  {dashboardData.categoryData.map((_entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}

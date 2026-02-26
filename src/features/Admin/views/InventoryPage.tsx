@@ -1,27 +1,19 @@
-import React, { useState } from "react";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  Button,
-  Input,
-  ModalBody,
-  ModalFooter,
-} from "@heroui/react";
-import {
-  FaPlus,
-  FaMagnifyingGlass,
-  FaTriangleExclamation,
-} from "react-icons/fa6";
+import { useState } from "react";
+import { Button, Input } from "@heroui/react";
+import { FaPlus, FaMagnifyingGlass } from "react-icons/fa6";
+
 import { useProducts } from "../../Products/hooks/useProducts";
-import { useAdminInventory } from "./../hook/useAdminInventory";
-import { ProductForm } from "../components/ProductForm"; // El formulario con TanStack Form
+import { useCategories } from "../../Products/hooks/useCategory";
+// El formulario con TanStack Form
 import { InventoryTable } from "../components/InventoryTable"; // La tabla con TanStack Table
 import { ProductModal } from "../components/ProductModal";
 import { DeleteModal } from "../components/DeleteModal";
 
+import { useAdminInventory } from "./../hook/useAdminInventory";
+
 export const InventoryPage = () => {
-  const { data: response, isLoading } = useProducts({});
+  const { data: response } = useProducts({ limit: 4000 });
+  const { data: categories = [] } = useCategories();
   const products = response?.data || [];
   const {
     createProduct,
@@ -46,6 +38,7 @@ export const InventoryPage = () => {
 
     // Si tu InventoryTable pasa ID:
     const productToDelete = products.find((p) => p.id === product);
+
     setDeletingProduct(productToDelete);
   };
 
@@ -76,14 +69,26 @@ export const InventoryPage = () => {
   // Manejo de Submit (viene desde TanStack Form)
   const handleSubmit = async (values: any) => {
     // Parseo de datos numéricos seguro
+    // Mapeamos los category_ids (strings) a objetos de categoría completos
+    const selectedCategories = (values.category_ids || [])
+      .map((id: string) => {
+        const found = categories.find((c) => c.id.toString() === id.toString());
+
+        return found ? { id: found.id, name: found.name } : null;
+      })
+      .filter(Boolean);
+
     const payload = {
       ...values,
       price: Number(values.price),
       stock_current: Number(values.stock_current),
       stock_min: Number(values.stock_min),
-      category_id: Number(values.category_id),
-      rating: editingProduct?.rating || 0, // Mantener rating o 0
+      categories: selectedCategories,
+      rating: editingProduct?.rating || 0,
     };
+
+    // Eliminamos el campo temporal de IDs si lo deseamos, aunque el API lo ignorará
+    delete payload.category_ids;
 
     try {
       if (editingProduct) {
@@ -98,14 +103,16 @@ export const InventoryPage = () => {
     }
   };
 
-  const tableData = products.map((product) => ({
+  const tableData: any[] = products.map((product) => ({
     id: product.id,
     name: product.name,
     sku: product.sku || "N/A", // Valor por defecto si falta
     price: product.price,
     stock: product.stock,
     stockMin: product.stock_min, // Aquí hacemos el puente de tipos
-    category: product.category,
+    category:
+      product.categories?.map((c) => c.name).join(", ") || "Sin categoría",
+    categories: product.categories, // Mantener las categorías originales para el form
     imageUrl: product.imageUrl || "",
   }));
 
@@ -126,11 +133,11 @@ export const InventoryPage = () => {
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
           <Input
+            className="w-full sm:w-64"
             placeholder="Buscar producto..."
             startContent={<FaMagnifyingGlass className="text-gray-400" />}
             value={filterText}
             onValueChange={setFilterText}
-            className="w-full sm:w-64"
           />
           <Button
             color="primary"
@@ -145,24 +152,24 @@ export const InventoryPage = () => {
       {/* Tabla (TanStack Table + HeroUI) */}
       <InventoryTable
         data={filteredProducts}
-        onEdit={openEditModal}
         onDelete={(id) => confirmDelete(id)}
+        onEdit={openEditModal}
       />
 
       <ProductModal
+        editingProduct={editingProduct}
+        isLoading={isCreating || isUpdating}
         isOpen={isFormModalOpen}
         onClose={() => setIsFormModalOpen(false)}
-        editingProduct={editingProduct}
         onSubmit={handleSubmit}
-        isLoading={isCreating || isUpdating}
       />
 
       <DeleteModal
+        isLoading={isDeleteLoading}
         isOpen={!!deletingProduct}
+        productName={deletingProduct?.name}
         onClose={() => setDeletingProduct(null)}
         onConfirm={executeDelete}
-        productName={deletingProduct?.name}
-        isLoading={isDeleteLoading}
       />
     </div>
   );

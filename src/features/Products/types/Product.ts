@@ -1,6 +1,8 @@
 export interface ICategory {
   id: string;
   name: string;
+  parent?: string | null; // Nuevo campo: ID del padre
+  children?: ICategory[]; // Usaremos esto en el frontend para armar el árbol
 }
 
 export interface ProductsResponse {
@@ -32,7 +34,6 @@ export interface IProduct {
   name: string;
   description: string;
   price: number;
-  // rating: number;
   imageUrl?: string;
   categories: ICategory[];
   stock: number;
@@ -44,7 +45,6 @@ export type NewProductPayload = {
   name: string;
   description: string;
   price: number;
-  // rating: number;
   categories: ICategory[];
   image_url: string;
   stock: number;

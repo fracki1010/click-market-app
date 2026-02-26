@@ -1,7 +1,9 @@
 // src/routes/ProtectedLayout.tsx
+import type { RootState } from "../store/store";
+
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useSelector } from "react-redux";
-import type { RootState } from "../store/store";
+
 import { Header } from "../components/layout/Header";
 import { Navigation } from "../components/layout/Navigation";
 import { Footer } from "../components/layout/Footer";
@@ -11,7 +13,7 @@ export const ProtectedLayout = () => {
   const location = useLocation();
 
   if (!token) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate replace state={{ from: location }} to="/login" />;
   }
 
   return (
@@ -19,7 +21,7 @@ export const ProtectedLayout = () => {
       <Header />
       <Navigation />
 
-      <main className="flex-1 p-4 bg-gray-50 dark:bg-neutral-900">
+      <main className="flex-1 p-4 bg-gray-50 dark:bg-neutral-900 pb-20 md:pb-4">
         <Outlet />
       </main>
 

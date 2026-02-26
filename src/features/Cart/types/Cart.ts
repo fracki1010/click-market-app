@@ -1,13 +1,13 @@
 export interface ICart {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   items: ICartItem[];
   total: number;
 }
 
 export interface ICartItem {
-  cartId: number;
-  productId: number;
+  cartId: string;
+  productId: string;
   name: string;
   quantity: number;
   price: number;
@@ -15,18 +15,18 @@ export interface ICartItem {
 }
 
 export interface CartApi {
-  id: number;
-  user_id: number;
+  id: string;
+  user_id: string;
   total: number;
   items: CartItemApi[];
 }
 
 export interface CartItemApi {
-  cart_id: number;
-  product_id: number;
+  cart_id: string;
+  product_id: string;
   quantity: number;
   product: {
-    id: number;
+    id: string;
     name: string;
     price: number;
     image_url: string;
@@ -34,6 +34,6 @@ export interface CartItemApi {
 }
 
 export interface CartItemPayload {
-  product_id: number;
+  product_id: string;
   quantity: number;
 }

@@ -1,4 +1,7 @@
+import type { AppDispatch, RootState } from "../../../store/store";
+
 import { useDispatch, useSelector } from "react-redux";
+
 import { apiClient } from "../../../services/apiClient";
 import {
   loginStart,
@@ -8,7 +11,6 @@ import {
   setErrorRegister,
   updateUser,
 } from "../redux/authSlice";
-import type { AppDispatch, RootState } from "../../../store/store";
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -91,7 +93,7 @@ export const useAuth = () => {
     try {
       dispatch(loginStart());
 
-      const response = await apiClient.patch("/auth/me", {
+      await apiClient.patch("/auth/me", {
         ...updatedUserData,
       });
 

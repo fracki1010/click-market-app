@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import { store } from "../store/store";
 import { logout } from "../features/Auth/redux/authSlice";
 
@@ -14,12 +15,14 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = store.getState().auth.token;
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 apiClient.interceptors.response.use(
@@ -29,8 +32,9 @@ apiClient.interceptors.response.use(
       store.dispatch(logout());
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      window.location.href = "/login";
+      window.location.href = "/login?session_expired=true";
     }
+
     return Promise.reject(error);
-  }
+  },
 );

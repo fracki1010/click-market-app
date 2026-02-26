@@ -1,4 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
+
 import authReducer from "../features/Auth/redux/authSlice";
 
 const persistedToken = localStorage.getItem("token");

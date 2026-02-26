@@ -1,5 +1,6 @@
 // src/routes/AppRouter.tsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+
 import { ProductsPage } from "../features/Products/views/ProductsPage";
 import { ProductDetailPage } from "../features/Products/views/ProductDetailPage";
 import { CartPage } from "../features/Cart/views/CartPage";
@@ -8,49 +9,61 @@ import { RegisterPage } from "../features/Auth/views/RegisterPage";
 import { Setting } from "../features/Settings/views/Settings";
 import { HomePage } from "../features/Home/views/HomePage";
 import { CheckoutPage } from "../features/Order/view/CheckoutPage";
+import { MaintenancePage } from "../features/Settings/views/MaintenancePage";
+
 import { ProtectedLayout } from "./ProtectedLayout";
 import { ShopLayout } from "./ShopLayout";
-import { OrderPage } from "@/features/Order/view/OrderPage";
 import { AdminGuard } from "./AdminGuard";
+import { MaintenanceGuard } from "./MaintenanceGuard";
+
+import { OrderPage } from "@/features/Order/view/OrderPage";
 import { AdminDashboard } from "@/features/Admin/views/AdminDashboard";
 import { InventoryPage } from "@/features/Admin/views/InventoryPage";
 import { ProfilePage } from "@/features/Auth/views/ProfilePage";
+import { AdminOrdersPage } from "@/features/Admin/views/AdminOrdersPage";
+import { DeliveryZonesPage } from "@/features/Home/views/DeliveryZonePage";
 
 export const AppRouter = () => {
   return (
     <BrowserRouter>
-
       <Routes>
-        {/* 1. RUTAS DE AUTENTICACIÓN (Públicas restringidas) */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        {/* RUTA DE MANTENIMIENTO (Accesible siempre para que el guard pueda redirigir) */}
+        <Route element={<MaintenancePage />} path="/maintenance" />
 
-        {/* 2. RUTAS DE LA TIENDA (Públicas abiertas - Visitantes y Clientes) */}
-        <Route element={<ShopLayout />}>
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/products/:id" element={<ProductDetailPage />} />
-          <Route path="/cart" element={<CartPage />} />
-        </Route>
+        {/* GUARD DE MANTENIMIENTO: Envuelve todo el resto de la app */}
+        <Route element={<MaintenanceGuard />}>
+          {/* 1. RUTAS DE AUTENTICACIÓN (Públicas restringidas) */}
+          <Route element={<LoginPage />} path="/login" />
+          <Route element={<RegisterPage />} path="/register" />
 
-        {/* 3. RUTAS PROTEGIDAS (Solo Clientes Autenticados) */}
-        <Route element={<ProtectedLayout />}>
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/settings" element={<Setting />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/my-orders" element={<OrderPage />} />
+          {/* 2. RUTAS DE LA TIENDA (Públicas abiertas - Visitantes y Clientes) */}
+          <Route element={<ShopLayout />}>
+            <Route element={<Navigate replace to="/home" />} path="/" />
+            <Route element={<HomePage />} path="/home" />
+            <Route element={<ProductsPage />} path="/products" />
+            <Route element={<ProductDetailPage />} path="/products/:id" />
+            <Route element={<CartPage />} path="/cart" />
+            <Route element={<DeliveryZonesPage />} path="/zonas-de-entrega" />
+          </Route>
 
+          {/* 3. RUTAS PROTEGIDAS (Solo Clientes Autenticados) */}
+          <Route element={<ProtectedLayout />}>
+            <Route element={<ProfilePage />} path="/profile" />
+            <Route element={<Setting />} path="/settings" />
+            <Route element={<CheckoutPage />} path="/checkout" />
+            <Route element={<OrderPage />} path="/my-orders" />
 
-          {/* RUTAS SOLO ADMIN  */}
-          <Route element={<AdminGuard />}>
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/inventory" element={<InventoryPage />} />
+            {/* RUTAS SOLO ADMIN  */}
+            <Route element={<AdminGuard />}>
+              <Route element={<AdminDashboard />} path="/admin/dashboard" />
+              <Route element={<InventoryPage />} path="/admin/inventory" />
+              <Route element={<AdminOrdersPage />} path="/admin/orders" />
+            </Route>
           </Route>
         </Route>
 
         {/* Catch-all */}
-        <Route path="/*" element={<Navigate to="/home" replace />} />
+        <Route element={<Navigate replace to="/home" />} path="/*" />
       </Routes>
     </BrowserRouter>
   );

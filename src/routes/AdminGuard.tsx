@@ -1,12 +1,13 @@
 import { Navigate, Outlet } from "react-router";
+
 import { useAuth } from "../features/Auth/hooks/useAuth";
 
 export const AdminGuard = () => {
-    const { user } = useAuth();
+  const { user } = useAuth();
 
-    if (!user || user.role !== "admin") {
-        return <Navigate to="/home" replace />;
-    }
+  if (!user || user.role !== "admin") {
+    return <Navigate replace to="/home" />;
+  }
 
-    return <Outlet />;
+  return <Outlet />;
 };

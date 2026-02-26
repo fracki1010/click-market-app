@@ -5,17 +5,32 @@ import type {
   UpdateProductPayload,
 } from "../types/Product";
 
+// Definimos la respuesta de la API para categoría
+export interface CategoryApi {
+  _id: string;
+  name: string;
+  parent?: string | null; // El backend envía esto
+}
+
 export interface ProductApi {
   _id: string;
   name: string;
   description: string;
   price: number;
-  rating: number;
   image_url?: string;
   categories: { id: string; name: string }[];
   stock: number;
   stock_min: number;
   idExternal?: string;
+}
+
+// Mapeamos a nuestra interfaz
+export function toCategory(api: CategoryApi): ICategory {
+  return {
+    id: api._id,
+    name: api.name,
+    parent: api.parent || null,
+  };
 }
 
 export function toProduct(api: ProductApi): IProduct {
@@ -24,7 +39,6 @@ export function toProduct(api: ProductApi): IProduct {
     name: api.name,
     description: api.description,
     price: api.price,
-    // rating: api.rating,
     imageUrl: api.image_url,
     categories: api.categories,
     stock: api.stock,
@@ -40,7 +54,6 @@ export function toProductApiCreate(
     name: payload.name,
     description: payload.description,
     price: payload.price,
-    // rating: payload.rating,
     categories: payload.categories,
     image_url: payload.image_url,
     stock: payload.stock,
@@ -56,18 +69,10 @@ export function toProductApiUpdate(
     ...(payload.name && { name: payload.name }),
     ...(payload.description && { description: payload.description }),
     ...(payload.price && { price: payload.price }),
-    // ...(payload.rating && { rating: payload.rating }),
     ...(payload.categories && { categories: payload.categories }),
-  };
-}
-
-export interface CategoryApi {
-  id: string;
-  name: string;
-}
-export function toCategory(api: CategoryApi): ICategory {
-  return {
-    id: api.id,
-    name: api.name,
+    ...(payload.image_url && { image_url: payload.image_url }),
+    ...(payload.stock && { stock: payload.stock }),
+    ...(payload.stock_min && { stock_min: payload.stock_min }),
+    ...(payload.sku && { idExternal: payload.sku }),
   };
 }

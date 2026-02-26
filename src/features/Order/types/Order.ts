@@ -1,49 +1,89 @@
 export interface IOrderItem {
-    productId: number;
-    quantity: number;
-    price: number;
-    product: {
-        id: number;
-        name: string;
-        imageUrl: string;
-    };
+  productId: string;
+  quantity: number;
+  price: number;
+  product: {
+    id: string;
+    name: string;
+    imageUrl: string;
+  };
+}
+
+export interface IShippingDetails {
+  address: string;
+  neighborhood: string;
+  deliveryNotes?: string;
+  deliverySlot: string;
+}
+
+export interface IPaymentDetails {
+  method: "Cash" | "Card" | "Transfer";
+  status: string;
 }
 
 export interface IOrder {
-    id: number;
-    userId: number;
-    orderDate: string;
-    status: string;
-    shippingAddress: string;
-    locality: string;
-    total: number;
-    items: IOrderItem[];
+  id: string; // El _id de mongo
+  orderNumber?: string; // El CK-123456
+  userId: string;
+  orderDate: string;
+  status: string;
+  customerName?: string;
+  // Nuevos campos de logística y pago
+  shipping: IShippingDetails;
+  payment: IPaymentDetails;
+
+  // Desglose de precios
+  subtotal: number;
+  shippingPrice: number;
+  total: number;
+
+  items: IOrderItem[];
 }
 
-
-export interface OrderItemApi {
-    product_id: number;
-    quantity: number;
-    unit_price: number;
-    product: {
-        id: number;
-        name: string;
-        image_url: string;
-    };
-}
-
+// Lo que viene de la API (Backend)
 export interface OrderApi {
-    id: number;
-    user_id: number;
-    order_date: string;
+  _id: string;
+  orderNumber?: string;
+  user: string;
+  createdAt: string;
+  status: string;
+
+  shipping: {
+    address: string;
+    neighborhood: string;
+    deliveryNotes: string;
+    deliverySlot: string;
+  };
+
+  payment: {
+    method: "Cash" | "Card" | "Transfer";
     status: string;
-    shipping_address: string;
-    locality: string;
-    total_amount: number;
-    items: OrderItemApi[];
+  };
+
+  subtotal: number;
+  shippingPrice: number;
+  total: number;
+
+  items: {
+    product: {
+      _id: string;
+      name: string;
+      image: string; // Ojo, en tu backend pusiste 'image' en el orderItemSchema
+    };
+    name: string;
+    price: number;
+    quantity: number;
+    image?: string;
+  }[];
 }
 
+// Lo que enviamos para crear la orden
 export interface CreateOrderPayload {
-    shipping_address: string;
-    locality: string;
+  shippingDetails: {
+    address: string;
+    neighborhood: string;
+    deliveryNotes: string;
+  };
+  deliverySlot: string;
+  paymentMethod: "Cash" | "Card" | "Transfer";
 }

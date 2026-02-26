@@ -1,5 +1,3 @@
-import { log } from "console";
-import { apiClient } from "../../../services/apiClient";
 import type {
   IProduct,
   NewProductPayload,
@@ -7,6 +5,9 @@ import type {
   UpdateProductPayload,
 } from "../types/Product";
 import type { ProductApi } from "./mappers";
+
+import { apiClient } from "../../../services/apiClient";
+
 import { toProduct, toProductApiCreate, toProductApiUpdate } from "./mappers";
 
 export async function getProducts(filters?: {
@@ -16,6 +17,7 @@ export async function getProducts(filters?: {
   sort?: string;
   page?: number;
   limit?: number;
+  search?: string;
 }): Promise<ProductsResponse> {
   const params = new URLSearchParams();
 
@@ -50,6 +52,7 @@ export async function getProducts(filters?: {
 
   if (filters?.page) params.append("page", filters.page.toString());
   if (filters?.limit) params.append("limit", filters.limit.toString());
+  if (filters?.search) params.append("search", filters.search);
 
   const response = await apiClient.get<{ data: ProductApi[]; pagination: any }>(
     "/products",
@@ -66,8 +69,9 @@ export async function getProducts(filters?: {
   };
 }
 
-export async function getProductById(id: number): Promise<IProduct> {
+export async function getProductById(id: string): Promise<IProduct> {
   const response = await apiClient.get<ProductApi>(`/products/${id}`);
+
   return toProduct(response.data);
 }
 
@@ -75,19 +79,25 @@ export async function createProduct(
   payload: NewProductPayload,
 ): Promise<IProduct> {
   const body = toProductApiCreate(payload);
+
+  console.log("body", body);
   const response = await apiClient.post<ProductApi>("/products", body);
+
   return toProduct(response.data);
 }
 
 export async function updateProduct(
-  id: number,
+  id: string,
   payload: UpdateProductPayload,
 ): Promise<IProduct> {
   const body = toProductApiUpdate(payload);
   const response = await apiClient.patch<ProductApi>(`/products/${id}`, body);
+
+  console.log(response.data);
+
   return toProduct(response.data);
 }
 
-export async function deleteProduct(id: number): Promise<void> {
+export async function deleteProduct(id: string): Promise<void> {
   await apiClient.delete(`/products/${id}`);
 }

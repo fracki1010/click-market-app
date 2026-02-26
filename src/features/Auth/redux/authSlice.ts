@@ -1,5 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+
+import { createSlice } from "@reduxjs/toolkit";
 
 interface User {
   id: number;
@@ -36,12 +37,11 @@ const authSlice = createSlice({
     },
     loginSuccess: (
       state,
-      action: PayloadAction<{ user: User; token: string }>
+      action: PayloadAction<{ user: User; token: string }>,
     ) => {
       state.loading = false;
       state.user = action.payload.user;
       state.token = action.payload.token;
-
 
       // Guardar en localStorage
       localStorage.setItem("token", action.payload.token);
@@ -69,12 +69,18 @@ const authSlice = createSlice({
     },
 
     setErrorRegister: (state) => {
-      state.error = "No se pudo registrar el usuario"
-    }
+      state.error = "No se pudo registrar el usuario";
+    },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, setErrorRegister, updateUser } =
-  authSlice.actions;
+export const {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+  logout,
+  setErrorRegister,
+  updateUser,
+} = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,27 +1,53 @@
-import type { IOrder, IOrderItem, OrderApi, OrderItemApi } from "../types/Order";
+import { IOrder, IOrderItem } from "../types/Order";
 
-export function toOrderItem(api: OrderItemApi): IOrderItem {
-    return {
-        productId: api.product_id,
-        quantity: api.quantity,
-        price: api.unit_price,
-        product: {
-            id: api.product?.id,
-            name: api.product?.name || "Producto Desconocido",
-            imageUrl: api.product?.image_url || "",
-        }
-    };
+export function toOrderItem(apiItem: any): IOrderItem {
+  // Verificamos si product viene como objeto poblado o como un simple ID (string)
+  const productId =
+    typeof apiItem.product === "string"
+      ? apiItem.product
+      : apiItem.product?._id || "unknown";
+
+  return {
+    productId: productId,
+    quantity: apiItem.quantity,
+    price: apiItem.price,
+    product: {
+      id: productId,
+      name: apiItem.name || "Producto sin nombre", // Leemos el snapshot del nombre
+      imageUrl: apiItem.image || "https://via.placeholder.com/150", // Fallback de imagen
+    },
+  };
 }
 
-export function toOrder(api: OrderApi): IOrder {
-    return {
-        id: api.id,
-        userId: api.user_id,
-        orderDate: api.order_date,
-        status: api.status,
-        shippingAddress: api.shipping_address,
-        locality: api.locality,
-        total: api.total_amount,
-        items: api.items.map(toOrderItem),
-    };
+export function toOrder(api: any): IOrder {
+  const isUserObject = typeof api.user === "object" && api.user !== null;
+  const userId = isUserObject ? api.user._id : api.user;
+  const customerName = isUserObject ? api.user.name : "Cliente Desconocido";
+
+  return {
+    id: api._id,
+    orderNumber: api.orderNumber || api._id.slice(-6).toUpperCase(),
+    userId: userId,
+    customerName: customerName,
+    orderDate: api.createdAt,
+    status: api.status,
+
+    shipping: {
+      address: api.shipping?.address || "",
+      neighborhood: api.shipping?.neighborhood || "",
+      deliveryNotes: api.shipping?.deliveryNotes || "",
+      deliverySlot: api.shipping?.deliverySlot || "Estándar",
+    },
+
+    payment: {
+      method: api.payment?.method || "Cash",
+      status: api.payment?.status || "Pending",
+    },
+
+    subtotal: api.subtotal || 0,
+    shippingPrice: api.shippingPrice || 0,
+    total: api.total || 0,
+
+    items: (api.items || []).map(toOrderItem),
+  };
 }

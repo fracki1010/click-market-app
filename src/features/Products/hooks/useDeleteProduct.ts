@@ -1,29 +1,28 @@
-
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { productService } from "../services/productService";
 import type { IProduct } from "../types/Product";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { productService } from "../services/productService";
+
 export function useDeleteProduct() {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    return useMutation<void, Error, number>({
+  return useMutation<void, Error, string>({
+    mutationFn: (productId) => productService.delete(productId),
+    onSuccess: (_, deletedProductId) => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
 
-        mutationFn: (productId) => productService.delete(productId),
-        onSuccess: (_, deletedProductId) => {
+      queryClient.setQueryData<IProduct[]>(["products"], (oldProducts) => {
+        if (!oldProducts) return [];
 
-            queryClient.invalidateQueries({ queryKey: ["products"] });
+        return oldProducts.filter((p) => p.id !== deletedProductId);
+      });
 
-            queryClient.setQueryData<IProduct[]>(["products"], (oldProducts) => {
-                if (!oldProducts) return [];
+      queryClient.removeQueries({ queryKey: ["products", deletedProductId] });
+    },
 
-                return oldProducts.filter((p) => p.id !== deletedProductId);
-            });
-
-            queryClient.removeQueries({ queryKey: ["products", deletedProductId] });
-        },
-
-        onError: (error) => {
-            console.error("Error al eliminar el producto:", error);
-        },
-    });
+    onError: (error) => {
+      console.error("Error al eliminar el producto:", error);
+    },
+  });
 }

@@ -1,12 +1,17 @@
-import * as orderApi from "../api/orders";
 import type { IOrder, CreateOrderPayload } from "../types/Order";
 
-export const orderService = {
-    create: async (payload: CreateOrderPayload): Promise<IOrder> => {
-        return await orderApi.createOrder(payload);
-    },
+import * as orderApi from "../api/orders";
 
-    getMyOrders: async (): Promise<IOrder[]> => {
-        return await orderApi.getMyOrders();
-    },
+export const orderService = {
+  create: async (payload: CreateOrderPayload): Promise<IOrder> => {
+    return await orderApi.createOrder(payload);
+  },
+
+  getMyOrders: async (): Promise<IOrder[]> => {
+    return await orderApi.getMyOrders();
+  },
+
+  // updateOrderStatus: async (orderId: string, status: string): Promise<IOrder> => {
+  //     return await orderApi.updateOrderStatus(orderId, status);
+  // },
 };

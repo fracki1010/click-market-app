@@ -1,7 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
-
 import React from "react";
 
 interface Field {
@@ -30,11 +29,11 @@ export const AuthForm: React.FC<AuthFormProps> = ({
 
   return (
     <form
+      className="flex flex-col bg-gray-100 dark:bg-neutral-800 shadow-xl rounded-2xl gap-4 p-8 w-full max-w-md mx-auto"
       onSubmit={(e) => {
         e.preventDefault();
         form.handleSubmit();
       }}
-      className="flex flex-col bg-gray-100 dark:bg-neutral-800 shadow-xl rounded-2xl gap-4 p-8 w-full max-w-md mx-auto"
     >
       <h2 className="text-2xl font-semibold text-center mb-6">{submitLabel}</h2>
 
@@ -58,17 +57,17 @@ export const AuthForm: React.FC<AuthFormProps> = ({
             // </div>
             <Input
               label={field.label}
-              type={field.type || "text"}
               placeholder="Ingresa tu email"
-              variant="bordered"
+              type={field.type || "text"}
               value={fieldApi.state.value}
+              variant="bordered"
               onChange={(e) => fieldApi.handleChange(e.target.value)}
             />
           )}
         </form.Field>
       ))}
 
-      <Button type="submit" variant="solid" color="primary" fullWidth>
+      <Button fullWidth color="primary" type="submit" variant="solid">
         {submitLabel}
       </Button>
     </form>

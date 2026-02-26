@@ -1,20 +1,20 @@
-// src/features/Cart/components/CartSummary.tsx
 import React from "react";
 import { Link, useNavigate } from "react-router";
+import { Chip } from "@heroui/react";
+import { FaTruckFast, FaArrowRight } from "react-icons/fa6";
+
 import { useCart } from "../hooks/useCart";
 import { useAuth } from "../../Auth/hooks/useAuth";
 
 interface CartSummaryProps {
   subtotal: number;
   shipping: number;
-  tax: number;
   total: number;
 }
 
 export const CartSummary: React.FC<CartSummaryProps> = ({
   subtotal,
   shipping,
-  tax,
   total,
 }) => {
   const navigate = useNavigate();
@@ -23,67 +23,78 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
 
   const handleCheckout = () => {
     if (items.length === 0) return;
-
     navigate("/checkout");
   };
 
   return (
-    <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg p-6 sticky top-4 border border-gray-100 dark:border-neutral-700">
-      <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-gray-100 border-b pb-4 dark:border-neutral-700">
-        Resumen del pedido
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 sticky top-24 border border-slate-100 dark:border-zinc-800">
+      <h2 className="text-xl font-bold mb-6 text-slate-800 dark:text-white border-b pb-4 dark:border-zinc-800">
+        Resumen de Compra
       </h2>
 
       <div className="space-y-4 mb-8">
-        <div className="flex justify-between text-gray-600 dark:text-gray-300">
-          <span>Subtotal</span>
+        <div className="flex justify-between text-slate-600 dark:text-slate-300">
+          <span>Subtotal de productos</span>
           <span className="font-medium">${subtotal.toFixed(2)}</span>
         </div>
-        <div className="flex justify-between text-gray-600 dark:text-gray-300">
-          <span>Envío estimado</span>
-          <span className="font-medium">
-            {shipping === 0 ? "Gratis" : `$${shipping.toFixed(2)}`}
+
+        <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
+          <span className="flex items-center gap-2">
+            <FaTruckFast className="text-slate-400" /> Envío a Domicilio
           </span>
-        </div>
-        <div className="flex justify-between text-gray-600 dark:text-gray-300">
-          <span>Impuestos</span>
-          <span className="font-medium">${tax.toFixed(2)}</span>
+          {shipping === 0 && subtotal > 0 ? (
+            <Chip
+              className="font-bold"
+              color="success"
+              size="sm"
+              variant="flat"
+            >
+              Gratis
+            </Chip>
+          ) : (
+            <span className="font-medium">${shipping.toFixed(2)}</span>
+          )}
         </div>
 
-        <div className="border-t border-gray-200 dark:border-neutral-700 pt-4 flex justify-between items-end">
-          <span className="text-lg font-bold text-gray-900 dark:text-white">Total</span>
-          <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+        {subtotal > 0 && subtotal < 20000 && (
+          <p className="text-xs text-orange-500 font-medium text-center bg-orange-50 p-2 rounded-lg dark:bg-orange-900/20">
+            Agrega ${(20000 - subtotal).toFixed(2)} más para obtener envío
+            gratis.
+          </p>
+        )}
+
+        <div className="border-t pt-4 mt-4 flex justify-between items-center text-lg">
+          <span className="font-bold text-slate-800 dark:text-white">
+            Total
+          </span>
+          <span className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
             ${total.toFixed(2)}
           </span>
         </div>
       </div>
 
       <button
-        onClick={handleCheckout}
+        className={`w-full py-4 rounded-xl font-bold text-lg flex justify-center items-center gap-2 transition-all shadow-md
+          ${
+            items.length === 0
+              ? "bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-zinc-800"
+              : "bg-orange-500 text-white hover:bg-orange-600 hover:shadow-orange-500/30"
+          }`}
         disabled={items.length === 0}
-        className={`w-full py-3.5 rounded-lg font-bold text-lg transition-all shadow-md
-          ${items.length === 0
-            ? "bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-neutral-700"
-            : "bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-500/30 dark:bg-indigo-500 dark:hover:bg-indigo-400"
-          }`
-        }
+        onClick={handleCheckout}
       >
-        {user ? "Finalizar Compra" : "Ir a Pagar (Login requerido)"}
+        {user ? "Elegir Horario de Entrega" : "Ingresar para Pagar"}
+        {user && items.length > 0 && <FaArrowRight />}
       </button>
 
-      <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-        <span>o</span>
+      <div className="mt-4 text-center">
         <Link
+          className="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
           to="/products"
-          className="font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
         >
-          Continuar comprando
+          Volver a las góndolas
         </Link>
       </div>
-
-      <p className="mt-6 text-xs text-center text-gray-400 dark:text-neutral-500 flex justify-center items-center gap-1">
-        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-        Checkout seguro SSL
-      </p>
     </div>
   );
 };
