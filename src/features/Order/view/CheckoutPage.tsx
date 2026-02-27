@@ -1,26 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Input,
   Select,
   SelectItem,
-  Textarea,
   RadioGroup,
   Radio,
   Button,
   Divider,
   Card,
   CardBody,
+  Chip,
 } from "@heroui/react";
 import {
   FaTruckFast,
   FaMoneyBillWave,
   FaClock,
   FaMapLocationDot,
+  FaPlus,
+  FaCheck,
 } from "react-icons/fa6";
 
 import { useCreateOrder } from "../hook/useOrder";
 import { useCart } from "../../Cart/hooks/useCart";
+import { useAddresses } from "../../Auth/hooks/useAddresses";
+import { AddressCard } from "../../Auth/components/AddressCard";
+import { AddAddressModal } from "../../Auth/components/AddAddressModal";
+import { CreateAddressPayload } from "../../Auth/types/Address";
 
 const DELIVERY_SLOTS = [
   { key: "manana", label: "Mañana (09:00 - 13:00)" },
@@ -31,14 +36,18 @@ const DELIVERY_SLOTS = [
 export const CheckoutPage: React.FC = () => {
   const { items, total, fetchCart } = useCart();
   const { mutate: createOrder, isPending } = useCreateOrder();
+  const {
+    addresses,
+    loading: addressesLoading,
+    setDefaultAddress,
+    addAddress,
+  } = useAddresses();
   const navigate = useNavigate();
 
   // Estados del formulario
-  const [address, setAddress] = useState("");
-  const [neighborhood, setNeighborhood] = useState("");
-  const [deliveryNotes, setDeliveryNotes] = useState("");
   const [deliverySlot, setDeliverySlot] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("Transfer");
+  const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
 
   // Lógica de costo de envío (Simulada en frontend para visualización, el backend tiene la final)
   const shippingCost = total > 20000 ? 0 : 1500;
@@ -54,21 +63,27 @@ export const CheckoutPage: React.FC = () => {
     }
   }, [items, navigate]);
 
+  const handleAddAddress = async (data: CreateAddressPayload) => {
+    try {
+      await addAddress(data);
+      setIsAddAddressOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!address || !neighborhood || !deliverySlot) return;
+    if (!deliverySlot || !defaultAddress) return;
 
     createOrder({
-      shippingDetails: {
-        address,
-        neighborhood,
-        deliveryNotes,
-      },
       deliverySlot,
       paymentMethod: paymentMethod as "Cash" | "Card" | "Transfer",
     });
   };
+
+  const defaultAddress = addresses.find((addr) => addr.isDefault);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 py-10 px-4">
@@ -80,7 +95,7 @@ export const CheckoutPage: React.FC = () => {
               Finalizar Compra
             </h2>
             <p className="text-slate-500">
-              Completa los datos de entrega en tu barrio.
+              Selecciona tu dirección y confirma tu pedido.
             </p>
           </div>
 
@@ -90,34 +105,65 @@ export const CheckoutPage: React.FC = () => {
           >
             {/* Sección Dirección */}
             <div className="space-y-4">
-              <h3 className="flex items-center gap-2 text-xl font-semibold text-emerald-600">
-                <FaMapLocationDot /> Datos de Entrega
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  isRequired
-                  label="Barrio / Complejo"
-                  placeholder="Ej: Los Olivos"
-                  value={neighborhood}
-                  variant="bordered"
-                  onValueChange={setNeighborhood}
-                />
-                <Input
-                  isRequired
-                  label="Dirección / Lote"
-                  placeholder="Ej: Manzana F - Lote 12"
-                  value={address}
-                  variant="bordered"
-                  onValueChange={setAddress}
-                />
+              <div className="flex justify-between items-center">
+                <h3 className="flex items-center gap-2 text-xl font-semibold text-emerald-600">
+                  <FaMapLocationDot /> Mi Dirección de Entrega
+                </h3>
+                <Button
+                  color="primary"
+                  size="sm"
+                  startContent={<FaPlus />}
+                  variant="flat"
+                  onPress={() => setIsAddAddressOpen(true)}
+                >
+                  Agregar
+                </Button>
               </div>
-              <Textarea
-                label="Instrucciones para la guardia / repartidor"
-                placeholder="Dejar en portería, tocar timbre, llamar al llegar..."
-                value={deliveryNotes}
-                variant="bordered"
-                onValueChange={setDeliveryNotes}
-              />
+
+              {addresses.length === 0 ? (
+                <div className="text-center py-6 bg-slate-50 dark:bg-zinc-800/50 rounded-xl border-2 border-dashed border-slate-200 dark:border-zinc-700">
+                  <p className="text-slate-500 mb-2">
+                    No tienes direcciones guardadas.
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="solid"
+                    onPress={() => setIsAddAddressOpen(true)}
+                  >
+                    Agregar Dirección
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {addresses.map((addr) => (
+                    <div key={addr._id} className="relative">
+                      <AddressCard
+                        address={addr}
+                        isLoading={addressesLoading}
+                        onSetDefault={setDefaultAddress}
+                      />
+                      {addr.isDefault && (
+                        <div className="absolute top-2 right-2">
+                          <Chip
+                            color="success"
+                            size="sm"
+                            startContent={<FaCheck />}
+                            variant="flat"
+                          >
+                            Seleccionada
+                          </Chip>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {!defaultAddress && (
+                    <p className="text-xs text-danger font-medium mt-1">
+                      ⚠️ Debes seleccionar una dirección principal para el
+                      envío.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <Divider />
@@ -227,6 +273,12 @@ export const CheckoutPage: React.FC = () => {
           </Card>
         </div>
       </div>
+      <AddAddressModal
+        isLoading={addressesLoading}
+        isOpen={isAddAddressOpen}
+        onClose={() => setIsAddAddressOpen(false)}
+        onSubmit={handleAddAddress}
+      />
     </div>
   );
 };

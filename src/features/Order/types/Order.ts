@@ -79,7 +79,7 @@ export interface OrderApi {
 
 // Lo que enviamos para crear la orden
 export interface CreateOrderPayload {
-  shippingDetails: {
+  shippingDetails?: {
     address: string;
     neighborhood: string;
     deliveryNotes: string;

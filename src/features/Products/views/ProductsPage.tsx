@@ -128,8 +128,8 @@ export const ProductsPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Buscador central/derecha */}
-        <div className="w-full md:w-96">
+        {/* Buscador central/derecha - Oculto en mobile porque ya está en el Header */}
+        <div className="hidden md:block w-full md:w-96">
           <Input
             isClearable
             classNames={{

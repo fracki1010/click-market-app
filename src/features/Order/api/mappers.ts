@@ -33,10 +33,32 @@ export function toOrder(api: any): IOrder {
     status: api.status,
 
     shipping: {
-      address: api.shipping?.address || "",
-      neighborhood: api.shipping?.neighborhood || "",
-      deliveryNotes: api.shipping?.deliveryNotes || "",
-      deliverySlot: api.shipping?.deliverySlot || "Estándar",
+      address: (() => {
+        const val = api.shipping?.address;
+        if (typeof val === "string") return val;
+        if (typeof val === "object" && val !== null)
+          return val.address || val.barrio || "";
+        return "";
+      })(),
+      neighborhood: (() => {
+        const val = api.shipping?.neighborhood || api.shipping?.barrio;
+        if (typeof val === "string") return val;
+        if (typeof val === "object" && val !== null)
+          return val.neighborhood || val.barrio || val.address || "";
+        // Si api.shipping mismo es el objeto de dirección (caso de respaldo)
+        if (typeof api.shipping === "object" && api.shipping !== null) {
+          return api.shipping.neighborhood || api.shipping.barrio || "";
+        }
+        return "";
+      })(),
+      deliveryNotes:
+        typeof api.shipping?.deliveryNotes === "string"
+          ? api.shipping.deliveryNotes
+          : "",
+      deliverySlot:
+        typeof api.shipping?.deliverySlot === "string"
+          ? api.shipping.deliverySlot
+          : api.deliverySlot || "Estándar",
     },
 
     payment: {
