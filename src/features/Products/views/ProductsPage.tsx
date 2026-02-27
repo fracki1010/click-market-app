@@ -287,7 +287,7 @@ export const ProductsPage: React.FC = () => {
             ))}
           </div>
 
-          <div className="shrink-0 border-l border-gray-100 dark:border-neutral-800 pl-4 flex items-center gap-3">
+          <div className="hidden lg:flex shrink-0 border-l border-gray-100 dark:border-neutral-800 pl-4 items-center gap-3">
             <Select
               aria-label="Ordenar"
               className="w-36"

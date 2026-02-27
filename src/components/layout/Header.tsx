@@ -1,4 +1,5 @@
-import { FiMenu, FiSearch, FiShoppingCart, FiUser } from "react-icons/fi";
+import { FiSearch, FiShoppingCart, FiUser } from "react-icons/fi";
+// import { FiMenu } from "react-icons/fi";
 import { Link, useNavigate } from "react-router";
 import { Badge, Input, Button } from "@heroui/react";
 import { FaBagShopping } from "react-icons/fa6";
