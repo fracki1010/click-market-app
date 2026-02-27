@@ -65,11 +65,6 @@ export function useCart() {
         const localItems: ICartItem[] = JSON.parse(localCartJson);
 
         if (localItems.length > 0) {
-          console.log(
-            "🔄 Sincronizando carrito local con la nube...",
-            localItems,
-          );
-
           // Subimos cada item local al backend
           // Usamos Promise.all para hacerlo en paralelo (más rápido)
           await Promise.all(
@@ -191,8 +186,6 @@ export function useCart() {
 
     // MODO INVITADO
     if (!user) {
-      console.log("Actualizando local:", productId, quantity);
-
       const newItems = items.map((i) => {
         if (i.productId === productId) {
           return { ...i, quantity: quantity };

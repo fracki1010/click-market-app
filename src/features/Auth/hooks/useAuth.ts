@@ -49,8 +49,6 @@ export const useAuth = () => {
       //Tiempo para el loading
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      console.log(user);
-
       // Guardar en Redux + localStorage
       dispatch(loginSuccess({ user, token: access_token }));
       localStorage.setItem("token", access_token);

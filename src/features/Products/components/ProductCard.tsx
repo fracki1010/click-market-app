@@ -1,6 +1,7 @@
 import type { IProduct } from "../types/Product";
-
+import { Link } from "react-router";
 import { useState } from "react";
+// ... (rest of imports)
 import { FaCartPlus, FaStar } from "react-icons/fa6";
 import { AiFillDelete, AiFillEdit } from "react-icons/ai";
 import { Button } from "@heroui/button";
@@ -35,8 +36,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     setIsAdding(false);
   };
 
-  // Simulate a discount or check if it has one
-  const hasDiscount = product.price > 1000; // Placeholder logic
+  const hasDiscount = product.price > 1000;
   const originalPrice = product.price * 1.2;
 
   return (
@@ -45,75 +45,83 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         whileHover={{ y: -4 }}
         className="group bg-white dark:bg-neutral-800 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] overflow-hidden border border-gray-100 dark:border-neutral-700 flex flex-col h-full transition-all duration-300"
       >
-        {/* Image Section */}
-        <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-neutral-900">
-          <img
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            src={product.imageUrl}
-          />
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
-            <Chip
-              className="font-bold text-[9px] h-5 shadow-sm"
-              color="primary"
-              size="sm"
-              variant="solid"
-            >
-              NUEVO
-            </Chip>
-            {hasDiscount && (
+        <Link
+          className="flex flex-col flex-grow"
+          to={`/products/${product.id}`}
+        >
+          {/* Image Section */}
+          <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-neutral-900">
+            <img
+              alt={product.name}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              src={product.imageUrl}
+            />
+            <div className="absolute top-2 left-2 flex flex-col gap-1">
               <Chip
                 className="font-bold text-[9px] h-5 shadow-sm"
-                color="secondary"
+                color="primary"
                 size="sm"
-                variant="flat"
+                variant="solid"
               >
-                OFERTA
+                NUEVO
               </Chip>
-            )}
-          </div>
-        </div>
-
-        {/* Content Section */}
-        <div className="p-4 flex flex-col flex-grow">
-          <div className="flex-grow">
-            <h3 className="text-[13px] font-semibold text-gray-800 dark:text-gray-100 line-clamp-2 leading-snug h-9 mb-1">
-              {product.name}
-            </h3>
-
-            <div className="flex items-center gap-1.5 mb-2">
-              <div className="flex items-center text-amber-400">
-                <FaStar size={10} />
-              </div>
-              <span className="text-[10px] text-gray-400 font-bold">
-                4.9 (45)
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-0.5">
               {hasDiscount && (
-                <span className="text-[11px] text-gray-400 line-through font-medium">
-                  ${originalPrice.toLocaleString("es-AR")}
-                </span>
+                <Chip
+                  className="font-bold text-[9px] h-5 shadow-sm"
+                  color="secondary"
+                  size="sm"
+                  variant="flat"
+                >
+                  OFERTA
+                </Chip>
               )}
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-black text-gray-900 dark:text-white">
-                  ${product.price.toLocaleString("es-AR")}
+            </div>
+          </div>
+
+          {/* Content Section */}
+          <div className="p-4 flex flex-col flex-grow">
+            <div className="flex-grow">
+              <h3 className="text-[13px] font-semibold text-gray-800 dark:text-gray-100 line-clamp-2 leading-snug h-9 mb-1">
+                {product.name}
+              </h3>
+
+              <div className="flex items-center gap-1.5 mb-2">
+                <div className="flex items-center text-amber-400">
+                  <FaStar size={10} />
+                </div>
+                <span className="text-[10px] text-gray-400 font-bold">
+                  4.9 (45)
                 </span>
+              </div>
+
+              <div className="flex flex-col gap-0.5">
                 {hasDiscount && (
-                  <span className="text-[11px] font-bold text-green-500">
-                    15% OFF
+                  <span className="text-[11px] text-gray-400 line-through font-medium">
+                    ${originalPrice.toLocaleString("es-AR")}
                   </span>
                 )}
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-black text-gray-900 dark:text-white">
+                    ${product.price.toLocaleString("es-AR")}
+                  </span>
+                  {hasDiscount && (
+                    <span className="text-[11px] font-bold text-green-500">
+                      15% OFF
+                    </span>
+                  )}
+                </div>
               </div>
+
+              <p className="text-[10px] font-bold text-green-600 dark:text-green-400 mt-1">
+                Llega gratis mañana
+              </p>
             </div>
-
-            <p className="text-[10px] font-bold text-green-600 dark:text-green-400 mt-1">
-              Llega gratis mañana
-            </p>
           </div>
+        </Link>
 
-          <div className="mt-4 flex items-center gap-2">
+        {/* Action Buttons Section */}
+        <div className="p-4 pt-0">
+          <div className="flex items-center gap-2">
             <Button
               fullWidth
               className="font-black text-[12px] h-10 shadow-lg shadow-indigo-100 dark:shadow-none bg-indigo-600 hover:bg-indigo-700 text-white"

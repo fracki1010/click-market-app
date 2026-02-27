@@ -16,8 +16,6 @@ interface OrderItemRowProps {
 export const OrderItemRow: React.FC<OrderItemRowProps> = ({ item }) => {
   const totalItem = item.price * item.quantity;
 
-  console.log(item);
-
   return (
     <div className="flex items-center justify-between p-3 transition-colors hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl group">
       {/* Sección Izquierda: Imagen y Datos */}

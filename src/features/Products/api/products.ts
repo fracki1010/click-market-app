@@ -61,8 +61,6 @@ export async function getProducts(filters?: {
     },
   );
 
-  console.log(response.data);
-
   return {
     data: response.data.data.map(toProduct), // Mapeamos el array interno
     pagination: response.data.pagination, // Pasamos la info de paginación tal cual
@@ -80,7 +78,6 @@ export async function createProduct(
 ): Promise<IProduct> {
   const body = toProductApiCreate(payload);
 
-  console.log("body", body);
   const response = await apiClient.post<ProductApi>("/products", body);
 
   return toProduct(response.data);
@@ -92,8 +89,6 @@ export async function updateProduct(
 ): Promise<IProduct> {
   const body = toProductApiUpdate(payload);
   const response = await apiClient.patch<ProductApi>(`/products/${id}`, body);
-
-  console.log(response.data);
 
   return toProduct(response.data);
 }

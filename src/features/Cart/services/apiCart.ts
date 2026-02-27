@@ -15,11 +15,7 @@ export interface Cart {
 }
 
 export const getCart = async (): Promise<Cart> => {
-  console.log("getCart");
-
   const { data } = await apiClient.get(`/cart`);
-
-  console.log(data);
 
   return data;
 };
@@ -37,9 +33,6 @@ export const updateItemQuantity = async (
   productId: string,
   quantity: number,
 ) => {
-  console.log("productId", productId);
-  console.log("quantity", quantity);
-
   const { data } = await apiClient.put(`/cart`, {
     product_id: productId,
     quantity,

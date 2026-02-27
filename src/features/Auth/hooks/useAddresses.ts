@@ -7,8 +7,6 @@ export const useAddresses = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  console.log(addresses);
-
   const fetchAddresses = async () => {
     setLoading(true);
     try {
