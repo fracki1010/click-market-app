@@ -26,13 +26,13 @@ export const Header = () => {
       {/* Top row: Logo and Actions */}
       <div className="container mx-auto px-4 lg:px-6 h-16 flex items-center justify-between gap-4">
         {/* Mobile Menu Toggle (Simplified for now) */}
-        <Button
+        {/* <Button
           isIconOnly
           className="md:hidden text-gray-600 dark:text-gray-300"
           variant="light"
         >
           <FiMenu size={24} />
-        </Button>
+        </Button> */}
 
         {/* Logo */}
         <Link

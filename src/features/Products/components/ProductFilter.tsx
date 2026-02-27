@@ -1,14 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  Checkbox,
-  Slider,
-  Button,
-  Divider,
-  Skeleton,
-} from "@heroui/react";
+import { Checkbox, Slider, Button, Divider, Skeleton } from "@heroui/react";
+import { FiFilter, FiX, FiChevronRight } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { useCategories } from "../../Products/hooks/useCategory";
 import { ICategory } from "../../Products/types/Product";
@@ -29,37 +22,28 @@ interface ProductFiltersProps {
   onApply: (filters: FilterState) => void;
 }
 
-// --- Función para construir y ORDENAR el árbol (Flat List -> Tree) ---
+// --- Helper Functions ---
 function buildCategoryTree(categories: ICategory[]): ICategory[] {
   const map = new Map<string, ICategory>();
   const roots: ICategory[] = [];
 
-  // 1. Inicializar mapa con hijos vacíos
   categories.forEach((cat) => {
     map.set(cat.id, { ...cat, children: [] });
   });
 
-  // 2. Conectar padres e hijos
   categories.forEach((cat) => {
     const node = map.get(cat.id);
-
     if (node) {
-      // Si tiene padre Y el padre existe en el mapa, es un hijo
       if (cat.parent && map.has(cat.parent)) {
         map.get(cat.parent)!.children!.push(node);
       } else {
-        // Si no tiene padre o el padre no vino en la lista, es raíz
         roots.push(node);
       }
     }
   });
 
-  // 3. FUNCION RECURSIVA PARA ORDENAR ALFABÉTICAMENTE (A-Z)
   const sortNodes = (nodes: ICategory[]) => {
-    // Ordenamos el nivel actual por nombre
     nodes.sort((a, b) => a.name.localeCompare(b.name));
-
-    // Ordenamos los hijos de cada nodo
     nodes.forEach((node) => {
       if (node.children && node.children.length > 0) {
         sortNodes(node.children);
@@ -67,13 +51,11 @@ function buildCategoryTree(categories: ICategory[]): ICategory[] {
     });
   };
 
-  // Aplicar ordenamiento
   sortNodes(roots);
-
   return roots;
 }
 
-// --- Componente Recursivo de Ítem de Categoría ---
+// --- Componente de Ítem de Categoría Refinado ---
 const CategoryItem = ({
   category,
   selectedValues,
@@ -89,54 +71,50 @@ const CategoryItem = ({
   const hasChildren = category.children && category.children.length > 0;
   const isSelected = selectedValues.includes(category.name);
 
-  // Auto-expandir si un hijo está seleccionado
   useEffect(() => {
     if (hasChildren && !isOpen) {
       const childSelected = category.children!.some((c) =>
         selectedValues.includes(c.name),
       );
-
       if (childSelected) setIsOpen(true);
     }
   }, [selectedValues]);
 
   return (
-    <div className="flex flex-col select-none">
+    <div className="flex flex-col">
       <div
-        className="flex items-center gap-1 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded px-1 transition-colors"
-        style={{ marginLeft: `${level * 12}px` }} // Indentación ajustada
+        className={`group flex items-center gap-2 py-1.5 rounded-xl px-2 transition-all duration-200 ${
+          isSelected
+            ? "bg-indigo-50 dark:bg-indigo-500/10"
+            : "hover:bg-gray-50 dark:hover:bg-neutral-800/50"
+        }`}
+        style={{ marginLeft: `${level * 8}px` }}
       >
-        {/* Botón de expandir (solo si tiene hijos) */}
         {hasChildren ? (
           <button
-            className="p-1 text-gray-500 hover:text-primary focus:outline-none"
+            className={`p-1 rounded-md transition-colors ${
+              isOpen
+                ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-500/20"
+                : "text-gray-400 group-hover:text-gray-600"
+            }`}
             onClick={(e) => {
               e.preventDefault();
               setIsOpen(!isOpen);
             }}
           >
-            <svg
-              className={`w-3 h-3 transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M9 5l7 7-7 7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-              />
-            </svg>
+            <FiChevronRight
+              className={`w-3.5 h-3.5 transition-transform duration-300 ${isOpen ? "rotate-90 text-indigo-500" : ""}`}
+            />
           </button>
         ) : (
-          // Espaciador para alinear items sin hijos
-          <div className="w-5 h-4" />
+          <div className="w-5.5 h-4" />
         )}
 
-        {/* Checkbox de selección */}
         <Checkbox
-          classNames={{ label: "text-sm text-gray-700 dark:text-gray-200" }}
+          classNames={{
+            label: `text-sm font-medium transition-colors ${isSelected ? "text-indigo-600 dark:text-indigo-400" : "text-gray-600 dark:text-neutral-400"}`,
+            wrapper: "after:bg-indigo-600 before:border-indigo-600",
+          }}
           isSelected={isSelected}
           size="sm"
           onValueChange={(checked) => onChange(category.name, checked)}
@@ -145,181 +123,201 @@ const CategoryItem = ({
         </Checkbox>
       </div>
 
-      {/* Renderizado recursivo de hijos */}
-      {hasChildren && isOpen && (
-        <div className="flex flex-col border-l border-gray-200 dark:border-gray-700 ml-4">
-          {category.children!.map((child) => (
-            <CategoryItem
-              key={child.id}
-              category={child}
-              level={level + 1}
-              selectedValues={selectedValues}
-              onChange={onChange}
-            />
-          ))}
-        </div>
-      )}
+      <AnimatePresence>
+        {hasChildren && isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden border-l-2 border-gray-100 dark:border-neutral-800 ml-4.5 mt-1 pb-1"
+          >
+            {category.children!.map((child) => (
+              <CategoryItem
+                key={child.id}
+                category={child}
+                level={level}
+                selectedValues={selectedValues}
+                onChange={onChange}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
-// --- Componente Principal ---
 export const ProductFilters: React.FC<ProductFiltersProps> = ({
   currentFilters,
   onApply,
 }) => {
   const { data: categories = [], isLoading } = useCategories();
-
-  console.log("categories", categories);
-
-  // Estado Local
   const [localFilters, setLocalFilters] = useState<FilterState>(currentFilters);
 
-  // Sincronizar estado local si cambian los props
   useEffect(() => {
     setLocalFilters(currentFilters);
   }, [currentFilters]);
 
-  // Construir el árbol usando useMemo
   const categoryTree = useMemo(
     () => buildCategoryTree(categories),
     [categories],
   );
 
-  // Manejar cambio de checkbox (Nombre de la categoría)
   const handleCategoryToggle = (name: string, checked: boolean) => {
     setLocalFilters((prev) => {
       const currentCats = prev.categories || [];
-      let newCats;
-
-      if (checked) {
-        newCats = [...currentCats, name];
-      } else {
-        newCats = currentCats.filter((c) => c !== name);
-      }
-
+      const newCats = checked
+        ? [...currentCats, name]
+        : currentCats.filter((c) => c !== name);
       return { ...prev, categories: newCats };
     });
   };
 
-  const handlePriceChange = (value: number | number[]) => {
-    if (Array.isArray(value)) {
-      setLocalFilters((prev) => ({
-        ...prev,
-        price_min: value[0],
-        price_max: value[1],
-      }));
-    }
-  };
-
-  const handleApplyClick = () => {
-    onApply(localFilters);
-  };
-
-  const handleClearClick = () => {
+  const handleClear = () => {
     const cleared = {
       categories: [],
       price_min: 0,
       price_max: 100000,
       sort: localFilters.sort,
-      limit: localFilters.limit,
+      page: 1,
     };
-
     setLocalFilters(cleared);
     onApply(cleared);
   };
 
+  const activeCount =
+    (localFilters.categories?.length || 0) +
+    (localFilters.price_min && localFilters.price_min > 0 ? 1 : 0) +
+    (localFilters.price_max && localFilters.price_max < 100000 ? 1 : 0);
+
   return (
-    <Card className="h-fit sticky top-24 shadow-sm border border-gray-100 dark:border-gray-800 w-full">
-      <CardBody className="gap-6 p-5">
-        {/* Sección Categorías */}
-        <div>
-          <div className="flex justify-between items-center mb-3">
-            <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100 uppercase">
-              Categorías
-            </h4>
-            <span className="text-xs text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">
-              {categories.length}
-            </span>
+    <div className="flex flex-col gap-6 sticky top-24">
+      {/* Header con indicador de activos */}
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <div className="p-2 bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 rounded-xl shadow-sm text-indigo-500">
+            <FiFilter size={18} />
           </div>
+          <div>
+            <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-tight">
+              Filtros
+            </h3>
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+              Refina tu búsqueda
+            </p>
+          </div>
+        </div>
+        {activeCount > 0 && (
+          <Button
+            variant="flat"
+            color="danger"
+            size="sm"
+            radius="full"
+            className="h-7 px-3 min-w-unit-0 font-bold text-[10px]"
+            onClick={handleClear}
+            startContent={<FiX size={12} />}
+          >
+            Limpiar ({activeCount})
+          </Button>
+        )}
+      </div>
+
+      <div className="bg-white dark:bg-neutral-900 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none border border-gray-50 dark:border-neutral-800/50 space-y-8">
+        {/* Sección Categorías */}
+        <section>
+          <h4 className="text-[11px] font-black text-gray-400 dark:text-neutral-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+            Categorías
+            <span className="w-1 h-1 bg-indigo-500 rounded-full"></span>
+          </h4>
 
           {isLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="rounded-lg h-5 w-3/4" />
-              <Skeleton className="rounded-lg h-5 w-1/2" />
-              <Skeleton className="rounded-lg h-5 w-2/3" />
+            <div className="space-y-3 px-2">
+              <Skeleton className="rounded-xl h-8 w-full" />
+              <Skeleton className="rounded-xl h-8 w-3/4" />
+              <Skeleton className="rounded-xl h-8 w-5/6" />
             </div>
           ) : (
-            // AUMENTÉ EL MAX-HEIGHT A 60vh PARA QUE ENTREN MÁS CATEGORÍAS
-            <div className="max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
-              {categoryTree.length > 0 ? (
-                categoryTree.map((rootCat) => (
-                  <CategoryItem
-                    key={rootCat.id}
-                    category={rootCat}
-                    selectedValues={localFilters.categories || []}
-                    onChange={handleCategoryToggle}
-                  />
-                ))
-              ) : (
-                <p className="text-xs text-gray-400 italic text-center py-4">
-                  No se encontraron categorías.
-                </p>
-              )}
+            <div className="max-h-[50vh] overflow-y-auto pr-1 custom-scrollbar space-y-1">
+              {categoryTree.map((rootCat) => (
+                <CategoryItem
+                  key={rootCat.id}
+                  category={rootCat}
+                  selectedValues={localFilters.categories || []}
+                  onChange={handleCategoryToggle}
+                />
+              ))}
             </div>
           )}
-        </div>
+        </section>
 
-        <Divider />
+        <Divider className="opacity-50" />
 
         {/* Sección Precio */}
-        <div>
-          <h4 className="text-sm font-bold mb-3 text-gray-800 dark:text-gray-100 uppercase">
-            Rango de Precio
-          </h4>
-          <Slider
-            aria-label="Rango de precios"
-            className="max-w-md"
-            color="primary"
-            maxValue={100000} // Valor más realista
-            minValue={0}
-            size="sm"
-            step={500}
-            value={[
-              localFilters.price_min || 0,
-              localFilters.price_max || 100000,
-            ]}
-            onChange={handlePriceChange}
-          />
-          <div className="flex justify-between text-xs text-gray-500 mt-2 font-medium">
-            <span>${(localFilters.price_min || 0).toLocaleString()}</span>
-            <span>${(localFilters.price_max || 100000).toLocaleString()}+</span>
+        <section>
+          <div className="flex justify-between items-center mb-6">
+            <h4 className="text-[11px] font-black text-gray-400 dark:text-neutral-500 uppercase tracking-widest flex items-center gap-2">
+              Rango de Precio
+              <span className="w-1 h-1 bg-indigo-500 rounded-full"></span>
+            </h4>
           </div>
-        </div>
-      </CardBody>
 
-      <Divider />
+          <div className="px-2">
+            <Slider
+              aria-label="Precio"
+              color="primary"
+              size="sm"
+              step={500}
+              minValue={0}
+              maxValue={100000}
+              value={[
+                localFilters.price_min || 0,
+                localFilters.price_max || 100000,
+              ]}
+              classNames={{
+                track: "bg-gray-100 dark:bg-neutral-800 h-1.5",
+                filler: "bg-indigo-500",
+                thumb:
+                  "bg-white border-2 border-indigo-500 shadow-md w-4 h-4 after:bg-indigo-500",
+              }}
+              onChange={(val) =>
+                Array.isArray(val) &&
+                setLocalFilters((p) => ({
+                  ...p,
+                  price_min: val[0],
+                  price_max: val[1],
+                }))
+              }
+            />
 
-      <CardFooter className="p-4 gap-3 bg-gray-50 dark:bg-gray-900/50">
+            <div className="flex justify-between mt-4">
+              <div className="bg-gray-50 dark:bg-neutral-800/50 px-3 py-1.5 rounded-xl border border-gray-100 dark:border-neutral-800">
+                <p className="text-[9px] text-gray-400 font-bold uppercase block">
+                  Mín
+                </p>
+                <span className="text-xs font-black text-gray-700 dark:text-neutral-200">
+                  ${(localFilters.price_min || 0).toLocaleString()}
+                </span>
+              </div>
+              <div className="bg-gray-50 dark:bg-neutral-800/50 px-3 py-1.5 rounded-xl border border-gray-100 dark:border-neutral-800 text-right">
+                <p className="text-[9px] text-gray-400 font-bold uppercase block">
+                  Máx
+                </p>
+                <span className="text-xs font-black text-gray-700 dark:text-neutral-200">
+                  ${(localFilters.price_max || 100000).toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <Button
           fullWidth
-          color="danger"
-          size="sm"
-          variant="light"
-          onPress={handleClearClick}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest h-12 shadow-xl shadow-indigo-500/20 rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+          onPress={() => onApply(localFilters)}
         >
-          Limpiar
+          Aplicar Cambios
         </Button>
-        <Button
-          fullWidth
-          className="font-semibold shadow-md shadow-primary/20"
-          color="primary"
-          size="sm"
-          onPress={handleApplyClick}
-        >
-          Aplicar Filtros
-        </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };
