@@ -1,13 +1,16 @@
 import { useState } from "react";
-import { Card, CardBody, Avatar, Button, Input, Chip } from "@heroui/react";
+import { Card, CardBody, Avatar, Button, Chip, Divider } from "@heroui/react";
 import {
   FaUserPen,
   FaArrowRightFromBracket,
   FaBagShopping,
-  FaEnvelope,
   FaUserShield,
   FaPlus,
   FaMapLocationDot,
+  FaBoxesStacked,
+  FaTableCells,
+  FaGear,
+  FaChevronRight,
 } from "react-icons/fa6";
 import { Link } from "react-router";
 
@@ -30,6 +33,7 @@ export const ProfilePage = () => {
 
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
+  const [showAddresses, setShowAddresses] = useState(false);
 
   const handleEditSubmit = async (data: any) => {
     try {
@@ -51,217 +55,210 @@ export const ProfilePage = () => {
 
   if (!user) return null;
 
-  const isAdmin = user.role === "admin";
+  const isAdmin = user.role === "admin" || user.role === "ADMIN";
+
+  const DashItem = ({
+    icon: Icon,
+    title,
+    subtitle,
+    to,
+    onPress,
+    color = "primary",
+  }: any) => {
+    const content = (
+      <CardBody className="flex flex-row items-center gap-4 p-4">
+        <div className={`p-3 rounded-2xl bg-${color}/10 text-${color}`}>
+          <Icon size={20} />
+        </div>
+        <div className="flex-1">
+          <p className="font-bold text-gray-900 dark:text-white leading-tight">
+            {title}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            {subtitle}
+          </p>
+        </div>
+        <FaChevronRight
+          className="text-gray-300 dark:text-gray-600"
+          size={14}
+        />
+      </CardBody>
+    );
+
+    if (to) {
+      return (
+        <Card
+          as={Link}
+          isPressable
+          className="border-none shadow-sm hover:shadow-md transition-all bg-white dark:bg-neutral-800"
+          to={to}
+        >
+          {content}
+        </Card>
+      );
+    }
+
+    return (
+      <Card
+        isPressable
+        className="border-none shadow-sm hover:shadow-md transition-all bg-white dark:bg-neutral-800"
+        onPress={onPress}
+      >
+        {content}
+      </Card>
+    );
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
-      {/* 1. Tarjeta Principal de Perfil */}
-      <Card className="mb-6 overflow-visible border-none bg-white dark:bg-neutral-900 shadow-xl shadow-indigo-500/10">
-        {/* Banner Decorativo */}
-        <div className="h-40 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-t-xl relative">
-          {/* Avatar Flotante */}
-          <div className="absolute -bottom-12 left-8 p-1 bg-white dark:bg-neutral-900 rounded-full">
-            <Avatar
-              isBordered
-              className="w-24 h-24 text-2xl"
-              color={isAdmin ? "secondary" : "primary"}
-              name={user.name}
-              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "")}&background=random`}
+    <div className="container mx-auto px-4 py-6 max-w-2xl pb-24 md:pb-12">
+      {/* 1. Header del Perfil */}
+      <div className="flex flex-col items-center mb-8">
+        <div className="relative mb-4">
+          <Avatar
+            isBordered
+            className="w-24 h-24 text-2xl"
+            color={isAdmin ? "secondary" : "primary"}
+            name={user.name}
+            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "")}&background=random`}
+          />
+          <Button
+            isIconOnly
+            className="absolute -bottom-1 -right-1 shadow-lg bg-white dark:bg-neutral-700"
+            radius="full"
+            size="sm"
+            variant="flat"
+            onPress={() => setIsEditOpen(true)}
+          >
+            <FaUserPen className="text-primary" size={14} />
+          </Button>
+        </div>
+        <h1 className="text-2xl font-black text-gray-900 dark:text-white text-center">
+          {user.name}
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-2">
+          {user.email}
+        </p>
+        {isAdmin && (
+          <Chip
+            color="secondary"
+            size="sm"
+            startContent={<FaUserShield />}
+            variant="flat"
+          >
+            Administrador
+          </Chip>
+        )}
+      </div>
+
+      <div className="space-y-6">
+        {/* Sección: Mi Actividad */}
+        <section>
+          <h2 className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest px-1 mb-3">
+            Mi Actividad
+          </h2>
+          <div className="grid gap-3">
+            <DashItem
+              icon={FaBagShopping}
+              subtitle="Rastrea y gestiona tus pedidos"
+              title="Mis Compras"
+              to="/my-orders"
             />
-          </div>
-        </div>
-
-        <CardBody className="pt-16 pb-8 px-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                {user.name}
-                {isAdmin && (
-                  <Chip
-                    color="secondary"
-                    size="sm"
-                    startContent={<FaUserShield />}
-                    variant="flat"
-                  >
-                    Administrador
-                  </Chip>
-                )}
-              </h1>
-              <p className="text-gray-500 dark:text-gray-400">
-                @{user.username}
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              <Button
-                color="danger"
-                startContent={<FaArrowRightFromBracket />}
-                variant="flat"
-                onPress={logoutUser}
-              >
-                Cerrar Sesión
-              </Button>
-              <Button
-                color="primary"
-                startContent={<FaUserPen />}
-                variant="solid"
-                onPress={() => setIsEditOpen(true)}
-              >
-                Editar Perfil
-              </Button>
-            </div>
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* 2. Grid de Detalles y Accesos */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Columna Izquierda: Información Personal y Direcciones */}
-        <div className="md:col-span-2 space-y-6">
-          {/* Información Personal */}
-          <Card className="p-4 border border-divider">
-            <h3 className="text-lg font-bold mb-4 px-2 flex items-center gap-2">
-              <FaEnvelope className="text-primary" />
-              Información Personal
-            </h3>
-            <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                isReadOnly
-                defaultValue={user.name}
-                label="Nombre Completo"
-                labelPlacement="outside"
-                variant="bordered"
-              />
-              <Input
-                isReadOnly
-                defaultValue={user.username}
-                label="Nombre de Usuario"
-                labelPlacement="outside"
-                startContent={
-                  <span className="text-default-400 text-small">@</span>
-                }
-                variant="bordered"
-              />
-              <Input
-                isReadOnly
-                className="md:col-span-2"
-                defaultValue={user.email}
-                label="Correo Electrónico"
-                labelPlacement="outside"
-                startContent={<FaEnvelope className="text-default-400" />}
-                variant="bordered"
-              />
-            </CardBody>
-          </Card>
-
-          {/* Direcciones */}
-          <Card className="p-4 border border-divider">
-            <div className="flex justify-between items-center mb-4 px-2">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <FaMapLocationDot className="text-primary" />
-                Mis Direcciones
-              </h3>
-              <Button
-                color="primary"
-                size="sm"
-                startContent={<FaPlus />}
-                variant="flat"
-                onPress={() => setIsAddAddressOpen(true)}
-              >
-                Agregar
-              </Button>
-            </div>
-            <CardBody className="gap-4">
-              {addresses.length === 0 ? (
-                <div className="text-center py-8 bg-default-50 rounded-xl border-2 border-dashed border-default-200">
-                  <p className="text-default-500">
-                    No tienes direcciones guardadas.
-                  </p>
-                  <Button
-                    className="mt-2"
-                    size="sm"
-                    variant="light"
-                    onPress={() => setIsAddAddressOpen(true)}
-                  >
-                    Agregar mi primera dirección
-                  </Button>
-                </div>
-              ) : (
-                <div className="grid gap-3">
-                  {addresses.map((addr) => (
-                    <AddressCard
-                      key={addr._id}
-                      address={addr}
-                      isLoading={addressesLoading}
-                      onDelete={deleteAddress}
-                      onSetDefault={setDefaultAddress}
-                    />
-                  ))}
-                </div>
-              )}
-            </CardBody>
-          </Card>
-        </div>
-
-        {/* Columna Derecha: Accesos Rápidos */}
-        <div className="space-y-6">
-          <Card className="p-4 border border-divider">
-            <h3 className="text-lg font-bold mb-4 px-2">Accesos Rápidos</h3>
-            <CardBody className="gap-4">
-              <Button
-                as={Link}
-                className="w-full justify-start h-14"
-                color="primary"
-                startContent={
-                  <div className="p-2 bg-primary/20 rounded-full">
-                    <FaBagShopping />
-                  </div>
-                }
-                to="/my-orders"
-                variant="flat"
-              >
-                <div className="flex flex-col items-start ml-2">
-                  <span className="font-semibold">Mis Órdenes</span>
-                  <span className="text-xs text-default-500">
-                    Ver historial de compras
-                  </span>
-                </div>
-              </Button>
-
-              {isAdmin && (
+            <DashItem
+              color="warning"
+              icon={FaMapLocationDot}
+              subtitle="Gestiona tus puntos de entrega"
+              title="Mis Direcciones"
+              onPress={() => setShowAddresses(!showAddresses)}
+            />
+            {showAddresses && (
+              <div className="mt-2 space-y-3 pl-4 border-l-2 border-warning-100 dark:border-warning-900/30">
+                {addresses.map((addr) => (
+                  <AddressCard
+                    key={addr._id}
+                    address={addr}
+                    isLoading={addressesLoading}
+                    onDelete={deleteAddress}
+                    onSetDefault={setDefaultAddress}
+                  />
+                ))}
                 <Button
-                  as={Link}
-                  className="w-full justify-start h-14"
-                  color="secondary"
-                  startContent={
-                    <div className="p-2 bg-secondary/20 rounded-full">
-                      <FaUserShield />
-                    </div>
-                  }
-                  to="/admin/dashboard"
+                  className="w-full font-bold"
+                  color="warning"
+                  size="sm"
+                  startContent={<FaPlus />}
                   variant="flat"
+                  onPress={() => setIsAddAddressOpen(true)}
                 >
-                  <div className="flex flex-col items-start ml-2">
-                    <span className="font-semibold">Panel Admin</span>
-                    <span className="text-xs text-default-500">
-                      Gestionar tienda
-                    </span>
-                  </div>
+                  Nueva Dirección
                 </Button>
-              )}
-            </CardBody>
-          </Card>
+              </div>
+            )}
+          </div>
+        </section>
 
-          <Card className="p-4 bg-primary/5 border border-primary/10">
-            <CardBody>
-              <h4 className="font-bold text-primary mb-1">Dato Curioso</h4>
-              <p className="text-xs text-default-600">
-                Tener tus direcciones actualizadas nos ayuda a entregarte tus
-                pedidos mucho más rápido.
-              </p>
-            </CardBody>
-          </Card>
-        </div>
+        {/* Sección: Administración (Solo si es Admin) */}
+        {isAdmin && (
+          <section>
+            <h2 className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest px-1 mb-3">
+              Administración
+            </h2>
+            <div className="grid gap-3">
+              <DashItem
+                color="secondary"
+                icon={FaTableCells}
+                subtitle="Métricas y estadísticas de venta"
+                title="Dashboard Admin"
+                to="/admin/dashboard"
+              />
+              <DashItem
+                color="secondary"
+                icon={FaBoxesStacked}
+                subtitle="Gestionar stock y productos"
+                title="Inventario"
+                to="/admin/inventory"
+              />
+              <DashItem
+                color="secondary"
+                icon={FaBoxesStacked}
+                subtitle="Ver y procesar pedidos"
+                title="Ordenes Globales"
+                to="/admin/orders"
+              />
+              <DashItem
+                color="secondary"
+                icon={FaGear}
+                subtitle="Configuración del sistema"
+                title="Ajustes de Tienda"
+                to="/settings"
+              />
+            </div>
+          </section>
+        )}
+
+        {/* Sección: Cuenta y Soporte */}
+        <section>
+          <h2 className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest px-1 mb-3">
+            Cuenta
+          </h2>
+          <div className="grid gap-3">
+            <DashItem
+              icon={FaUserPen}
+              subtitle="Cambia tu nombre, email o contraseña"
+              title="Editar Perfil"
+              onPress={() => setIsEditOpen(true)}
+            />
+            <Divider className="my-2 bg-transparent" />
+            <Button
+              className="w-full h-14 font-bold text-danger bg-danger/10 hover:bg-danger/20"
+              radius="full"
+              startContent={<FaArrowRightFromBracket size={20} />}
+              variant="flat"
+              onPress={logoutUser}
+            >
+              Cerrar Sesión
+            </Button>
+          </div>
+        </section>
       </div>
 
       <EditProfileModal
