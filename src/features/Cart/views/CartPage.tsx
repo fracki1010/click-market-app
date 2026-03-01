@@ -98,8 +98,8 @@ export const CartPage: React.FC = () => {
                   ¡Tu canasta está vacía!
                 </h3>
                 <p className="text-slate-500 dark:text-zinc-400 text-lg mb-8 max-w-sm mx-auto leading-relaxed">
-                  Descubrí los mejores productos frescos y ofertas imperdibles
-                  que tenemos para vos.
+                  Descubrí los mejores productos y ofertas imperdibles que
+                  tenemos para vos.
                 </p>
 
                 <Button

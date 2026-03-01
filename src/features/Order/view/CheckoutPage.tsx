@@ -103,7 +103,7 @@ export const CheckoutPage: React.FC = () => {
               <FaBagShopping className="text-emerald-500" /> Finalizar Pedido
             </h1>
             <p className="text-slate-500 dark:text-zinc-400 mt-2 font-medium">
-              Estas a un paso de recibir tus productos frescos.
+              Estas a un paso de recibir tus productos favoritos.
             </p>
           </motion.div>
         </div>

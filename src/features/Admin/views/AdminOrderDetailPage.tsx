@@ -24,12 +24,15 @@ import {
   FaTruck,
   FaUser,
   FaChevronDown,
+  FaPhone,
+  FaFilePdf,
 } from "react-icons/fa6";
 import { motion } from "framer-motion";
 
 import {
   useAdminOrderById,
   useUpdateAdminOrderStatus,
+  useOrderInvoice,
 } from "../hook/useAdminOrders";
 import { IOrderItem } from "@/features/Order/types/Order";
 import { formatPrice } from "@/utils/currencyFormat";
@@ -123,8 +126,11 @@ export const AdminOrderDetailPage: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: order, isLoading, isError } = useAdminOrderById(id ?? "");
+
   const { mutate: updateStatus, isPending: isUpdating } =
     useUpdateAdminOrderStatus();
+  const { mutate: downloadInvoice, isPending: isDownloading } =
+    useOrderInvoice();
 
   const handleStatusChange = (newStatus: string) => {
     if (!order) return;
@@ -212,6 +218,18 @@ export const AdminOrderDetailPage: React.FC = () => {
               {statusConfig.label}
             </Chip>
           </div>
+
+          <div className="mt-6">
+            <Button
+              className="bg-emerald-600 text-white font-black w-full sm:w-auto"
+              radius="lg"
+              startContent={<FaFilePdf />}
+              isLoading={isDownloading}
+              onPress={() => downloadInvoice(order.id)}
+            >
+              Descargar Factura PDF
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -237,6 +255,26 @@ export const AdminOrderDetailPage: React.FC = () => {
               <p className="font-bold text-slate-800 dark:text-white">
                 {order.customerName || "Cliente"}
               </p>
+              {order.customerPhone && (
+                <div className="flex items-center gap-2 mt-0.5">
+                  <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">
+                    {order.customerPhone}
+                  </p>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="flat"
+                    color="primary"
+                    radius="full"
+                    className="h-6 w-6 min-w-0"
+                    onPress={() =>
+                      (window.location.href = `tel:${order.customerPhone}`)
+                    }
+                  >
+                    <FaPhone size={10} />
+                  </Button>
+                </div>
+              )}
               <p className="text-xs text-slate-400 mt-0.5">
                 ID: {order.userId}
               </p>

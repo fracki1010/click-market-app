@@ -23,12 +23,15 @@ export function toOrder(api: any): IOrder {
   const isUserObject = typeof api.user === "object" && api.user !== null;
   const userId = isUserObject ? api.user._id : api.user;
   const customerName = isUserObject ? api.user.name : "Cliente Desconocido";
+  const customerPhone = isUserObject ? api.user.phone : api.userPhone || "";
 
   return {
-    id: api._id,
-    orderNumber: api.orderNumber || api._id.slice(-6).toUpperCase(),
+    id: api._id || api.id,
+    orderNumber:
+      api.orderNumber || (api._id || api.id || "").slice(-6).toUpperCase(),
     userId: userId,
     customerName: customerName,
+    customerPhone: customerPhone,
     orderDate: api.createdAt,
     status: api.status,
 

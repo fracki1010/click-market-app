@@ -14,10 +14,12 @@ import {
   FaBagShopping,
   FaTruck,
   FaCheck,
+  FaFilePdf,
 } from "react-icons/fa6";
 import { motion } from "framer-motion";
 
 import { useOrderById, useUpdateOrderStatus } from "../hook/useOrder";
+import { useOrderInvoice } from "../../Admin/hook/useAdminOrders";
 import { IOrderItem } from "../types/Order";
 import { formatPrice } from "@/utils/currencyFormat";
 
@@ -197,6 +199,8 @@ export const OrderDetailPage: React.FC = () => {
   const { data: order, isLoading, isError } = useOrderById(id ?? "");
   const { mutate: updateStatus, isPending: isUpdating } =
     useUpdateOrderStatus();
+  const { mutate: downloadInvoice, isPending: isDownloading } =
+    useOrderInvoice();
 
   // ── Loading ──
   if (isLoading) {
@@ -279,6 +283,18 @@ export const OrderDetailPage: React.FC = () => {
             >
               {statusConfig.label}
             </Chip>
+          </div>
+
+          <div className="mt-6">
+            <Button
+              className="bg-emerald-600 text-white font-black w-full sm:w-auto"
+              radius="lg"
+              startContent={<FaFilePdf />}
+              isLoading={isDownloading}
+              onPress={() => downloadInvoice(order.id)}
+            >
+              Descargar Factura PDF
+            </Button>
           </div>
         </div>
       </div>

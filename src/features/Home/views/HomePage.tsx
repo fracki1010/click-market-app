@@ -6,11 +6,15 @@ import {
   FaTruckFast,
   FaTags,
   FaBoxOpen,
-  FaSnowflake,
+  FaSprayCan,
   FaBolt,
   FaStar,
 } from "react-icons/fa6";
 import { motion } from "framer-motion";
+import { useShippingSettings } from "@/features/Settings/hooks/useShippingSettings";
+import { useTopSellers } from "@/features/Products/hooks/useTopSellers";
+import { formatPrice } from "@/utils/currencyFormat";
+import { Skeleton } from "@heroui/react";
 
 interface QuickLink {
   id: number;
@@ -37,10 +41,10 @@ const quickLinks: QuickLink[] = [
   },
   {
     id: 3,
-    label: "Frescos",
-    icon: <FaSnowflake />,
-    color: "bg-cyan-500",
-    link: "/products?categories=CARNES Y CONGELADOS",
+    label: "Limpieza",
+    icon: <FaSprayCan />,
+    color: "bg-teal-500",
+    link: "/products?categories=LIMPIEZA",
   },
   {
     id: 4,
@@ -69,15 +73,18 @@ const banners = [
   },
   {
     id: 2,
-    title: "Frutas y Verduras",
-    subtitle: "Frescura garantizada de la huerta",
+    title: "Limpieza Total",
+    subtitle: "Todo para que tu casa brille",
     image:
-      "https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&q=80&w=1200",
-    color: "from-green-600 to-emerald-700",
+      "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=1200",
+    color: "from-teal-600 to-emerald-700",
   },
 ];
 
 export const HomePage: React.FC = () => {
+  const { thresholdConfig } = useShippingSettings();
+  const { data: topSellers, isLoading } = useTopSellers();
+
   return (
     <div className="flex flex-col gap-6 pb-10">
       {/* Banner Section - Slider-like experience */}
@@ -153,7 +160,7 @@ export const HomePage: React.FC = () => {
                 Envío Gratis
               </h4>
               <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">
-                En tu primera compra superior a $15.000
+                En tu primera compra superior a ${formatPrice(thresholdConfig)}
               </p>
             </div>
             <Button
@@ -209,17 +216,17 @@ export const HomePage: React.FC = () => {
               isPressable
               as={Link}
               className="h-[88px] border-none relative overflow-hidden group shadow-md"
-              to="/products?categories=CARNES Y CONGELADOS"
+              to="/products?categories=LIMPIEZA"
             >
               <img
-                alt="Carnes"
+                alt="Limpieza"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                src="https://images.unsplash.com/photo-1607623198457-7acd076af7ed?auto=format&fit=crop&q=80&w=400"
+                src="https://images.unsplash.com/photo-1528740561666-dc2479dc08ab?auto=format&fit=crop&q=80&w=400"
               />
               <div className="absolute inset-0 bg-black/40" />
               <div className="absolute inset-0 p-3 flex flex-col justify-end">
                 <h4 className="text-white font-bold text-sm leading-tight">
-                  Carnicería
+                  Limpieza
                 </h4>
               </div>
             </Card>
@@ -259,48 +266,67 @@ export const HomePage: React.FC = () => {
         </div>
 
         <div className="flex overflow-x-auto no-scrollbar gap-4 pb-4">
-          {/* Simple featured cards */}
-          {[1, 2, 3, 4].map((i) => (
-            <Card
-              key={i}
-              isPressable
-              className="min-w-[170px] border-none shadow-lg hover:shadow-xl transition-shadow bg-white dark:bg-neutral-800"
-            >
-              <CardHeader className="p-0">
-                <div className="relative w-full h-32">
-                  <img
-                    alt="Producto"
-                    className="w-full h-full object-cover"
-                    src={`https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=200&sig=${i}`}
-                  />
-                  <div className="absolute top-2 left-2">
-                    <Chip
-                      className="font-bold text-[9px] h-5"
-                      color="success"
-                      size="sm"
-                      variant="solid"
-                    >
-                      FULL
-                    </Chip>
+          {isLoading ? (
+            // Skeletons while loading
+            [1, 2, 3, 4].map((i) => (
+              <div key={i} className="min-w-[170px] space-y-3">
+                <Skeleton className="h-32 w-full rounded-2xl" />
+                <Skeleton className="h-4 w-2/3 rounded-lg" />
+                <Skeleton className="h-3 w-full rounded-lg" />
+              </div>
+            ))
+          ) : topSellers && topSellers.length > 0 ? (
+            topSellers.map((product) => (
+              <Card
+                key={product._id}
+                isPressable
+                as={Link}
+                className="min-w-[170px] max-w-[170px] border-none shadow-lg hover:shadow-xl transition-shadow bg-white dark:bg-neutral-800"
+                to={`/products?search=${product.name}`}
+              >
+                <CardHeader className="p-0">
+                  <div className="relative w-full h-32">
+                    {product.image ? (
+                      <img
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        src={product.image}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center">
+                        <FaBoxOpen className="text-slate-300 text-3xl" />
+                      </div>
+                    )}
+                    <div className="absolute top-2 left-2">
+                      <Chip
+                        className="font-bold text-[9px] h-5"
+                        color="success"
+                        size="sm"
+                        variant="solid"
+                      >
+                        TOP
+                      </Chip>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardBody className="p-3">
-                <p className="text-indigo-600 dark:text-indigo-400 font-black text-base">
-                  $1.499
-                </p>
-                <h4 className="text-[12px] text-gray-700 dark:text-gray-300 font-medium line-clamp-2 mt-1 leading-tight">
-                  Nombre del Producto Destacado {i}
-                </h4>
-                <div className="flex items-center gap-1 mt-2">
-                  <FaStar className="text-amber-400" size={10} />
-                  <span className="text-[10px] text-gray-400 font-bold">
-                    4.8 (120)
-                  </span>
-                </div>
-              </CardBody>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardBody className="p-3">
+                  <p className="text-indigo-600 dark:text-indigo-400 font-black text-base">
+                    ${formatPrice(product.currentPrice)}
+                  </p>
+                  <h4 className="text-[12px] text-gray-700 dark:text-gray-300 font-bold line-clamp-2 mt-1 leading-tight uppercase">
+                    {product.name}
+                  </h4>
+                  <div className="flex items-center gap-1 mt-2">
+                    <span className="text-[10px] text-gray-400 font-bold">
+                      {product.totalSold} vendidos
+                    </span>
+                  </div>
+                </CardBody>
+              </Card>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500">Cargando ofertas...</p>
+          )}
         </div>
       </section>
 

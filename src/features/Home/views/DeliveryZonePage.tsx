@@ -125,8 +125,8 @@ export const DeliveryZonesPage: React.FC = () => {
                   Costo de Envío: $1.500
                 </h3>
                 <p className="text-slate-500">
-                  Llevamos tus compras en vehículos refrigerados para asegurar
-                  la frescura.
+                  Llevamos tus compras en vehículos adecuados para asegurar la
+                  calidad.
                   <span className="block mt-1 font-semibold text-green-600 dark:text-green-400">
                     ¡Envío GRATIS en compras superiores a $20.000!
                   </span>

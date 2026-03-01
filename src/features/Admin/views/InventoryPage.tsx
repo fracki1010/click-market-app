@@ -1,5 +1,13 @@
-import { useState } from "react";
-import { Button, Input, Card, CardBody, Chip, Avatar } from "@heroui/react";
+import { useState, useMemo, useEffect } from "react";
+import {
+  Button,
+  Input,
+  Card,
+  CardBody,
+  Chip,
+  Avatar,
+  Pagination,
+} from "@heroui/react";
 import {
   FaPlus,
   FaMagnifyingGlass,
@@ -109,7 +117,7 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
 
 // ─── Main Page ───────────────────────────────────────────────────────────────
 export const InventoryPage = () => {
-  const { data: response } = useProducts({ limit: 4000 });
+  const { data: response, isLoading } = useProducts({ limit: 4000 });
   const { data: categories = [] } = useCategories();
   const products = response?.data || [];
   const {
@@ -125,6 +133,8 @@ export const InventoryPage = () => {
   const [deletingProduct, setDeletingProduct] = useState<any | null>(null);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [filterText, setFilterText] = useState("");
+  const [mobilePage, setMobilePage] = useState(1);
+  const mobileItemsPerPage = 10;
 
   const confirmDelete = (product: any) => {
     const productToDelete = products.find((p) => p.id === product);
@@ -189,22 +199,38 @@ export const InventoryPage = () => {
     }
   };
 
-  const tableData: any[] = products.map((product) => ({
-    id: product.id,
-    name: product.name,
-    sku: product.sku || "N/A",
-    price: product.price,
-    stock: product.stock,
-    stockMin: product.stock_min,
-    category:
-      product.categories?.map((c) => c.name).join(", ") || "Sin categoría",
-    categories: product.categories,
-    imageUrl: product.imageUrl || "",
-  }));
-
-  const filteredProducts = tableData.filter((p) =>
-    p.name.toLowerCase().includes(filterText.toLowerCase()),
+  const tableData: any[] = useMemo(
+    () =>
+      products.map((product) => ({
+        id: product.id,
+        name: product.name,
+        sku: product.sku || "N/A",
+        price: product.price,
+        stock: product.stock,
+        stockMin: product.stock_min,
+        category:
+          product.categories?.map((c: any) => c.name).join(", ") ||
+          "Sin categoría",
+        categories: product.categories,
+        imageUrl: product.imageUrl || "",
+      })),
+    [products],
   );
+
+  const filteredProducts = useMemo(() => {
+    return tableData.filter((p) =>
+      p.name.toLowerCase().includes(filterText.toLowerCase()),
+    );
+  }, [tableData, filterText]);
+
+  useEffect(() => {
+    setMobilePage(1);
+  }, [filterText]);
+
+  const paginatedMobileProducts = useMemo(() => {
+    const start = (mobilePage - 1) * mobileItemsPerPage;
+    return filteredProducts.slice(start, start + mobileItemsPerPage);
+  }, [filteredProducts, mobilePage]);
 
   return (
     <div className="max-w-7xl mx-auto pb-10">
@@ -245,19 +271,38 @@ export const InventoryPage = () => {
 
       {/* ── MOBILE: Cards ── */}
       <div className="flex flex-col gap-3 md:hidden">
-        {filteredProducts.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col gap-3">
+            {[1, 2, 3].map((i) => (
+              <Card
+                key={i}
+                className="h-32 animate-pulse bg-slate-100 dark:bg-zinc-800"
+              />
+            ))}
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className="text-center text-slate-400 py-12 text-sm">
             No hay productos en inventario.
           </div>
         ) : (
-          filteredProducts.map((product) => (
-            <MobileProductCard
-              key={product.id}
-              product={product}
-              onDelete={confirmDelete}
-              onEdit={openEditModal}
-            />
-          ))
+          <>
+            {paginatedMobileProducts.map((product) => (
+              <MobileProductCard
+                key={product.id}
+                product={product}
+                onDelete={confirmDelete}
+                onEdit={openEditModal}
+              />
+            ))}
+            <div className="flex justify-center mt-4">
+              <Pagination
+                total={Math.ceil(filteredProducts.length / mobileItemsPerPage)}
+                page={mobilePage}
+                onChange={setMobilePage}
+                size="sm"
+              />
+            </div>
+          </>
         )}
       </div>
 

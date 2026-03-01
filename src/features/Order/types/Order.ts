@@ -28,6 +28,7 @@ export interface IOrder {
   orderDate: string;
   status: string;
   customerName?: string;
+  customerPhone?: string;
   // Nuevos campos de logística y pago
   shipping: IShippingDetails;
   payment: IPaymentDetails;

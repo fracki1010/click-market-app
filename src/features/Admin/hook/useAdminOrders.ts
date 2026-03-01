@@ -47,6 +47,7 @@ export const useAdminOrderById = (id: string) => {
     queryFn: async () => {
       const { data } = await apiClient.get(`/orders/${id}`);
 
+      console.log(data);
       return toOrder(data);
     },
     enabled: !!id,
@@ -70,6 +71,36 @@ export const useUpdateAdminOrderStatus = () => {
     },
     onError: () => {
       addToast("Error al actualizar el pedido", "error");
+    },
+  });
+};
+
+export const useOrderInvoice = () => {
+  const { addToast } = useToast();
+
+  return useMutation({
+    mutationFn: async (orderId: string) => {
+      const response = await apiClient.get(`/orders/${orderId}/invoice`, {
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `factura-${orderId.slice(-6).toUpperCase()}.pdf`,
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    },
+    onSuccess: () => {
+      addToast("Factura descargada correctamente", "success");
+    },
+    onError: () => {
+      addToast("Error al descargar la factura", "error");
     },
   });
 };

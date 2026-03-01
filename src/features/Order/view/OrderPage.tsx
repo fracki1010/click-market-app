@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { Accordion, AccordionItem, Chip, Button, Spinner } from "@heroui/react";
 import {
   FaBagShopping,
@@ -176,10 +176,9 @@ export const OrderPage: React.FC = () => {
               mismo!
             </p>
             <Button
-              as={Link}
+              onPress={() => navigate("/products")}
               className="bg-emerald-600 text-white font-black px-10 h-14 text-lg shadow-xl shadow-emerald-500/20"
               radius="full"
-              to="/products"
             >
               Ir al Supermercado
             </Button>
@@ -331,8 +330,7 @@ export const OrderPage: React.FC = () => {
                       {/* Actions */}
                       <div className="flex gap-3 pt-4">
                         <Button
-                          as={Link}
-                          to={`/my-orders/${order.id}`}
+                          onPress={() => navigate(`/my-orders/${order.id}`)}
                           className="flex-1 font-black"
                           color="primary"
                           radius="lg"

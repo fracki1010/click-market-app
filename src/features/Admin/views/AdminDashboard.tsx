@@ -26,18 +26,27 @@ import { formatPrice } from "@/utils/currencyFormat";
 
 import { useProducts } from "../../Products/hooks/useProducts";
 import { useAdminOrders } from "../hook/useAdminOrders";
+import {
+  useTopSellers,
+  useTopCategorySellers,
+} from "../../Products/hooks/useTopSellers";
 import { LowStockTable } from "../components/LowStockTable";
+import { Image } from "@heroui/react";
 
 const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
 export const AdminDashboard = () => {
   const { data: response, isLoading: loadingProducts } = useProducts({});
   const { data: ordersResponse, isLoading: loadingOrders } = useAdminOrders();
+  const { data: topSellers, isLoading: loadingSellers } = useTopSellers();
+  const { data: topCategories, isLoading: loadingCats } =
+    useTopCategorySellers();
   const orders = ordersResponse?.orders || [];
 
   const products = response?.data || [];
 
-  const isLoading = loadingProducts || loadingOrders;
+  const isLoading =
+    loadingProducts || loadingOrders || loadingSellers || loadingCats;
 
   const dashboardData = useMemo(() => {
     if (isLoading) return null;
@@ -58,72 +67,24 @@ export const AdminDashboard = () => {
       0,
     );
 
-    const productSalesMap: Record<string, number> = {};
+    const topProducts = topSellers
+      ? topSellers.map((p) => ({
+          name: p.name,
+          sales: p.totalSold,
+          revenue: p.revenue,
+          image: p.image,
+        }))
+      : [];
 
-    orders.forEach((order: { items: any[] }) => {
-      order.items.forEach(
-        (item: { product: { name: any }; quantity: number }) => {
-          const name = item.product.name;
-
-          productSalesMap[name] = (productSalesMap[name] || 0) + item.quantity;
-        },
-      );
-    });
-
-    const topProducts = Object.entries(productSalesMap)
-      .map(([name, sales]) => ({ name, sales }))
-      .sort((a, b) => b.sales - a.sales)
-      .slice(0, 5);
-
-    const MAIN_CATEGORIES = [
-      "ALMACEN",
-      "OFERTAS",
-      "BEBIDAS",
-      "LACTEOS/FIAMBRES",
-      "SUPLEMENTOS Y DIETÉTICA",
-      "CARNES Y CONGELADOS",
-      "SIN T.A.C.C.",
-      "PERFUMERIA",
-      "LIMPIEZA",
-      "MUNDO BEBÉ",
-      "MASCOTAS",
-      "HOGAR/BAZAR",
-      "JUGUETERÍA Y LIBRERÍA",
-    ];
-
-    const categoryMap: Record<string, number> = {};
-
-    MAIN_CATEGORIES.forEach((cat) => {
-      categoryMap[cat] = 0;
-    });
-
-    categoryMap["Otros"] = 0;
-
-    products.forEach((p) => {
-      let foundMainCategory = false;
-
-      if (p.categories && p.categories.length > 0) {
-        const matchedCategory = p.categories.find((cat) =>
-          MAIN_CATEGORIES.includes(cat.name.toUpperCase()),
-        );
-
-        if (matchedCategory) {
-          const mainCatName = matchedCategory.name.toUpperCase();
-
-          categoryMap[mainCatName] = (categoryMap[mainCatName] || 0) + 1;
-          foundMainCategory = true;
-        }
-      }
-
-      if (!foundMainCategory) {
-        categoryMap["Otros"] = (categoryMap["Otros"] || 0) + 1;
-      }
-    });
-
-    const categoryData = Object.entries(categoryMap).map(([name, value]) => ({
-      name,
-      value,
-    }));
+    const categoryData = topCategories
+      ? topCategories
+          .slice(0, 5) // Mostramos solo top 5 para el gráfico
+          .map((c) => ({
+            name: c.name.toUpperCase(),
+            value: c.revenue,
+            sales: c.totalSold,
+          }))
+      : [];
 
     return {
       totalSales,
@@ -295,47 +256,87 @@ export const AdminDashboard = () => {
         {/* TOP PRODUCTOS */}
         <Card className="shadow-sm border border-slate-100 dark:border-zinc-800">
           <CardBody className="p-4 md:p-5">
-            <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white mb-4">
-              🏆 Top Productos Vendidos
-            </h3>
-            <div className="h-[240px] md:h-[300px] w-full overflow-hidden">
-              {dashboardData.topProducts.length > 0 ? (
-                <ResponsiveContainer height="100%" width="100%">
-                  <BarChart
-                    data={dashboardData.topProducts}
-                    layout="vertical"
-                    margin={{ left: 0, right: 20, top: 4, bottom: 4 }}
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white">
+                🏆 Top Productos Vendidos
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <div className="h-[200px] w-full">
+                {dashboardData.topProducts.length > 0 ? (
+                  <ResponsiveContainer height="100%" width="100%">
+                    <BarChart
+                      data={dashboardData.topProducts}
+                      layout="vertical"
+                      margin={{ left: 0, right: 20, top: 4, bottom: 4 }}
+                    >
+                      <CartesianGrid horizontal={false} strokeDasharray="3 3" />
+                      <XAxis type="number" tick={{ fontSize: 10 }} />
+                      <YAxis dataKey="name" hide type="category" />
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: "12px",
+                          border: "none",
+                          boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                          fontSize: "12px",
+                        }}
+                        cursor={{ fill: "transparent" }}
+                      />
+                      <Bar
+                        barSize={18}
+                        dataKey="sales"
+                        fill="#6366f1"
+                        radius={[0, 4, 4, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full items-center justify-center text-slate-400 text-sm">
+                    Sin datos de ventas aún
+                  </div>
+                )}
+              </div>
+
+              {/* Listado detallado */}
+              <div className="space-y-3 mt-2">
+                {dashboardData.topProducts.slice(0, 4).map((product, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-zinc-700"
                   >
-                    <CartesianGrid horizontal={false} strokeDasharray="3 3" />
-                    <XAxis type="number" tick={{ fontSize: 10 }} />
-                    <YAxis
-                      dataKey="name"
-                      tick={{ fontSize: 10 }}
-                      type="category"
-                      width={90}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: "10px",
-                        border: "none",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                        fontSize: "12px",
-                      }}
-                      cursor={{ fill: "transparent" }}
-                    />
-                    <Bar
-                      barSize={22}
-                      dataKey="sales"
-                      fill="#6366f1"
-                      radius={[0, 4, 4, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex h-full items-center justify-center text-slate-400 text-sm">
-                  Sin datos de ventas aún
-                </div>
-              )}
+                    <div className="relative flex-shrink-0">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100 dark:bg-zinc-800 flex items-center justify-center">
+                        {product.image ? (
+                          <Image
+                            alt={product.name}
+                            className="object-cover w-full h-full"
+                            src={product.image}
+                          />
+                        ) : (
+                          <FaBoxesStacked className="text-slate-400 text-xs" />
+                        )}
+                      </div>
+                      <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-indigo-600 text-[10px] font-bold text-white flex items-center justify-center border-2 border-white dark:border-zinc-900">
+                        {i + 1}
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-slate-800 dark:text-white truncate uppercase tracking-tight">
+                        {product.name}
+                      </p>
+                      <p className="text-[10px] text-slate-500 font-medium">
+                        {product.sales} unidades vendidas
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-black text-emerald-600 dark:text-emerald-400">
+                        ${formatPrice(product.revenue)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </CardBody>
         </Card>
@@ -367,14 +368,47 @@ export const AdminDashboard = () => {
                     ))}
                   </Pie>
                   <Tooltip
+                    formatter={(value: any) => [
+                      `$${formatPrice(value)}`,
+                      "Ventas",
+                    ]}
                     contentStyle={{
-                      borderRadius: "10px",
+                      borderRadius: "12px",
                       border: "none",
-                      fontSize: "11px",
+                      boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                      fontSize: "12px",
                     }}
                   />
                 </PieChart>
               </ResponsiveContainer>
+            </div>
+
+            {/* Listado de Categorías */}
+            <div className="space-y-3 mt-4">
+              {dashboardData.categoryData.map((category, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between text-xs"
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: COLORS[i % COLORS.length] }}
+                    />
+                    <span className="font-bold text-slate-700 dark:text-slate-300 uppercase truncate max-w-[120px]">
+                      {category.name}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-black text-slate-800 dark:text-white mr-2">
+                      ${formatPrice(category.value)}
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      {category.sales}u.
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardBody>
         </Card>

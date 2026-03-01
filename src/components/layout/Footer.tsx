@@ -32,7 +32,7 @@ export const Footer = () => {
             </Link>
             <p className="text-sm leading-relaxed max-w-xs">
               Llevamos lo mejor del súper directamente a tu puerta. Calidad,
-              frescura y rapidez en cada pedido.
+              variedad y rapidez en cada pedido.
             </p>
             <div className="flex gap-4">
               <a

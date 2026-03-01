@@ -24,10 +24,12 @@ import { ProfilePage } from "@/features/Auth/views/ProfilePage";
 import { AdminOrdersPage } from "@/features/Admin/views/AdminOrdersPage";
 import { AdminOrderDetailPage } from "@/features/Admin/views/AdminOrderDetailPage";
 import { DeliveryZonesPage } from "@/features/Home/views/DeliveryZonePage";
+import { ScrollToTop } from "../components/layout/ScrollToTop";
 
 export const AppRouter = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* RUTA DE MANTENIMIENTO (Accesible siempre para que el guard pueda redirigir) */}
         <Route element={<MaintenancePage />} path="/maintenance" />

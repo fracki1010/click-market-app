@@ -32,7 +32,7 @@ import {
   FaArrowRight,
 } from "react-icons/fa6";
 import { motion } from "framer-motion";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 import { formatPrice } from "@/utils/currencyFormat";
 
 import {
@@ -71,7 +71,8 @@ const OrderCard: React.FC<{
   order: IOrder;
   onStatusChange: (id: string, status: string) => void;
   isUpdating: boolean;
-}> = ({ order, onStatusChange, isUpdating }) => {
+  navigate: ReturnType<typeof useNavigate>;
+}> = ({ order, onStatusChange, isUpdating, navigate }) => {
   const config =
     STATUS_MAP[order.status as keyof typeof STATUS_MAP] ||
     STATUS_MAP["Pending"];
@@ -204,8 +205,7 @@ const OrderCard: React.FC<{
           {/* Botón Ver Detalle */}
           <div className="mt-3 pt-3 border-t border-slate-100 dark:border-zinc-800">
             <Button
-              as={Link}
-              to={`/admin/orders/${order.id}`}
+              onPress={() => navigate(`/admin/orders/${order.id}`)}
               className="w-full font-black"
               color="primary"
               size="sm"
@@ -227,6 +227,7 @@ export const AdminOrdersPage: React.FC = () => {
   const [filterText, setFilterText] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const navigate = useNavigate();
 
   const [desktopPage, setDesktopPage] = useState(1);
 
@@ -403,6 +404,7 @@ export const AdminOrdersPage: React.FC = () => {
               isUpdating={isUpdating}
               order={order}
               onStatusChange={handleStatusChange}
+              navigate={navigate}
             />
           ))
         )}
@@ -604,8 +606,7 @@ export const AdminOrdersPage: React.FC = () => {
                   {/* Detalle link */}
                   <TableCell>
                     <Button
-                      as={Link}
-                      to={`/admin/orders/${order.id}`}
+                      onPress={() => navigate(`/admin/orders/${order.id}`)}
                       color="primary"
                       size="sm"
                       variant="light"
