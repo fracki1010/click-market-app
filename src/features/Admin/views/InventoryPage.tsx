@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import {
   Button,
   Input,
@@ -6,7 +6,7 @@ import {
   CardBody,
   Chip,
   Avatar,
-  Pagination,
+  Spinner,
 } from "@heroui/react";
 import {
   FaPlus,
@@ -15,7 +15,7 @@ import {
   FaTrash,
   FaBoxesStacked,
 } from "react-icons/fa6";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice } from "@/utils/currencyFormat";
 
 import { useProducts } from "../../Products/hooks/useProducts";
@@ -50,11 +50,15 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      layout
+    >
       <Card className="shadow-sm border border-slate-100 dark:border-zinc-800">
         <CardBody className="p-4">
           <div className="flex items-center gap-3">
-            {/* Avatar / Image */}
             <Avatar
               isBordered
               radius="lg"
@@ -64,7 +68,6 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
               className="shrink-0"
             />
 
-            {/* Info */}
             <div className="flex-1 min-w-0">
               <p className="font-bold text-slate-800 dark:text-white text-sm leading-tight truncate">
                 {product.name}
@@ -75,7 +78,6 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
               </p>
             </div>
 
-            {/* Price + Stock */}
             <div className="flex flex-col items-end gap-1.5 shrink-0">
               <span className="font-black text-slate-800 dark:text-white text-sm">
                 ${formatPrice(product.price)}
@@ -86,7 +88,6 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-zinc-800">
             <Button
               className="flex-1"
@@ -133,12 +134,13 @@ export const InventoryPage = () => {
   const [deletingProduct, setDeletingProduct] = useState<any | null>(null);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [filterText, setFilterText] = useState("");
-  const [mobilePage, setMobilePage] = useState(1);
-  const mobileItemsPerPage = 10;
+
+  // Infinite Scroll State
+  const [visibleItems, setVisibleItems] = useState(15);
+  const observerTarget = useRef(null);
 
   const confirmDelete = (product: any) => {
     const productToDelete = products.find((p) => p.id === product);
-
     setDeletingProduct(productToDelete);
   };
 
@@ -154,7 +156,6 @@ export const InventoryPage = () => {
 
   const executeDelete = async () => {
     if (!deletingProduct) return;
-
     setIsDeleteLoading(true);
     try {
       await deleteProduct(deletingProduct.id);
@@ -170,7 +171,6 @@ export const InventoryPage = () => {
     const selectedCategories = (values.category_ids || [])
       .map((id: string) => {
         const found = categories.find((c) => c.id.toString() === id.toString());
-
         return found ? { id: found.id, name: found.name } : null;
       })
       .filter(Boolean);
@@ -223,17 +223,42 @@ export const InventoryPage = () => {
     );
   }, [tableData, filterText]);
 
+  // Reset scroll on search
   useEffect(() => {
-    setMobilePage(1);
+    setVisibleItems(15);
   }, [filterText]);
 
-  const paginatedMobileProducts = useMemo(() => {
-    const start = (mobilePage - 1) * mobileItemsPerPage;
-    return filteredProducts.slice(start, start + mobileItemsPerPage);
-  }, [filteredProducts, mobilePage]);
+  // Infinite Scroll Observer logic
+  const loadMore = useCallback(() => {
+    if (visibleItems < filteredProducts.length) {
+      // Simulate/Trigger load more
+      setVisibleItems((prev) => prev + 15);
+    }
+  }, [visibleItems, filteredProducts.length]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [loadMore]);
+
+  const mobileProductsToShow = useMemo(() => {
+    return filteredProducts.slice(0, visibleItems);
+  }, [filteredProducts, visibleItems]);
 
   return (
-    <div className="max-w-7xl mx-auto pb-10">
+    <div className="max-w-7xl mx-auto pb-10 px-4 md:px-0">
       {/* ── Header ── */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -245,7 +270,7 @@ export const InventoryPage = () => {
             Inventario
           </h1>
           <p className="text-slate-500 text-xs md:text-sm mt-0.5">
-            Gestión de productos y existencias
+            Gestión de productos y existencias ({filteredProducts.length})
           </p>
         </div>
 
@@ -269,7 +294,7 @@ export const InventoryPage = () => {
         </div>
       </motion.div>
 
-      {/* ── MOBILE: Cards ── */}
+      {/* ── MOBILE: Infinite Scroll ── */}
       <div className="flex flex-col gap-3 md:hidden">
         {isLoading ? (
           <div className="flex flex-col gap-3">
@@ -286,22 +311,23 @@ export const InventoryPage = () => {
           </div>
         ) : (
           <>
-            {paginatedMobileProducts.map((product) => (
-              <MobileProductCard
-                key={product.id}
-                product={product}
-                onDelete={confirmDelete}
-                onEdit={openEditModal}
-              />
-            ))}
-            <div className="flex justify-center mt-4">
-              <Pagination
-                total={Math.ceil(filteredProducts.length / mobileItemsPerPage)}
-                page={mobilePage}
-                onChange={setMobilePage}
-                size="sm"
-              />
-            </div>
+            <AnimatePresence mode="popLayout">
+              {mobileProductsToShow.map((product) => (
+                <MobileProductCard
+                  key={product.id}
+                  product={product}
+                  onDelete={confirmDelete}
+                  onEdit={openEditModal}
+                />
+              ))}
+            </AnimatePresence>
+
+            {/* Target element for IntersectionObserver */}
+            {visibleItems < filteredProducts.length && (
+              <div ref={observerTarget} className="flex justify-center p-6">
+                <Spinner color="primary" label="Cargando más..." size="sm" />
+              </div>
+            )}
           </>
         )}
       </div>

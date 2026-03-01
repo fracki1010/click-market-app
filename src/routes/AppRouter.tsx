@@ -24,6 +24,7 @@ import { ProfilePage } from "@/features/Auth/views/ProfilePage";
 import { AdminOrdersPage } from "@/features/Admin/views/AdminOrdersPage";
 import { AdminOrderDetailPage } from "@/features/Admin/views/AdminOrderDetailPage";
 import { DeliveryZonesPage } from "@/features/Home/views/DeliveryZonePage";
+import { AboutPage } from "@/features/Home/views/AboutPage";
 import { ScrollToTop } from "../components/layout/ScrollToTop";
 
 export const AppRouter = () => {
@@ -48,6 +49,7 @@ export const AppRouter = () => {
             <Route element={<ProductDetailPage />} path="/products/:id" />
             <Route element={<CartPage />} path="/cart" />
             <Route element={<DeliveryZonesPage />} path="/zonas-de-entrega" />
+            <Route element={<AboutPage />} path="/nosotros" />
           </Route>
 
           {/* 3. RUTAS PROTEGIDAS (Solo Clientes Autenticados) */}

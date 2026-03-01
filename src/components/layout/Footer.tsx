@@ -94,6 +94,14 @@ export const Footer = () => {
                   Zonas de entrega
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/nosotros"
+                  className="hover:text-indigo-600 transition-colors"
+                >
+                  Quiénes somos
+                </Link>
+              </li>
             </ul>
           </div>
 

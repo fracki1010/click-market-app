@@ -330,6 +330,50 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
+      {/* Trust/About Section */}
+      <section className="px-4 py-8 bg-white dark:bg-neutral-900/50">
+        <div className="text-center mb-8">
+          <h3 className="text-xl font-black text-gray-800 dark:text-white mb-2">
+            ¿Por qué elegir Click Market?
+          </h3>
+          <p className="text-xs text-gray-500 font-medium">
+            Tu confianza es nuestro motor diario
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col items-center text-center p-4 bg-gray-50 dark:bg-neutral-800 rounded-2xl">
+            <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-3">
+              <FaStar size={18} />
+            </div>
+            <h4 className="text-xs font-bold dark:text-white mb-1">
+              Calidad Premium
+            </h4>
+            <p className="text-[10px] text-gray-400">
+              Seleccionamos lo mejor para vos.
+            </p>
+          </div>
+          <div className="flex flex-col items-center text-center p-4 bg-gray-50 dark:bg-neutral-800 rounded-2xl">
+            <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400 mb-3">
+              <FaBolt size={18} />
+            </div>
+            <h4 className="text-xs font-bold dark:text-white mb-1">
+              Entrega Flash
+            </h4>
+            <p className="text-[10px] text-gray-400">
+              En la puerta de tu casa hoy mismo.
+            </p>
+          </div>
+        </div>
+        <div className="mt-6 text-center">
+          <Link
+            to="/nosotros"
+            className="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider hover:underline"
+          >
+            Conocé nuestra historia →
+          </Link>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="px-4 py-4">
         <div className="bg-indigo-600 rounded-3xl p-8 text-center text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none">

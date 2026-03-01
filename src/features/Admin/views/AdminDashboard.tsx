@@ -276,12 +276,24 @@ export const AdminDashboard = () => {
                       <YAxis dataKey="name" hide type="category" />
                       <Tooltip
                         contentStyle={{
-                          borderRadius: "12px",
+                          borderRadius: "16px",
+                          backgroundColor: "#1e1e2e",
                           border: "none",
-                          boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                          boxShadow: "0 20px 25px -5px rgba(0,0,0,0.3)",
                           fontSize: "12px",
+                          padding: "8px 12px",
                         }}
-                        cursor={{ fill: "transparent" }}
+                        itemStyle={{
+                          color: "#fff",
+                          fontWeight: "bold",
+                        }}
+                        labelStyle={{
+                          color: "#a5b4fc",
+                          fontWeight: "black",
+                          marginBottom: "4px",
+                          textTransform: "uppercase",
+                        }}
+                        cursor={{ fill: "rgba(99, 102, 241, 0.05)" }}
                       />
                       <Bar
                         barSize={18}
@@ -325,7 +337,7 @@ export const AdminDashboard = () => {
                       <p className="text-xs font-bold text-slate-800 dark:text-white truncate uppercase tracking-tight">
                         {product.name}
                       </p>
-                      <p className="text-[10px] text-slate-500 font-medium">
+                      <p className="text-[10px] text-slate-600 dark:text-slate-400 font-bold">
                         {product.sales} unidades vendidas
                       </p>
                     </div>
@@ -373,10 +385,22 @@ export const AdminDashboard = () => {
                       "Ventas",
                     ]}
                     contentStyle={{
-                      borderRadius: "12px",
+                      borderRadius: "16px",
+                      backgroundColor: "#1e1e2e",
                       border: "none",
-                      boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                      boxShadow: "0 20px 25px -5px rgba(0,0,0,0.3)",
                       fontSize: "12px",
+                      padding: "8px 12px",
+                    }}
+                    itemStyle={{
+                      color: "#fff",
+                      fontWeight: "bold",
+                    }}
+                    labelStyle={{
+                      color: "#a5b4fc",
+                      fontWeight: "black",
+                      marginBottom: "4px",
+                      textTransform: "uppercase",
                     }}
                   />
                 </PieChart>
@@ -403,7 +427,7 @@ export const AdminDashboard = () => {
                     <span className="font-black text-slate-800 dark:text-white mr-2">
                       ${formatPrice(category.value)}
                     </span>
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-bold">
                       {category.sales}u.
                     </span>
                   </div>
