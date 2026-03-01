@@ -1,5 +1,9 @@
 // src/features/Cart/components/CartItem.tsx
 import React from "react";
+import { formatPrice } from "@/utils/currencyFormat";
+import { motion } from "framer-motion";
+import { FaTrashCan, FaMinus, FaPlus } from "react-icons/fa6";
+import { Button } from "@heroui/react";
 
 import { useCart } from "../hooks/useCart";
 import { useToast } from "../../../components/ui/ToastProvider";
@@ -18,69 +22,120 @@ interface CartItemProps {
 }
 
 export const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  const itemTotal = (item.price * item.quantity).toFixed(2);
+  const itemTotal = formatPrice(item.price * item.quantity);
   const { removeItem, updateItem } = useCart();
   const { addToast } = useToast();
 
   const handleQuantityChange = (delta: number) => {
     const newQuantity = item.quantity + delta;
-
     if (newQuantity < 1) return;
-
     updateItem(item.productId, newQuantity);
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-4 py-4 border-b border-gray-100 dark:border-neutral-700">
-      {/* Imagen e Info */}
-      <div className="flex items-center gap-4 flex-grow w-full sm:w-auto">
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.3 }}
+      className="group relative flex flex-col sm:flex-row items-center gap-4 py-6 px-4 -mx-4 sm:mx-0 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors rounded-2xl"
+    >
+      {/* Imagen Section */}
+      <div className="relative w-full sm:w-24 h-48 sm:h-24 flex-shrink-0">
         <img
           alt={item.name}
-          className="w-16 h-16 object-cover rounded-md"
+          className="w-full h-full object-cover rounded-xl shadow-md group-hover:shadow-lg transition-shadow"
           src={item.image_url}
         />
-        <div>
-          <h4 className="font-medium text-gray-800 dark:text-gray-100">
-            {item.name}
-          </h4>
-          <button
-            className="text-red-500 text-sm flex items-center gap-1 hover:underline mt-1"
+        <div className="absolute top-2 right-2 sm:hidden">
+          <Button
+            isIconOnly
+            className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm text-red-500 shadow-sm"
+            radius="full"
+            size="sm"
+            variant="flat"
             onClick={() => {
               removeItem(item.productId);
-              addToast(`${item.name} eliminado del carrito`, "info");
+              addToast(`${item.name} eliminado`, "info");
             }}
           >
-            Eliminar
-          </button>
+            <FaTrashCan size={14} />
+          </Button>
         </div>
       </div>
 
-      <div className="font-medium text-gray-600 dark:text-gray-300">
-        ${item.price.toFixed(2)}
-      </div>
+      {/* Info Section */}
+      <div className="flex flex-col flex-grow w-full gap-1">
+        <div className="flex justify-between items-start">
+          <h4 className="font-bold text-slate-800 dark:text-zinc-100 text-lg leading-tight">
+            {item.name}
+          </h4>
+          <span className="hidden sm:block font-bold text-slate-900 dark:text-white text-lg">
+            ${formatPrice(item.price)}
+          </span>
+        </div>
 
-      <div className="flex items-center border border-gray-300 dark:border-neutral-600 rounded-md">
-        <button
-          className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-700 disabled:opacity-50"
-          disabled={item.quantity <= 1} // Deshabilitar si es 1
-          onClick={() => handleQuantityChange(-1)}
-        >
-          -
-        </button>
-        <span className="w-10 text-center font-medium text-gray-900 dark:text-white">
-          {item.quantity}
-        </span>
-        <button
-          className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-700"
-          onClick={() => handleQuantityChange(1)}
-        >
-          +
-        </button>
-      </div>
+        <p className="text-slate-500 dark:text-zinc-400 text-sm mb-3">
+          Precio unitario: ${formatPrice(item.price)}
+        </p>
 
-      <div className="font-bold text-gray-800 dark:text-gray-100 min-w-[80px] text-right">
-        ${itemTotal}
+        <div className="flex items-center justify-between mt-auto">
+          {/* Quantity Picker */}
+          <div className="flex items-center bg-slate-100 dark:bg-zinc-800 rounded-xl p-1 border border-slate-200 dark:border-zinc-700">
+            <Button
+              isIconOnly
+              className="bg-white dark:bg-zinc-700 text-slate-600 dark:text-zinc-300 shadow-sm disabled:opacity-30"
+              isDisabled={item.quantity <= 1}
+              radius="lg"
+              size="sm"
+              variant="flat"
+              onClick={() => handleQuantityChange(-1)}
+            >
+              <FaMinus size={12} />
+            </Button>
+
+            <span className="w-10 text-center font-bold text-slate-800 dark:text-white">
+              {item.quantity}
+            </span>
+
+            <Button
+              isIconOnly
+              className="bg-white dark:bg-zinc-700 text-slate-600 dark:text-zinc-300 shadow-sm"
+              radius="lg"
+              size="sm"
+              variant="flat"
+              onClick={() => handleQuantityChange(1)}
+            >
+              <FaPlus size={12} />
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-xs text-slate-400 dark:text-zinc-500 uppercase tracking-wider font-semibold">
+                Total
+              </p>
+              <p className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xl">
+                ${itemTotal}
+              </p>
+            </div>
+
+            <Button
+              isIconOnly
+              className="hidden sm:flex text-slate-400 hover:text-red-500 transition-colors"
+              radius="full"
+              variant="light"
+              onClick={() => {
+                removeItem(item.productId);
+                addToast(`${item.name} eliminado`, "info");
+              }}
+            >
+              <FaTrashCan size={18} />
+            </Button>
+          </div>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

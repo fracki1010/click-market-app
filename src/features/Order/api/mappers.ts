@@ -14,7 +14,7 @@ export function toOrderItem(apiItem: any): IOrderItem {
     product: {
       id: productId,
       name: apiItem.name || "Producto sin nombre", // Leemos el snapshot del nombre
-      imageUrl: apiItem.image || "https://via.placeholder.com/150", // Fallback de imagen
+      imageUrl: apiItem.image || "https://placehold.co/150x150/000000/FFFFFF", // Fallback de imagen
     },
   };
 }

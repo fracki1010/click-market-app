@@ -11,6 +11,10 @@ export const orderService = {
     return await orderApi.getMyOrders();
   },
 
+  getOrderById: async (id: string): Promise<IOrder> => {
+    return await orderApi.getOrderById(id);
+  },
+
   // updateOrderStatus: async (orderId: string, status: string): Promise<IOrder> => {
   //     return await orderApi.updateOrderStatus(orderId, status);
   // },

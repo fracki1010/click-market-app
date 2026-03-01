@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Checkbox, Slider, Button, Divider, Skeleton } from "@heroui/react";
 import { FiFilter, FiX, FiChevronRight } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatPrice } from "@/utils/currencyFormat";
 
 import { useCategories } from "../../Products/hooks/useCategory";
 import { ICategory } from "../../Products/types/Product";
@@ -295,7 +296,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                   Mín
                 </p>
                 <span className="text-xs font-black text-gray-700 dark:text-neutral-200">
-                  ${(localFilters.price_min || 0).toLocaleString()}
+                  ${formatPrice(localFilters.price_min || 0)}
                 </span>
               </div>
               <div className="bg-gray-50 dark:bg-neutral-800/50 px-3 py-1.5 rounded-xl border border-gray-100 dark:border-neutral-800 text-right">
@@ -303,7 +304,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                   Máx
                 </p>
                 <span className="text-xs font-black text-gray-700 dark:text-neutral-200">
-                  ${(localFilters.price_max || 100000).toLocaleString()}
+                  ${formatPrice(localFilters.price_max || 100000)}
                 </span>
               </div>
             </div>

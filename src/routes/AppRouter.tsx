@@ -17,10 +17,12 @@ import { AdminGuard } from "./AdminGuard";
 import { MaintenanceGuard } from "./MaintenanceGuard";
 
 import { OrderPage } from "@/features/Order/view/OrderPage";
+import { OrderDetailPage } from "@/features/Order/view/OrderDetailPage";
 import { AdminDashboard } from "@/features/Admin/views/AdminDashboard";
 import { InventoryPage } from "@/features/Admin/views/InventoryPage";
 import { ProfilePage } from "@/features/Auth/views/ProfilePage";
 import { AdminOrdersPage } from "@/features/Admin/views/AdminOrdersPage";
+import { AdminOrderDetailPage } from "@/features/Admin/views/AdminOrderDetailPage";
 import { DeliveryZonesPage } from "@/features/Home/views/DeliveryZonePage";
 
 export const AppRouter = () => {
@@ -52,12 +54,17 @@ export const AppRouter = () => {
             <Route element={<Setting />} path="/settings" />
             <Route element={<CheckoutPage />} path="/checkout" />
             <Route element={<OrderPage />} path="/my-orders" />
+            <Route element={<OrderDetailPage />} path="/my-orders/:id" />
 
             {/* RUTAS SOLO ADMIN  */}
             <Route element={<AdminGuard />}>
               <Route element={<AdminDashboard />} path="/admin/dashboard" />
               <Route element={<InventoryPage />} path="/admin/inventory" />
               <Route element={<AdminOrdersPage />} path="/admin/orders" />
+              <Route
+                element={<AdminOrderDetailPage />}
+                path="/admin/orders/:id"
+              />
             </Route>
           </Route>
         </Route>

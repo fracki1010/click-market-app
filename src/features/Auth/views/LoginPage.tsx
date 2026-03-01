@@ -1,12 +1,12 @@
 // src/features/Auth/views/LoginPage.tsx
-import { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router";
-import { Button } from "@heroui/react";
+import { useState, useEffect, FormEvent } from "react";
+import { useNavigate, useLocation } from "react-router";
+import { Button, Input } from "@heroui/react";
 
-import { AuthForm } from "../../../components/ui/AuthForm";
 import { useAuth } from "../hooks/useAuth";
 import { LoadingComponent } from "../../../components/layout/LoadingComponent";
 import { Modal } from "../../../components/layout/Modal";
+import logoExt from "../../../assets/logo-ext.svg";
 
 export const LoginPage = () => {
   const { login, loading, error, token, user } = useAuth();
@@ -14,6 +14,10 @@ export const LoginPage = () => {
   const location = useLocation();
   const [isSessionExpiredModalOpen, setIsSessionExpiredModalOpen] =
     useState(false);
+
+  // Estados del formulario
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -43,8 +47,10 @@ export const LoginPage = () => {
     }
   }, [token, user, navigate, location]);
 
-  const handleLogin = async (data: Record<string, string>) => {
-    await login(data.email, data.password);
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+    await login(email, password);
   };
 
   if (loading) {
@@ -52,24 +58,78 @@ export const LoginPage = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-neutral-900">
-      <AuthForm
-        fields={[
-          { name: "email", label: "Email", type: "email" },
-          { name: "password", label: "Contraseña", type: "password" },
-        ]}
-        submitLabel={loading ? "Cargando..." : "Iniciar sesión"}
-        onSubmit={handleLogin}
-      />
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50/50 dark:bg-neutral-950 p-4 sm:p-8">
+      <div className="w-full max-w-[420px] animate-appearance-in">
+        {/* Logo and Header */}
+        <div className="flex flex-col items-center mb-10">
+          <div className="bg-white dark:bg-neutral-900 p-5 rounded-[2rem] shadow-sm mb-8 ring-1 ring-gray-100 dark:ring-neutral-800">
+            <img
+              src={logoExt}
+              alt="Click Market Logo"
+              className="h-16 w-auto object-contain"
+            />
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center tracking-tight">
+            Bienvenido de vuelta
+          </h2>
+          <p className="text-gray-500 dark:text-gray-400 mt-3 text-center text-sm font-medium px-4">
+            Ingresa a tu cuenta para continuar
+          </p>
+        </div>
 
-      {error && <p className="mt-4 text-red-600 font-medium">{error}</p>}
+        {/* Form Card */}
+        <div className="bg-white dark:bg-neutral-900/80 backdrop-blur-xl shadow-xl shadow-black/5 dark:shadow-black/20 rounded-[2.5rem] p-8 sm:p-10 border border-gray-100 dark:border-neutral-800">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <div className="flex flex-col gap-5">
+              <Input
+                label="Correo electrónico"
+                placeholder="Ingresa tu email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                isRequired
+                variant="faded"
+                classNames={{
+                  inputWrapper:
+                    "bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 shadow-none hover:bg-gray-100 dark:hover:bg-neutral-900 transition-colors",
+                  label: "text-gray-600 dark:text-gray-400 font-medium",
+                }}
+              />
+              <Input
+                label="Contraseña"
+                placeholder="Ingresa tu contraseña"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                isRequired
+                variant="faded"
+                classNames={{
+                  inputWrapper:
+                    "bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 shadow-none hover:bg-gray-100 dark:hover:bg-neutral-900 transition-colors",
+                  label: "text-gray-600 dark:text-gray-400 font-medium",
+                }}
+              />
+            </div>
 
-      <p className="mt-6 text-gray-600">
-        ¿No tienes cuenta?{" "}
-        <Link className="text-indigo-600 font-medium" to="/register">
-          Registrate
-        </Link>
-      </p>
+            {error && (
+              <div className="bg-red-50/80 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-4 rounded-2xl text-sm text-center font-medium border border-red-100 dark:border-red-500/20">
+                {error}
+              </div>
+            )}
+
+            <Button
+              color="primary"
+              type="submit"
+              size="lg"
+              className="w-full mt-2 font-semibold shadow-md hover:shadow-lg transition-all"
+              isLoading={loading}
+              radius="full"
+            >
+              {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+            </Button>
+          </form>
+        </div>
+      </div>
 
       {/* Modal de Sesión Expirada */}
       <Modal
@@ -77,8 +137,8 @@ export const LoginPage = () => {
         title="Sesión Expirada"
         onClose={() => setIsSessionExpiredModalOpen(false)}
       >
-        <div className="text-center">
-          <p className="text-gray-600 dark:text-gray-300 mb-6">
+        <div className="text-center p-2">
+          <p className="text-gray-600 dark:text-gray-300 mb-6 font-medium">
             Tu sesión ha expirado por seguridad. Por favor, vuelve a iniciar
             sesión para continuar.
           </p>
@@ -86,6 +146,8 @@ export const LoginPage = () => {
             fullWidth
             color="primary"
             onPress={() => setIsSessionExpiredModalOpen(false)}
+            radius="lg"
+            className="font-medium"
           >
             Entendido
           </Button>

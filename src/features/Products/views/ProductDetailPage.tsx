@@ -23,6 +23,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useProduct } from "../hooks/useProduct";
 import { useCart } from "@/features/Cart/hooks/useCart";
 import { useToast } from "@/components/ui/ToastProvider";
+import { formatPrice } from "@/utils/currencyFormat";
 
 const DEFAULT_STOCK_MOCK = 15;
 
@@ -232,10 +233,10 @@ export const ProductDetailPage: React.FC = () => {
 
               <div className="flex items-end gap-4 pt-4">
                 <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-500 dark:from-white dark:to-neutral-500 tracking-tighter">
-                  ${product.price.toLocaleString("es-AR")}
+                  ${formatPrice(product.price)}
                 </span>
                 <span className="text-gray-400 line-through text-xl font-bold mb-1 opacity-50">
-                  ${(product.price * 1.2).toLocaleString("es-AR")}
+                  ${formatPrice(product.price * 1.2)}
                 </span>
               </div>
             </motion.div>

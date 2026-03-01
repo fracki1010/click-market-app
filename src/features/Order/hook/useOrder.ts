@@ -13,7 +13,16 @@ export const useMyOrders = () => {
   return useQuery({
     queryKey: ["my-orders"],
     queryFn: orderService.getMyOrders,
-    staleTime: 1000 * 60 * 5, // 5 minutos
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useOrderById = (id: string) => {
+  return useQuery({
+    queryKey: ["order", id],
+    queryFn: () => orderService.getOrderById(id),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 2,
   });
 };
 

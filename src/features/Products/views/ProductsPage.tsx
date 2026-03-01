@@ -255,7 +255,7 @@ export const ProductsPage: React.FC = () => {
       </div>
 
       {/* 2. Barra de Filtros Horizontales (Modern Pills) */}
-      <div className="sticky top-[72px] z-30 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-neutral-900 py-4 mb-8">
+      <div className="sticky top-[115px] z-30 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-neutral-900 py-4 mb-8">
         <div className="container mx-auto max-w-7xl px-4 flex items-center gap-4">
           <div className="flex-grow overflow-x-auto no-scrollbar flex items-center gap-2 pr-10">
             <Button

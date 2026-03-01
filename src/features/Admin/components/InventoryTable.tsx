@@ -19,6 +19,7 @@ import {
   Pagination,
 } from "@heroui/react";
 import { FaPencil, FaTrash } from "react-icons/fa6";
+import { formatPrice } from "@/utils/currencyFormat";
 
 // Definición de tipos para la tabla
 type InventoryProduct = {
@@ -68,7 +69,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
     columnHelper.accessor("price", {
       header: "PRECIO",
       cell: (info) => (
-        <span className="font-bold">${info.getValue().toFixed(2)}</span>
+        <span className="font-bold">${formatPrice(info.getValue())}</span>
       ),
     }),
     columnHelper.accessor("stock", {

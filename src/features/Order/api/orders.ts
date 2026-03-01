@@ -18,6 +18,12 @@ export async function getMyOrders(): Promise<IOrder[]> {
   return response.data.map(toOrder);
 }
 
+export async function getOrderById(id: string): Promise<IOrder> {
+  const response = await apiClient.get<OrderApi>(`/orders/${id}`);
+
+  return toOrder(response.data);
+}
+
 export async function updateOrderStatus(
   orderId: string,
   status: string,

@@ -18,8 +18,11 @@ import {
   FaTriangleExclamation,
   FaBoxesStacked,
   FaArrowRight,
+  FaChartLine,
 } from "react-icons/fa6";
 import { Link } from "react-router";
+import { motion } from "framer-motion";
+import { formatPrice } from "@/utils/currencyFormat";
 
 import { useProducts } from "../../Products/hooks/useProducts";
 import { useAdminOrders } from "../hook/useAdminOrders";
@@ -39,28 +42,22 @@ export const AdminDashboard = () => {
   const dashboardData = useMemo(() => {
     if (isLoading) return null;
 
-    // KPI 1: Ventas Totales
     const totalSales = orders.reduce(
       (sum: any, order: { total: any }) => sum + order.total,
       0,
     );
 
-    // KPI 2: Órdenes Pendientes
     const pendingOrders = orders.filter(
       (o: { status: string }) => o.status === "Pending",
     ).length;
 
-    // KPI 3: Stock Bajo
     const lowStockCount = products.filter((p) => p.stock <= p.stock_min).length;
 
-    // KPI 4: Valor Inventario
     const inventoryVal = products.reduce(
       (acc, p) => acc + p.price * p.stock,
       0,
     );
 
-    // GRÁFICO 1: TOP 5 PRODUCTOS VENDIDOS
-    // Mapa para sumar cantidades por nombre de producto
     const productSalesMap: Record<string, number> = {};
 
     orders.forEach((order: { items: any[] }) => {
@@ -73,13 +70,11 @@ export const AdminDashboard = () => {
       );
     });
 
-    // Convertir a array, ordenar y tomar top 5
     const topProducts = Object.entries(productSalesMap)
       .map(([name, sales]) => ({ name, sales }))
       .sort((a, b) => b.sales - a.sales)
       .slice(0, 5);
 
-    // GRÁFICO 2: DISTRIBUCIÓN POR CATEGORÍA
     const MAIN_CATEGORIES = [
       "ALMACEN",
       "OFERTAS",
@@ -96,22 +91,18 @@ export const AdminDashboard = () => {
       "JUGUETERÍA Y LIBRERÍA",
     ];
 
-    // Inicializar mapa con las categorías principales en 0
     const categoryMap: Record<string, number> = {};
 
     MAIN_CATEGORIES.forEach((cat) => {
       categoryMap[cat] = 0;
     });
 
-    // Categoría "Otros" para los que no tengan match
     categoryMap["Otros"] = 0;
 
     products.forEach((p) => {
       let foundMainCategory = false;
 
       if (p.categories && p.categories.length > 0) {
-        // Buscamos si alguna categoría del producto coincide con las principales
-        // Normalizamos a mayúsculas para comparar
         const matchedCategory = p.categories.find((cat) =>
           MAIN_CATEGORIES.includes(cat.name.toUpperCase()),
         );
@@ -144,67 +135,86 @@ export const AdminDashboard = () => {
     };
   }, [products, orders, isLoading]);
 
-  // Si carga, mostramos esqueletos bonitos
   if (isLoading || !dashboardData) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-        <div className="grid grid-cols-4 gap-6">
+      <div className="container mx-auto px-4 py-6 max-w-7xl space-y-6">
+        {/* Mobile skeleton header */}
+        <Skeleton className="h-20 rounded-2xl md:hidden" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
           {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-xl" />
+            <Skeleton key={i} className="h-24 md:h-32 rounded-2xl" />
           ))}
         </div>
-        <Skeleton className="h-96 rounded-xl" />
+        <Skeleton className="h-72 md:h-96 rounded-2xl" />
+        <Skeleton className="h-72 md:h-96 rounded-2xl" />
       </div>
     );
   }
 
-  // Configuración de Tarjetas KPI
   const KPIS = [
     {
       title: "Ventas Totales",
-      value: `$${dashboardData.totalSales.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      value: `$${formatPrice(dashboardData.totalSales)}`,
       icon: <FaDollarSign />,
-      color:
-        "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+      gradient: "from-emerald-400 to-teal-500",
+      bg: "bg-emerald-50 dark:bg-emerald-900/20",
+      text: "text-emerald-600 dark:text-emerald-400",
     },
     {
-      title: "Órdenes Pendientes",
+      title: "Pendientes",
       value: dashboardData.pendingOrders,
       icon: <FaClipboardList />,
-      color:
-        "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400",
+      gradient: "from-orange-400 to-amber-500",
+      bg: "bg-orange-50 dark:bg-orange-900/20",
+      text: "text-orange-600 dark:text-orange-400",
     },
     {
       title: "Alertas Stock",
       value: dashboardData.lowStockCount,
       icon: <FaTriangleExclamation />,
-      color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+      gradient: "from-red-400 to-rose-500",
+      bg: "bg-red-50 dark:bg-red-900/20",
+      text: "text-red-600 dark:text-red-400",
     },
     {
       title: "Valor Inventario",
-      value: `$${dashboardData.inventoryVal.toLocaleString("en-US", { minimumFractionDigits: 0 })}`,
+      value: `$${formatPrice(dashboardData.inventoryVal)}`,
       icon: <FaBoxesStacked />,
-      color: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+      gradient: "from-blue-400 to-indigo-500",
+      bg: "bg-blue-50 dark:bg-blue-900/20",
+      text: "text-blue-600 dark:text-blue-400",
     },
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="flex justify-between items-center mb-8">
+    <div className="container mx-auto px-4 py-6 max-w-7xl">
+      {/* ===== HEADER ===== */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6"
+      >
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-            Dashboard Administrativo
+          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold mb-1 uppercase tracking-widest text-xs">
+            <FaChartLine /> Panel Admin
+          </div>
+          <h1 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white">
+            Dashboard
           </h1>
-          <p className="text-gray-500">Métricas en tiempo real de tu negocio</p>
+          <p className="text-slate-500 text-sm mt-0.5">
+            Métricas en tiempo real de tu negocio
+          </p>
         </div>
 
-        <div className="flex gap-2">
+        {/* Desktop quick nav buttons */}
+        <div className="hidden sm:flex gap-2">
           <Button
             as={Link}
             color="secondary"
             endContent={<FaArrowRight />}
             to="/admin/orders"
             variant="flat"
+            size="sm"
           >
             Ver Órdenes
           </Button>
@@ -214,118 +224,167 @@ export const AdminDashboard = () => {
             endContent={<FaArrowRight />}
             to="/admin/inventory"
             variant="flat"
+            size="sm"
           >
-            Gestionar Inventario
+            Inventario
           </Button>
         </div>
-      </div>
 
-      {/* SECCIÓN DE KPIS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {KPIS.map((kpi, idx) => (
-          <Card
-            key={idx}
-            className="shadow-sm border border-gray-100 dark:border-neutral-800"
+        {/* Mobile quick nav — pills */}
+        <div className="flex sm:hidden gap-2 w-full">
+          <Button
+            as={Link}
+            color="secondary"
+            endContent={<FaArrowRight />}
+            to="/admin/orders"
+            variant="flat"
+            size="sm"
+            className="flex-1 text-xs"
           >
-            <CardBody className="flex flex-row items-center gap-4 p-6">
-              <div className={`p-4 rounded-xl text-2xl ${kpi.color}`}>
-                {kpi.icon}
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 font-medium">{kpi.title}</p>
-                <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
-                  {kpi.value}
-                </h3>
-              </div>
-            </CardBody>
-          </Card>
+            Órdenes
+          </Button>
+          <Button
+            as={Link}
+            color="primary"
+            endContent={<FaArrowRight />}
+            to="/admin/inventory"
+            variant="flat"
+            size="sm"
+            className="flex-1 text-xs"
+          >
+            Inventario
+          </Button>
+        </div>
+      </motion.div>
+
+      {/* ===== KPIs GRID — 2 cols en mobile, 4 en desktop ===== */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 mb-6">
+        {KPIS.map((kpi, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.07 }}
+          >
+            <Card className="shadow-sm border border-slate-100 dark:border-zinc-800 hover:shadow-md transition-shadow">
+              <CardBody className="p-4 md:p-5">
+                {/* Mobile layout — stacked */}
+                <div className="flex flex-col gap-2">
+                  <div
+                    className={`inline-flex items-center justify-center w-10 h-10 rounded-xl text-lg ${kpi.bg} ${kpi.text}`}
+                  >
+                    {kpi.icon}
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-tight">
+                      {kpi.title}
+                    </p>
+                    <h3 className="text-lg md:text-2xl font-black text-slate-800 dark:text-white leading-tight mt-0.5 truncate">
+                      {kpi.value}
+                    </h3>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </motion.div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {/* GRÁFICO TOP PRODUCTOS */}
-        <Card className="p-4 shadow-sm">
-          <h3 className="text-lg font-bold mb-4 px-2">
-            Top Productos Más Vendidos
-          </h3>
-          <div className="h-[300px] w-full">
-            {dashboardData.topProducts.length > 0 ? (
+      {/* ===== CHARTS — stacked en mobile, side-by-side en lg ===== */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+        {/* TOP PRODUCTOS */}
+        <Card className="shadow-sm border border-slate-100 dark:border-zinc-800">
+          <CardBody className="p-4 md:p-5">
+            <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white mb-4">
+              🏆 Top Productos Vendidos
+            </h3>
+            <div className="h-[240px] md:h-[300px] w-full overflow-hidden">
+              {dashboardData.topProducts.length > 0 ? (
+                <ResponsiveContainer height="100%" width="100%">
+                  <BarChart
+                    data={dashboardData.topProducts}
+                    layout="vertical"
+                    margin={{ left: 0, right: 20, top: 4, bottom: 4 }}
+                  >
+                    <CartesianGrid horizontal={false} strokeDasharray="3 3" />
+                    <XAxis type="number" tick={{ fontSize: 10 }} />
+                    <YAxis
+                      dataKey="name"
+                      tick={{ fontSize: 10 }}
+                      type="category"
+                      width={90}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "10px",
+                        border: "none",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        fontSize: "12px",
+                      }}
+                      cursor={{ fill: "transparent" }}
+                    />
+                    <Bar
+                      barSize={22}
+                      dataKey="sales"
+                      fill="#6366f1"
+                      radius={[0, 4, 4, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex h-full items-center justify-center text-slate-400 text-sm">
+                  Sin datos de ventas aún
+                </div>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* DISTRIBUCIÓN CATEGORÍAS */}
+        <Card className="shadow-sm border border-slate-100 dark:border-zinc-800">
+          <CardBody className="p-4 md:p-5">
+            <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-white mb-4">
+              🗂️ Distribución por Categoría
+            </h3>
+            <div className="h-[240px] md:h-[300px] w-full">
               <ResponsiveContainer height="100%" width="100%">
-                <BarChart
-                  data={dashboardData.topProducts}
-                  layout="vertical"
-                  margin={{ left: 10, right: 30 }}
-                  style={{ color: "blue" }}
-                >
-                  <CartesianGrid horizontal={false} strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis
-                    dataKey="name"
-                    tick={{ fontSize: 11 }}
-                    type="category"
-                    width={120}
-                  />
+                <PieChart>
+                  <Pie
+                    cx="50%"
+                    cy="50%"
+                    data={dashboardData.categoryData}
+                    dataKey="value"
+                    fill="#8884d8"
+                    innerRadius={50}
+                    outerRadius={85}
+                    paddingAngle={4}
+                  >
+                    {dashboardData.categoryData.map((_entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
                   <Tooltip
                     contentStyle={{
                       borderRadius: "10px",
                       border: "none",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      fontSize: "11px",
                     }}
-                    cursor={{ fill: "transparent" }}
                   />
-                  <Bar
-                    barSize={30}
-                    dataKey="sales"
-                    fill="#6366f1"
-                    radius={[0, 4, 4, 0]}
-                  />
-                </BarChart>
+                </PieChart>
               </ResponsiveContainer>
-            ) : (
-              <div className="flex h-full items-center justify-center text-gray-400">
-                Sin datos de ventas aún
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* GRÁFICO DISTRIBUCIÓN */}
-        <Card className="p-4 shadow-sm">
-          <h3 className="text-lg font-bold mb-4 px-2">
-            Distribución por Categoría
-          </h3>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer height="100%" width="100%">
-              <PieChart>
-                <Pie
-                  cx="50%"
-                  cy="50%"
-                  data={dashboardData.categoryData}
-                  dataKey="value"
-                  fill="#8884d8"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={5}
-                >
-                  {dashboardData.categoryData.map((_entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+            </div>
+          </CardBody>
         </Card>
       </div>
 
-      {/* TABLA DE ALERTAS */}
-      <Card className="shadow-sm">
-        <div className="p-4">
+      {/* ===== ALERTAS DE STOCK ===== */}
+      <Card className="shadow-sm border border-slate-100 dark:border-zinc-800">
+        <CardBody className="p-4 md:p-5">
           <LowStockTable products={products} />
-        </div>
+        </CardBody>
       </Card>
     </div>
   );

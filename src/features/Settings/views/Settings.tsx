@@ -30,11 +30,15 @@ import { RootState } from "../../../store/store";
 // Asegúrate de que la ruta a updateSettings sea correcta en tu proyecto
 import { updateSettings } from "../redux/settingsSlice";
 import { useTheme } from "./../hooks/useTheme";
+import { getShippingSettings, updateShippingSettings } from "../api/settings";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export const Setting: React.FC = () => {
   const [currentTheme, setCurrentTheme] = useTheme();
   const { logoutUser } = useAuth();
   const dispatch = useDispatch();
+
+  const { addToast } = useToast();
 
   // 1. Obtenemos los settings actuales de Redux
   const settings = useSelector((state: RootState) => state.settings);
@@ -43,9 +47,34 @@ export const Setting: React.FC = () => {
   const [formData, setFormData] = useState(settings);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Sincronizar estado local si los settings de Redux cambian desde otro lado
+  // Sincronizar con el backend al montar
   useEffect(() => {
-    setFormData(settings);
+    const fetchBackendSettings = async () => {
+      try {
+        const backendShipping = await getShippingSettings();
+        // Solo actualizamos si el backend devolvió valores válidos para evitar pisar los defaults con undefined
+        if (
+          backendShipping &&
+          typeof backendShipping.shippingPrice === "number"
+        ) {
+          setFormData((prev) => ({
+            ...prev,
+            shippingCost: backendShipping.shippingPrice,
+            freeShippingThreshold:
+              backendShipping.largePurchaseThreshold ??
+              prev.freeShippingThreshold,
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching shipping settings:", error);
+      }
+    };
+    fetchBackendSettings();
+  }, []);
+
+  // Sincronizar estado local si los settings de Redux cambian desde otro lado (opcional)
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, ...settings }));
   }, [settings]);
 
   // Manejador genérico para inputs de texto
@@ -59,21 +88,36 @@ export const Setting: React.FC = () => {
     }));
   };
 
-  // 3. Función para guardar los cambios en Redux (y localStorage)
-  const handleSave = () => {
+  // 3. Función para guardar los cambios en Redux (y localStorage) y Backend
+  const handleSave = async () => {
     setIsSaving(true);
-    // Convertimos los strings a números donde corresponde para evitar errores matemáticos
-    dispatch(
-      updateSettings({
-        ...formData,
-        shippingCost: Number(formData.shippingCost),
-        freeShippingThreshold: Number(formData.freeShippingThreshold),
-        lowStockAlert: Number(formData.lowStockAlert),
-      }),
-    );
+    try {
+      const shippingCost = Number(formData.shippingCost);
+      const freeShippingThreshold = Number(formData.freeShippingThreshold);
 
-    // Simulamos un pequeño retraso para feedback visual del botón
-    setTimeout(() => setIsSaving(false), 600);
+      // Guardar en Backend (Solo envío por ahora, que es lo crítico)
+      await updateShippingSettings({
+        shippingPrice: shippingCost,
+        largePurchaseThreshold: freeShippingThreshold,
+      });
+
+      // Guardar en Redux
+      dispatch(
+        updateSettings({
+          ...formData,
+          shippingCost,
+          freeShippingThreshold,
+          lowStockAlert: Number(formData.lowStockAlert),
+        }),
+      );
+
+      addToast("Configuración guardada correctamente", "success");
+    } catch (error) {
+      console.error("Error saving settings:", error);
+      addToast("Error al guardar en el servidor", "error");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleThemeChange = (key: string) => {

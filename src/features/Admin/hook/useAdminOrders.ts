@@ -10,22 +10,47 @@ import { apiClient } from "../../../services/apiClient";
 import { toOrder } from "@/features/Order/api/mappers";
 import { useToast } from "@/components/ui/ToastProvider";
 
-// Ahora recibe la página como parámetro
-export const useAdminOrders = (page: number = 1) => {
+interface UseAdminOrdersParams {
+  page?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+export const useAdminOrders = ({
+  page = 1,
+  startDate,
+  endDate,
+}: UseAdminOrdersParams = {}) => {
   return useQuery({
-    queryKey: ["admin-orders", page], // La key depende de la página
+    queryKey: ["admin-orders", page, startDate, endDate],
     queryFn: async () => {
-      // Asumimos que tu backend soporta queries ?page=1
-      const { data } = await apiClient.get(`/orders/admin/all?page=${page}`);
+      let url = `/orders/admin/all?page=${page}`;
+      if (startDate) url += `&startDate=${startDate}`;
+      if (endDate) url += `&endDate=${endDate}`;
+
+      const { data } = await apiClient.get(url);
 
       return {
-        orders: data.orders.map(toOrder), // Mapeamos el arreglo
+        orders: data.orders.map(toOrder),
         page: data.page,
         pages: data.pages,
         total: data.total,
       };
     },
-    placeholderData: keepPreviousData, // Evita parpadeos en la tabla al cambiar de página
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useAdminOrderById = (id: string) => {
+  return useQuery({
+    queryKey: ["admin-order", id],
+    queryFn: async () => {
+      const { data } = await apiClient.get(`/orders/${id}`);
+
+      return toOrder(data);
+    },
+    enabled: !!id,
+    staleTime: 1000 * 60 * 2,
   });
 };
 

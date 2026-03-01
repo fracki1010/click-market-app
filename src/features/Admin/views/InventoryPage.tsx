@@ -1,16 +1,113 @@
 import { useState } from "react";
-import { Button, Input } from "@heroui/react";
-import { FaPlus, FaMagnifyingGlass } from "react-icons/fa6";
+import { Button, Input, Card, CardBody, Chip, Avatar } from "@heroui/react";
+import {
+  FaPlus,
+  FaMagnifyingGlass,
+  FaPencil,
+  FaTrash,
+  FaBoxesStacked,
+} from "react-icons/fa6";
+import { motion } from "framer-motion";
+import { formatPrice } from "@/utils/currencyFormat";
 
 import { useProducts } from "../../Products/hooks/useProducts";
 import { useCategories } from "../../Products/hooks/useCategory";
-// El formulario con TanStack Form
-import { InventoryTable } from "../components/InventoryTable"; // La tabla con TanStack Table
+import { InventoryTable } from "../components/InventoryTable";
 import { ProductModal } from "../components/ProductModal";
 import { DeleteModal } from "../components/DeleteModal";
 
 import { useAdminInventory } from "./../hook/useAdminInventory";
 
+// ─── Mobile Product Card ─────────────────────────────────────────────────────
+type MobileProductCardProps = {
+  product: any;
+  onEdit: (p: any) => void;
+  onDelete: (id: string) => void;
+};
+
+const MobileProductCard: React.FC<MobileProductCardProps> = ({
+  product,
+  onEdit,
+  onDelete,
+}) => {
+  let stockColor: "success" | "warning" | "danger" = "success";
+  let stockText = "Normal";
+
+  if (product.stock === 0) {
+    stockColor = "danger";
+    stockText = "Agotado";
+  } else if (product.stock <= product.stockMin) {
+    stockColor = "warning";
+    stockText = "Bajo";
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+      <Card className="shadow-sm border border-slate-100 dark:border-zinc-800">
+        <CardBody className="p-4">
+          <div className="flex items-center gap-3">
+            {/* Avatar / Image */}
+            <Avatar
+              isBordered
+              radius="lg"
+              src={product.imageUrl}
+              fallback={<FaBoxesStacked className="text-slate-400" />}
+              size="md"
+              className="shrink-0"
+            />
+
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-slate-800 dark:text-white text-sm leading-tight truncate">
+                {product.name}
+              </p>
+              <p className="text-xs text-slate-400 truncate">{product.sku}</p>
+              <p className="text-xs text-slate-500 truncate mt-0.5">
+                {product.category}
+              </p>
+            </div>
+
+            {/* Price + Stock */}
+            <div className="flex flex-col items-end gap-1.5 shrink-0">
+              <span className="font-black text-slate-800 dark:text-white text-sm">
+                ${formatPrice(product.price)}
+              </span>
+              <Chip color={stockColor} size="sm" variant="flat">
+                {stockText} ({product.stock})
+              </Chip>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-zinc-800">
+            <Button
+              className="flex-1"
+              color="default"
+              size="sm"
+              variant="flat"
+              startContent={<FaPencil className="text-xs" />}
+              onPress={() => onEdit(product)}
+            >
+              Editar
+            </Button>
+            <Button
+              className="flex-1"
+              color="danger"
+              size="sm"
+              variant="flat"
+              startContent={<FaTrash className="text-xs" />}
+              onPress={() => onDelete(product.id)}
+            >
+              Eliminar
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
+    </motion.div>
+  );
+};
+
+// ─── Main Page ───────────────────────────────────────────────────────────────
 export const InventoryPage = () => {
   const { data: response } = useProducts({ limit: 4000 });
   const { data: categories = [] } = useCategories();
@@ -23,20 +120,13 @@ export const InventoryPage = () => {
     isUpdating,
   } = useAdminInventory();
 
-  // --- ESTADOS UI ---
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<any | null>(null);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [filterText, setFilterText] = useState("");
 
-  // --- LÓGICA DE BORRADO ---
   const confirmDelete = (product: any) => {
-    // Aquí recibimos el producto completo desde la tabla (no solo ID)
-    // O si recibes solo ID, busca el producto en la lista 'products'
-    // Como tu tabla pasa ID en onDelete={handleDelete}, ajustamos aquí:
-
-    // Si tu InventoryTable pasa ID:
     const productToDelete = products.find((p) => p.id === product);
 
     setDeletingProduct(productToDelete);
@@ -58,7 +148,7 @@ export const InventoryPage = () => {
     setIsDeleteLoading(true);
     try {
       await deleteProduct(deletingProduct.id);
-      setDeletingProduct(null); // Cierra modal automáticamente
+      setDeletingProduct(null);
     } catch (error) {
       console.error(error);
     } finally {
@@ -66,10 +156,7 @@ export const InventoryPage = () => {
     }
   };
 
-  // Manejo de Submit (viene desde TanStack Form)
   const handleSubmit = async (values: any) => {
-    // Parseo de datos numéricos seguro
-    // Mapeamos los category_ids (strings) a objetos de categoría completos
     const selectedCategories = (values.category_ids || [])
       .map((id: string) => {
         const found = categories.find((c) => c.id.toString() === id.toString());
@@ -87,7 +174,6 @@ export const InventoryPage = () => {
       rating: editingProduct?.rating || 0,
     };
 
-    // Eliminamos el campo temporal de IDs si lo deseamos, aunque el API lo ignorará
     delete payload.category_ids;
 
     try {
@@ -106,55 +192,83 @@ export const InventoryPage = () => {
   const tableData: any[] = products.map((product) => ({
     id: product.id,
     name: product.name,
-    sku: product.sku || "N/A", // Valor por defecto si falta
+    sku: product.sku || "N/A",
     price: product.price,
     stock: product.stock,
-    stockMin: product.stock_min, // Aquí hacemos el puente de tipos
+    stockMin: product.stock_min,
     category:
       product.categories?.map((c) => c.name).join(", ") || "Sin categoría",
-    categories: product.categories, // Mantener las categorías originales para el form
+    categories: product.categories,
     imageUrl: product.imageUrl || "",
   }));
 
-  // Filtrado sobre los datos transformados
   const filteredProducts = tableData.filter((p) =>
     p.name.toLowerCase().includes(filterText.toLowerCase()),
   );
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-end mb-6 gap-4">
+    <div className="max-w-7xl mx-auto pb-10">
+      {/* ── Header ── */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-5 bg-white dark:bg-zinc-900 p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-zinc-800"
+      >
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+          <h1 className="text-xl md:text-3xl font-black text-slate-800 dark:text-white">
             Inventario
           </h1>
-          <p className="text-gray-500">Gestión de productos y existencias</p>
+          <p className="text-slate-500 text-xs md:text-sm mt-0.5">
+            Gestión de productos y existencias
+          </p>
         </div>
-        <div className="flex gap-3 w-full sm:w-auto">
+
+        <div className="flex gap-2 w-full sm:w-auto">
           <Input
-            className="w-full sm:w-64"
+            className="flex-1 sm:w-64"
             placeholder="Buscar producto..."
             startContent={<FaMagnifyingGlass className="text-gray-400" />}
             value={filterText}
             onValueChange={setFilterText}
+            size="sm"
           />
           <Button
             color="primary"
             endContent={<FaPlus />}
             onPress={openCreateModal}
+            size="sm"
           >
             Nuevo
           </Button>
         </div>
+      </motion.div>
+
+      {/* ── MOBILE: Cards ── */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {filteredProducts.length === 0 ? (
+          <div className="text-center text-slate-400 py-12 text-sm">
+            No hay productos en inventario.
+          </div>
+        ) : (
+          filteredProducts.map((product) => (
+            <MobileProductCard
+              key={product.id}
+              product={product}
+              onDelete={confirmDelete}
+              onEdit={openEditModal}
+            />
+          ))
+        )}
       </div>
 
-      {/* Tabla (TanStack Table + HeroUI) */}
-      <InventoryTable
-        data={filteredProducts}
-        onDelete={(id) => confirmDelete(id)}
-        onEdit={openEditModal}
-      />
+      {/* ── DESKTOP: Table ── */}
+      <div className="hidden md:block">
+        <InventoryTable
+          data={filteredProducts}
+          onDelete={(id) => confirmDelete(id)}
+          onEdit={openEditModal}
+        />
+      </div>
 
       <ProductModal
         editingProduct={editingProduct}

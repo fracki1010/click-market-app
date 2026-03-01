@@ -7,6 +7,7 @@ import { AiFillDelete, AiFillEdit } from "react-icons/ai";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/react";
 import { motion } from "framer-motion";
+import { formatPrice } from "@/utils/currencyFormat";
 
 import { useCart } from "../../Cart/hooks/useCart";
 import { useAuth } from "../../Auth/hooks/useAuth";
@@ -97,12 +98,12 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               <div className="flex flex-col gap-0.5">
                 {hasDiscount && (
                   <span className="text-[11px] text-gray-400 line-through font-medium">
-                    ${originalPrice.toLocaleString("es-AR")}
+                    ${formatPrice(originalPrice)}
                   </span>
                 )}
                 <div className="flex items-center gap-2">
                   <span className="text-xl font-black text-gray-900 dark:text-white">
-                    ${product.price.toLocaleString("es-AR")}
+                    ${formatPrice(product.price)}
                   </span>
                   {hasDiscount && (
                     <span className="text-[11px] font-bold text-green-500">
