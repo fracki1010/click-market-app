@@ -23,7 +23,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white dark:bg-neutral-900 border-b border-gray-100 dark:border-neutral-800 shadow-sm transition-all duration-300">
+    <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border-b border-gray-100/50 dark:border-neutral-800/50 shadow-sm transition-all duration-300">
       {/* Top row: Logo and Actions */}
       <div className="container mx-auto px-4 lg:px-6 h-16 flex items-center justify-between gap-4">
         {/* Mobile Menu Toggle (Simplified for now) */}
@@ -43,7 +43,7 @@ export const Header = () => {
           <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-1.5 rounded-xl shadow-indigo-200 dark:shadow-none shadow-lg">
             <FaBagShopping className="text-white text-xl" />
           </div>
-          <span className="hidden sm:inline">Click Market</span>
+          <span className="">Click Market</span>
         </Link>
 
         {/* Desktop Search */}
@@ -78,7 +78,7 @@ export const Header = () => {
             </Button>
           </Link>
 
-          <Link to="/cart">
+          <Link className="hidden md:block" to="/cart">
             <Badge
               color="danger"
               content={items.length === 0 ? false : items.length}
@@ -95,47 +95,31 @@ export const Header = () => {
             </Badge>
           </Link>
 
-          {user ? (
-            <UserMenu />
-          ) : (
-            <Link to="/login">
-              <Button
-                className="hidden sm:flex font-semibold"
-                color="primary"
-                radius="full"
-                size="sm"
-                variant="flat"
-              >
-                Ingresar
-              </Button>
-              <Button
-                isIconOnly
-                className="sm:hidden text-gray-600 dark:text-gray-300"
-                variant="light"
-              >
-                <FiUser size={22} />
-              </Button>
-            </Link>
-          )}
+          <div className="hidden md:flex">
+            {user ? (
+              <UserMenu />
+            ) : (
+              <Link to="/login">
+                <Button
+                  className="hidden sm:flex font-semibold"
+                  color="primary"
+                  radius="full"
+                  size="sm"
+                  variant="flat"
+                >
+                  Ingresar
+                </Button>
+                <Button
+                  isIconOnly
+                  className="sm:hidden text-gray-600 dark:text-gray-300"
+                  variant="light"
+                >
+                  <FiUser size={22} />
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
-      </div>
-
-      {/* Mobile Search Row (Extra sleek) */}
-      <div className="md:hidden px-4 pb-3">
-        <form onSubmit={handleSearch}>
-          <Input
-            classNames={{
-              inputWrapper:
-                "bg-gray-100 dark:bg-neutral-800 border-none h-10 px-4",
-              input: "text-sm",
-            }}
-            placeholder="Buscar en Click Market"
-            radius="full"
-            startContent={<FiSearch className="text-gray-400" size={16} />}
-            value={searchValue}
-            onValueChange={setSearchValue}
-          />
-        </form>
       </div>
     </header>
   );
