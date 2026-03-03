@@ -1,0 +1,30 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <defs>
+    <color id="blue" fill="#2955ff"/>
+    <color id="green" fill="#1c4411"/>
+    <color id="slogan" fill="#2c3e10"/>
+  </defs>
+
+  <g fill="none" stroke="#2955ff" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 460 70 L 410 140 L 410 310 L 160 310 L 160 210 L 410 140 Z" />
+    
+    <line x1="222" y1="193" x2="222" y2="310" />
+    <line x1="285" y1="175" x2="285" y2="310" />
+    <line x1="348" y1="157" x2="348" y2="310" />
+
+    <path d="M 160 350 L 160 375 L 410 375 L 410 335" />
+
+    <circle cx="190" cy="435" r="15" />
+    <circle cx="380" cy="435" r="15" />
+  </g>
+
+  <g text-anchor="middle" font-family="Arial, Helvetica, sans-serif">
+    <text x="300" y="520" font-weight="900" font-size="65" letter-spacing="-1">
+      <tspan fill="#1c4411">CLICK</tspan><tspan fill="#2955ff"> MARKET</tspan>
+    </text>
+    
+    <text x="300" y="555" font-weight="normal" font-size="20" fill="#2c3e10">
+      Lo que necesita sin salir de casa
+    </text>
+  </g>
+</svg>
