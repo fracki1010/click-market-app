@@ -6,7 +6,7 @@ import { Button, Input } from "@heroui/react";
 import { useAuth } from "../hooks/useAuth";
 import { LoadingComponent } from "../../../components/layout/LoadingComponent";
 import { Modal } from "../../../components/layout/Modal";
-import logoExt from "../../../assets/logo-ext.svg";
+import logoExt from "../../../assets/logo.svg";
 
 export const LoginPage = () => {
   const { login, loading, error, token, user } = useAuth();
