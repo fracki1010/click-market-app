@@ -262,7 +262,7 @@ export const ProductDetailPage: React.FC = () => {
                     Entrega
                   </p>
                   <p className="text-xs font-bold text-gray-900 dark:text-white">
-                    Hoy
+                    Mañana
                   </p>
                 </div>
               </div>

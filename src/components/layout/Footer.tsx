@@ -117,20 +117,20 @@ export const Footer = () => {
                   size={16}
                 />
                 <span>
-                  Buenos Aires, Argentina
+                  Valle de Uco, Mendoza, Argentina
                   <br />
                   <span className="text-[11px] opacity-70">
-                    Envíos en menos de 90 min
+                    Envíos en menos de 48 horas
                   </span>
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <FiPhone className="text-indigo-500 shrink-0" size={16} />
-                <span>0800-CLICK-MARKET</span>
+                <span>+54 9 2622 430004</span>
               </li>
               <li className="flex items-center gap-3">
                 <FiMail className="text-indigo-500 shrink-0" size={16} />
-                <span>hola@clickmarket.com.ar</span>
+                <span>click.market.serv@gmail.com</span>
               </li>
             </ul>
           </div>

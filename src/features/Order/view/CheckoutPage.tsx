@@ -32,11 +32,7 @@ import { AddAddressModal } from "../../Auth/components/AddAddressModal";
 import { CreateAddressPayload } from "../../Auth/types/Address";
 import { useShippingSettings } from "../../Settings/hooks/useShippingSettings";
 
-const DELIVERY_SLOTS = [
-  { key: "manana", label: "Mañana (09:00 - 13:00)" },
-  { key: "tarde", label: "Tarde (14:00 - 18:00)" },
-  { key: "noche", label: "Noche (18:00 - 21:00)" },
-];
+const DELIVERY_SLOTS = [{ key: "next_day", label: "Mañana (16:00 - 20:00)" }];
 
 export const CheckoutPage: React.FC = () => {
   const { items, total, fetchCart } = useCart();
@@ -51,7 +47,7 @@ export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
 
   // Estados del formulario
-  const [deliverySlot, setDeliverySlot] = useState("");
+  const [deliverySlot, setDeliverySlot] = useState(DELIVERY_SLOTS[0].label);
   const [paymentMethod, setPaymentMethod] = useState("Transfer");
   const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
 
@@ -196,16 +192,20 @@ export const CheckoutPage: React.FC = () => {
                   <span className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 text-sm">
                     2
                   </span>
-                  Horario de Preferencia
+                  Horario de Entrega
                 </h3>
+                <p className="text-sm text-slate-500 dark:text-zinc-400 mb-4 font-medium -mt-4 ml-11">
+                  Todos nuestros pedidos se entregan al día siguiente de la
+                  compra en el horario fijo establecido.
+                </p>
                 <Select
                   isRequired
                   classNames={{
                     trigger: "h-14 border-2 rounded-2xl",
                     label: "font-bold text-slate-600 dark:text-zinc-400",
                   }}
-                  label="¿Cuándo querés recibirlo?"
-                  placeholder="Selecciona una franja horaria"
+                  label="Fecha y Horario de Entrega"
+                  placeholder="Entrega asegurada para mañana"
                   selectedKeys={deliverySlot ? [deliverySlot] : []}
                   variant="bordered"
                   onChange={(e) => setDeliverySlot(e.target.value)}

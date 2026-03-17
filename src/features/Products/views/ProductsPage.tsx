@@ -208,15 +208,15 @@ export const ProductsPage: React.FC = () => {
   return (
     <main className="flex-grow bg-white dark:bg-neutral-950 transition-colors duration-500 min-h-screen">
       {/* 1. Header de sección Moderno */}
-      <div className="bg-gray-50/50 dark:bg-neutral-900/40 border-b border-gray-100 dark:border-neutral-900 pb-8 pt-10 px-4">
+      <div className="bg-gray-50/50 dark:bg-neutral-900/40 border-b border-gray-100 dark:border-neutral-900 pb-3 pt-4 md:pb-8 md:pt-10 px-4">
         <div className="container mx-auto max-w-7xl">
-          <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-black text-[10px] uppercase tracking-[0.3em]">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-3 md:gap-6">
+            <div className="space-y-0.5">
+              <div className="hidden md:flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-black text-[10px] uppercase tracking-[0.3em]">
                 <span className="w-8 h-[2px] bg-current opacity-30"></span>
                 Explora
               </div>
-              <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tighter">
+              <h1 className="text-2xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tighter">
                 Click{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">
                   Catálogo
@@ -224,13 +224,13 @@ export const ProductsPage: React.FC = () => {
               </h1>
             </div>
 
-            <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">
               <div className="grow md:w-80">
                 <Input
                   isClearable
                   classNames={{
                     inputWrapper:
-                      "h-12 bg-white dark:bg-neutral-900 border-none shadow-xl shadow-indigo-500/5 rounded-2xl",
+                      "h-10 md:h-12 bg-white dark:bg-neutral-900 border-none shadow-xl shadow-indigo-500/5 rounded-2xl",
                     input: "text-sm font-medium",
                   }}
                   placeholder="Busca por nombre o marca..."
@@ -255,7 +255,7 @@ export const ProductsPage: React.FC = () => {
       </div>
 
       {/* 2. Barra de Filtros Horizontales (Modern Pills) */}
-      <div className="sticky top-[115px] z-30 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-neutral-900 py-4 mb-8">
+      <div className="sticky top-[56px] lg:top-[115px] z-30 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-neutral-900 py-5 md:py-4 mb-6 md:mb-8">
         <div className="container mx-auto max-w-7xl px-4 flex items-center gap-4">
           <div className="flex-grow overflow-x-auto no-scrollbar flex items-center gap-2 pr-10">
             <Button
