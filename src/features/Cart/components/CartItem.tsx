@@ -39,7 +39,7 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.3 }}
-      className="group relative flex flex-col sm:flex-row items-center gap-4 py-6 px-4 -mx-4 sm:mx-0 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors rounded-2xl"
+      className="group relative flex flex-col sm:flex-row items-center gap-4 py-6 px-4 -mx-4 sm:mx-0 hover:bg-default-50 transition-all rounded-2xl"
     >
       {/* Imagen Section */}
       <div className="relative w-full sm:w-24 h-48 sm:h-24 flex-shrink-0">
@@ -51,7 +51,7 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
         <div className="absolute top-2 right-2 sm:hidden">
           <Button
             isIconOnly
-            className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm text-red-500 shadow-sm"
+            className="bg-background/90 backdrop-blur-sm text-danger shadow-sm"
             radius="full"
             size="sm"
             variant="flat"
@@ -68,24 +68,24 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
       {/* Info Section */}
       <div className="flex flex-col flex-grow w-full gap-1">
         <div className="flex justify-between items-start">
-          <h4 className="font-bold text-slate-800 dark:text-zinc-100 text-lg leading-tight">
+          <h4 className="font-bold text-default-800 text-lg leading-tight">
             {item.name}
           </h4>
-          <span className="hidden sm:block font-bold text-slate-900 dark:text-white text-lg">
+          <span className="hidden sm:block font-bold text-default-900 text-lg">
             ${formatPrice(item.price)}
           </span>
         </div>
 
-        <p className="text-slate-500 dark:text-zinc-400 text-sm mb-3">
+        <p className="text-default-500 text-sm mb-3">
           Precio unitario: ${formatPrice(item.price)}
         </p>
 
         <div className="flex items-center justify-between mt-auto">
           {/* Quantity Picker */}
-          <div className="flex items-center bg-slate-100 dark:bg-zinc-800 rounded-xl p-1 border border-slate-200 dark:border-zinc-700">
+          <div className="flex items-center bg-default-100 rounded-xl p-1 border border-divider">
             <Button
               isIconOnly
-              className="bg-white dark:bg-zinc-700 text-slate-600 dark:text-zinc-300 shadow-sm disabled:opacity-30"
+              className="bg-background text-default-600 shadow-sm disabled:opacity-30"
               isDisabled={item.quantity <= 1}
               radius="lg"
               size="sm"
@@ -95,13 +95,13 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
               <FaMinus size={12} />
             </Button>
 
-            <span className="w-10 text-center font-bold text-slate-800 dark:text-white">
+            <span className="w-10 text-center font-bold text-default-800">
               {item.quantity}
             </span>
 
             <Button
               isIconOnly
-              className="bg-white dark:bg-zinc-700 text-slate-600 dark:text-zinc-300 shadow-sm"
+              className="bg-background text-default-600 shadow-sm"
               radius="lg"
               size="sm"
               variant="flat"
@@ -113,17 +113,17 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-xs text-slate-400 dark:text-zinc-500 uppercase tracking-wider font-semibold">
+              <p className="text-xs text-default-400 uppercase tracking-wider font-semibold">
                 Total
               </p>
-              <p className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xl">
+              <p className="font-extrabold text-success text-xl">
                 ${itemTotal}
               </p>
             </div>
 
             <Button
               isIconOnly
-              className="hidden sm:flex text-slate-400 hover:text-red-500 transition-colors"
+              className="hidden sm:flex text-default-400 hover:text-danger transition-colors"
               radius="full"
               variant="light"
               onClick={() => {

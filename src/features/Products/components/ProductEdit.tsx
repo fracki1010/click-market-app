@@ -94,14 +94,14 @@ export const ProductEdit = ({ product, onClose, onSave }: ProductEditProps) => {
         children={(field) => (
           <div>
             <label
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block text-sm font-medium text-default-700"
               htmlFor={field.name}
             >
               Nombre del Producto
             </label>
             <input
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white p-2"
+              className="mt-1 block w-full rounded-md border-divider shadow-sm focus:border-primary focus:ring-primary bg-content2 text-default-900 p-2 transition-all"
               id={field.name}
               name={field.name}
               value={field.state.value}
@@ -109,7 +109,7 @@ export const ProductEdit = ({ product, onClose, onSave }: ProductEditProps) => {
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors ? (
-              <em className="text-red-500 text-xs mt-1 block">
+              <em className="text-danger text-xs mt-1 block">
                 {field.state.meta.errors.join(", ")}
               </em>
             ) : null}
@@ -122,14 +122,14 @@ export const ProductEdit = ({ product, onClose, onSave }: ProductEditProps) => {
         children={(field) => (
           <div>
             <label
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block text-sm font-medium text-default-700"
               htmlFor={field.name}
             >
               Descripción
             </label>
             <textarea
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white p-2"
+              className="mt-1 block w-full rounded-md border-divider shadow-sm focus:border-primary focus:ring-primary bg-content2 text-default-900 p-2 transition-all"
               id={field.name}
               name={field.name}
               value={field.state.value}
@@ -137,7 +137,7 @@ export const ProductEdit = ({ product, onClose, onSave }: ProductEditProps) => {
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors ? (
-              <em className="text-red-500 text-xs mt-1 block">
+              <em className="text-danger text-xs mt-1 block">
                 {field.state.meta.errors.join(", ")}
               </em>
             ) : null}
@@ -150,14 +150,14 @@ export const ProductEdit = ({ product, onClose, onSave }: ProductEditProps) => {
         children={(field) => (
           <div>
             <label
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block text-sm font-medium text-default-700"
               htmlFor={field.name}
             >
               URL de la Imagen
             </label>
             <input
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white p-2"
+              className="mt-1 block w-full rounded-md border-divider shadow-sm focus:border-primary focus:ring-primary bg-content2 text-default-900 p-2 transition-all"
               id={field.name}
               name={field.name}
               value={field.state.value}
@@ -165,7 +165,7 @@ export const ProductEdit = ({ product, onClose, onSave }: ProductEditProps) => {
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors ? (
-              <em className="text-red-500 text-xs mt-1 block">
+              <em className="text-danger text-xs mt-1 block">
                 {field.state.meta.errors.join(", ")}
               </em>
             ) : null}
@@ -178,14 +178,14 @@ export const ProductEdit = ({ product, onClose, onSave }: ProductEditProps) => {
         children={(field) => (
           <div>
             <label
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block text-sm font-medium text-default-700"
               htmlFor={field.name}
             >
               Precio
             </label>
             <input
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white p-2"
+              className="mt-1 block w-full rounded-md border-divider shadow-sm focus:border-primary focus:ring-primary bg-content2 text-default-900 p-2 transition-all"
               id={field.name}
               min="0"
               name={field.name}
@@ -197,7 +197,7 @@ export const ProductEdit = ({ product, onClose, onSave }: ProductEditProps) => {
               onChange={(e) => field.handleChange(parseFloat(e.target.value))}
             />
             {field.state.meta.errors ? (
-              <em className="text-red-500 text-xs mt-1 block">
+              <em className="text-danger text-xs mt-1 block">
                 {field.state.meta.errors.join(", ")}
               </em>
             ) : null}
@@ -210,14 +210,14 @@ export const ProductEdit = ({ product, onClose, onSave }: ProductEditProps) => {
         children={(field) => (
           <div>
             <label
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block text-sm font-medium text-default-700"
               htmlFor={field.name}
             >
               Categoría
             </label>
             <select
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-white p-2"
+              className="mt-1 block w-full rounded-md border-divider shadow-sm focus:border-primary focus:ring-primary bg-content2 text-default-900 p-2 transition-all"
               id={field.name}
               name={field.name}
               value={field.state.value}
@@ -231,7 +231,7 @@ export const ProductEdit = ({ product, onClose, onSave }: ProductEditProps) => {
               ))}
             </select>
             {field.state.meta.errors ? (
-              <em className="text-red-500 text-xs mt-1 block">
+              <em className="text-danger text-xs mt-1 block">
                 {field.state.meta.errors.join(", ")}
               </em>
             ) : null}
@@ -242,7 +242,7 @@ export const ProductEdit = ({ product, onClose, onSave }: ProductEditProps) => {
 
       <div className="pt-4 flex justify-end space-x-3">
         <button
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-neutral-600 dark:text-gray-200 dark:hover:bg-neutral-500 transition-colors"
+          className="px-4 py-2 text-sm font-medium text-default-700 bg-default-200 rounded-xl hover:bg-default-300 transition-colors"
           disabled={form.state.isSubmitting}
           type="button"
           onClick={onClose}
@@ -253,10 +253,10 @@ export const ProductEdit = ({ product, onClose, onSave }: ProductEditProps) => {
         <form.Subscribe
           children={(state) => (
             <button
-              className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${
+              className={`px-4 py-2 text-sm font-medium text-white shadow-lg rounded-xl transition-all ${
                 state.isSubmitting || !state.canSubmit
-                  ? "bg-indigo-400 cursor-not-allowed"
-                  : "bg-indigo-600 hover:bg-indigo-700"
+                  ? "bg-primary-300 cursor-not-allowed"
+                  : "bg-primary hover:bg-primary-600 shadow-primary/20 active:scale-95"
               }`}
               disabled={!state.canSubmit || state.isSubmitting}
               type="submit"

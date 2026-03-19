@@ -18,6 +18,7 @@ import { useCategories } from "../../Products/hooks/useCategory";
 const productSchema = z.object({
   name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
   price: z.number().min(0.01, "El precio debe ser mayor a 0"),
+  costPrice: z.number().min(0.01, "El costo debe ser mayor a 0"),
   sku: z.string().min(3, "SKU requerido"),
   stock: z.number().int().min(0, "El stock no puede ser negativo"),
   stock_min: z.number().int().min(1, "El stock mínimo debe ser al menos 1"),
@@ -90,6 +91,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       name: initialData?.name || "",
       description: initialData?.description || "",
       price: Number(initialData?.price) || 0,
+      costPrice: Number(initialData?.costPrice) || 0,
       sku: initialData?.sku || "",
       stock: Number(initialData?.stock || 0),
       stock_min: Number(initialData?.stock_min || 5),
@@ -123,6 +125,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       form.setFieldValue("name", initialData.name || "");
       form.setFieldValue("sku", initialData.sku || "");
       form.setFieldValue("price", Number(initialData.price) || 0);
+      form.setFieldValue("costPrice", Number(initialData.costPrice) || 0);
       form.setFieldValue("stock", Number(initialData.stock || 0));
       form.setFieldValue("stock_min", Number(initialData.stock_min || 5));
       form.setFieldValue(
@@ -131,7 +134,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       );
       form.setFieldValue("description", initialData.description || "");
     }
-  }, [initialData?.id, categories.length]); // Solo re-ejecutamos si cambia el ID del producto o cargan categorías
+  }, [initialData?.id, categories.length, initialData?.costPrice]); // Solo re-ejecutamos si cambia el ID del producto o cargan categorías
 
   return (
     <form
@@ -189,7 +192,28 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 className="flex-1"
                 errorMessage={field.state.meta.errors.join(", ")}
                 isInvalid={!!field.state.meta.errors.length}
-                label="Precio ($)"
+                label="Costo ($)"
+                placeholder="0.00"
+                type="number"
+                value={field.state.value.toString()}
+                variant="bordered"
+                onBlur={field.handleBlur}
+                onValueChange={(val) => field.handleChange(Number(val))}
+              />
+            )}
+            name="costPrice"
+            validators={{
+              onChange: ({ value }) => validate("costPrice", value),
+            }}
+          />
+          <form.Field
+            children={(field) => (
+              <Input
+                className="flex-1"
+                errorMessage={field.state.meta.errors.join(", ")}
+                isInvalid={!!field.state.meta.errors.length}
+                label="Venta ($)"
+                placeholder="0.00"
                 type="number"
                 value={field.state.value.toString()}
                 variant="bordered"
@@ -203,6 +227,38 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             }}
           />
         </div>
+
+        {/* MOSTRAR GANANCIA CALCULADA */}
+        <form.Subscribe
+          selector={(state) => [state.values.price, state.values.costPrice]}
+          children={([price, cost]) => {
+            const p = Number(price);
+            const c = Number(cost);
+            const profit = (isNaN(p) ? 0 : p) - (isNaN(c) ? 0 : c);
+            const profitPercent = c > 0 ? (profit / c) * 100 : 0;
+            const isLoss = profit < 0;
+
+            return p > 0 || c > 0 ? (
+              <div
+                className={`p-3 rounded-xl border flex justify-between items-center ${
+                  isLoss
+                    ? "bg-danger-50 border-danger-100 text-danger-700"
+                    : "bg-success-50 border-success-100 text-success-700"
+                }`}
+              >
+                <span className="text-xs font-black uppercase tracking-wider">
+                  {isLoss ? "⚠️ Perdiendo" : "💰 Margen Bruto"}
+                </span>
+                <div className="text-right">
+                  <p className="text-sm font-black">${profit.toFixed(2)}</p>
+                  <p className="text-[10px] font-bold opacity-80">
+                    {profitPercent.toFixed(1)}% de ganancia
+                  </p>
+                </div>
+              </div>
+            ) : null;
+          }}
+        />
 
         <div className="flex gap-4">
           <form.Field

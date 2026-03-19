@@ -29,35 +29,35 @@ const quickLinks: QuickLink[] = [
     id: 1,
     label: "Ofertas",
     icon: <FaTags />,
-    color: "bg-orange-500",
+    color: "bg-warning",
     link: "/products?categories=OFERTAS",
   },
   {
     id: 2,
     label: "Almacén",
     icon: <FaBoxOpen />,
-    color: "bg-blue-500",
+    color: "bg-primary",
     link: "/products?categories=ALMACÉN",
   },
   {
     id: 3,
     label: "Limpieza",
     icon: <FaSprayCan />,
-    color: "bg-teal-500",
+    color: "bg-secondary",
     link: "/products?categories=LIMPIEZA",
   },
   {
     id: 4,
     label: "Express",
     icon: <FaBolt />,
-    color: "bg-amber-500",
+    color: "bg-warning",
     link: "/products",
   },
   {
     id: 5,
     label: "Full",
     icon: <FaStar />,
-    color: "bg-green-500",
+    color: "bg-success",
     link: "/products",
   },
 ];
@@ -69,7 +69,7 @@ const banners = [
     subtitle: "Hasta 40% OFF en seleccionados",
     image:
       "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=1200",
-    color: "from-indigo-600 to-purple-700",
+    color: "from-primary to-secondary",
   },
   {
     id: 2,
@@ -77,7 +77,7 @@ const banners = [
     subtitle: "Todo para que tu casa brille",
     image:
       "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=1200",
-    color: "from-teal-600 to-emerald-700",
+    color: "from-secondary to-success",
   },
 ];
 
@@ -136,11 +136,11 @@ export const HomePage: React.FC = () => {
               <motion.div
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className={`${item.color} w-14 h-14 rounded-full flex items-center justify-center text-white text-xl shadow-lg shadow-${item.color.split("-")[1]}-200 dark:shadow-none`}
+                className={`${item.color} w-14 h-14 rounded-full flex items-center justify-center text-white text-xl shadow-lg shadow-primary/10`}
               >
                 {item.icon}
               </motion.div>
-              <span className="text-[11px] font-bold text-gray-700 dark:text-gray-300 group-hover:text-indigo-600">
+              <span className="text-[11px] font-bold text-default-700 group-hover:text-primary transition-colors">
                 {item.label}
               </span>
             </Link>
@@ -150,22 +150,22 @@ export const HomePage: React.FC = () => {
 
       {/* Delivery Info Card */}
       <section className="px-4">
-        <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-neutral-800 dark:to-neutral-800 border-none shadow-sm">
+        <Card className="bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-content1 dark:to-content1 border-none shadow-sm">
           <CardBody className="py-3 px-4 flex-row items-center gap-4">
-            <div className="bg-white dark:bg-neutral-700 p-2.5 rounded-full shadow-sm text-indigo-600 dark:text-indigo-400">
+            <div className="bg-background p-2.5 rounded-full shadow-sm text-primary">
               <FaTruckFast size={20} />
             </div>
             <div className="flex-grow">
-              <h4 className="text-sm font-bold text-gray-800 dark:text-white">
+              <h4 className="text-sm font-bold text-default-800">
                 Envío Gratis
               </h4>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+              <p className="text-[11px] text-default-500 font-medium">
                 En tu primera compra superior a ${formatPrice(thresholdConfig)}
               </p>
             </div>
             <Button
               isIconOnly
-              className="bg-white dark:bg-neutral-700 text-gray-400 rotate-0"
+              className="bg-background text-default-400 rotate-0"
               radius="full"
               size="sm"
               variant="flat"
@@ -179,11 +179,11 @@ export const HomePage: React.FC = () => {
       {/* Categories Grid (More visual) */}
       <section className="px-4 space-y-4">
         <div className="flex justify-between items-end">
-          <h3 className="text-xl font-black text-gray-800 dark:text-white tracking-tight">
+          <h3 className="text-xl font-black text-default-800 tracking-tight">
             Categorías destacadas
           </h3>
           <Link
-            className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+            className="text-xs font-bold text-primary hover:underline"
             to="/products"
           >
             Ver todo
@@ -236,7 +236,7 @@ export const HomePage: React.FC = () => {
               className="h-[88px] border-none relative overflow-hidden group shadow-md"
               to="/products?categories=OFERTAS"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-red-600" />
+              <div className="absolute inset-0 bg-gradient-to-br from-warning to-danger" />
               <div className="absolute inset-0 p-3 flex flex-col justify-center items-center text-center">
                 <FaTags className="text-white/30 absolute -right-2 -top-2 text-5xl rotate-12" />
                 <h4 className="text-white font-black text-base italic tracking-tighter uppercase underline decoration-2 underline-offset-4">
@@ -254,13 +254,10 @@ export const HomePage: React.FC = () => {
       {/* Popular Products Row */}
       <section className="px-4 space-y-4">
         <div className="flex justify-between items-end">
-          <h3 className="text-xl font-black text-gray-800 dark:text-white tracking-tight">
+          <h3 className="text-xl font-black text-default-800 tracking-tight">
             Elegidos para vos
           </h3>
-          <Link
-            className="text-xs font-bold text-indigo-600 dark:text-indigo-400"
-            to="/products"
-          >
+          <Link className="text-xs font-bold text-primary" to="/products">
             Ver más
           </Link>
         </div>
@@ -281,7 +278,7 @@ export const HomePage: React.FC = () => {
                 key={product._id}
                 isPressable
                 as={Link}
-                className="min-w-[170px] max-w-[170px] border-none shadow-lg hover:shadow-xl transition-shadow bg-white dark:bg-neutral-800"
+                className="min-w-[170px] max-w-[170px] border-divider shadow-md hover:shadow-lg transition-all bg-content1"
                 to={`/products?search=${product.name}`}
               >
                 <CardHeader className="p-0">
@@ -293,8 +290,8 @@ export const HomePage: React.FC = () => {
                         src={product.image}
                       />
                     ) : (
-                      <div className="w-full h-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center">
-                        <FaBoxOpen className="text-slate-300 text-3xl" />
+                      <div className="w-full h-full bg-default-100 flex items-center justify-center">
+                        <FaBoxOpen className="text-default-300 text-3xl" />
                       </div>
                     )}
                     <div className="absolute top-2 left-2">
@@ -310,14 +307,14 @@ export const HomePage: React.FC = () => {
                   </div>
                 </CardHeader>
                 <CardBody className="p-3">
-                  <p className="text-indigo-600 dark:text-indigo-400 font-black text-base">
+                  <p className="text-primary font-black text-base">
                     ${formatPrice(product.currentPrice)}
                   </p>
-                  <h4 className="text-[12px] text-gray-700 dark:text-gray-300 font-bold line-clamp-2 mt-1 leading-tight uppercase">
+                  <h4 className="text-[12px] text-default-700 font-bold line-clamp-2 mt-1 leading-tight uppercase">
                     {product.name}
                   </h4>
                   <div className="flex items-center gap-1 mt-2">
-                    <span className="text-[10px] text-gray-400 font-bold">
+                    <span className="text-[10px] text-default-400 font-bold">
                       {product.totalSold} vendidos
                     </span>
                   </div>
@@ -331,35 +328,35 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* Trust/About Section */}
-      <section className="px-4 py-8 bg-white dark:bg-neutral-900/50">
+      <section className="px-4 py-8 bg-background">
         <div className="text-center mb-8">
-          <h3 className="text-xl font-black text-gray-800 dark:text-white mb-2">
+          <h3 className="text-xl font-black text-default-800 mb-2">
             ¿Por qué elegir Click Market?
           </h3>
-          <p className="text-xs text-gray-500 font-medium">
+          <p className="text-xs text-default-500 font-medium">
             Tu confianza es nuestro motor diario
           </p>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col items-center text-center p-4 bg-gray-50 dark:bg-neutral-800 rounded-2xl">
-            <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-3">
+          <div className="flex flex-col items-center text-center p-4 bg-default-50 rounded-2xl">
+            <div className="w-10 h-10 rounded-full bg-primary-50 text-primary mb-3 flex items-center justify-center">
               <FaStar size={18} />
             </div>
-            <h4 className="text-xs font-bold dark:text-white mb-1">
+            <h4 className="text-xs font-bold text-default-800 mb-1">
               Calidad Premium
             </h4>
-            <p className="text-[10px] text-gray-400">
+            <p className="text-[10px] text-default-400">
               Seleccionamos lo mejor para vos.
             </p>
           </div>
-          <div className="flex flex-col items-center text-center p-4 bg-gray-50 dark:bg-neutral-800 rounded-2xl">
-            <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400 mb-3">
+          <div className="flex flex-col items-center text-center p-4 bg-default-50 rounded-2xl">
+            <div className="w-10 h-10 rounded-full bg-secondary-50 text-secondary mb-3 flex items-center justify-center">
               <FaBolt size={18} />
             </div>
-            <h4 className="text-xs font-bold dark:text-white mb-1">
+            <h4 className="text-xs font-bold text-default-800 mb-1">
               Entrega Flash
             </h4>
-            <p className="text-[10px] text-gray-400">
+            <p className="text-[10px] text-default-400">
               En la puerta de tu casa hoy mismo.
             </p>
           </div>
@@ -367,7 +364,7 @@ export const HomePage: React.FC = () => {
         <div className="mt-6 text-center">
           <Link
             to="/nosotros"
-            className="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider hover:underline"
+            className="text-xs font-black text-primary uppercase tracking-wider hover:underline"
           >
             Conocé nuestra historia →
           </Link>
@@ -376,18 +373,18 @@ export const HomePage: React.FC = () => {
 
       {/* Final CTA */}
       <section className="px-4 py-4">
-        <div className="bg-indigo-600 rounded-3xl p-8 text-center text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none">
+        <div className="bg-primary rounded-3xl p-8 text-center text-white relative overflow-hidden shadow-2xl shadow-primary/20">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <h3 className="text-2xl font-black mb-2 relative z-10">
             ¿Listo para llenar el carrito?
           </h3>
-          <p className="text-indigo-100 text-sm mb-6 relative z-10">
+          <p className="text-primary-foreground/80 text-sm mb-6 relative z-10">
             Descubrí miles de productos seleccionados para vos con entrega en el
             día.
           </p>
           <Button
             as={Link}
-            className="bg-white text-indigo-600 font-black px-8 py-6 text-base shadow-xl"
+            className="bg-background text-primary font-black px-8 py-6 text-base shadow-xl"
             radius="full"
             to="/products"
           >

@@ -38,6 +38,8 @@ export const useAdminOrders = ({
       };
     },
     placeholderData: keepPreviousData,
+    refetchInterval: 1000 * 10,
+    staleTime: 1000 * 30, // Un tiempo de expiración más corto para sincronizar mejor
   });
 };
 
@@ -48,10 +50,12 @@ export const useAdminOrderById = (id: string) => {
       const { data } = await apiClient.get(`/orders/${id}`);
 
       console.log(data);
+
       return toOrder(data);
     },
     enabled: !!id,
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 15,
+    refetchInterval: 1000 * 5, // Muy frecuente en el detalle para cambios de estado rápidos
   });
 };
 
@@ -65,8 +69,12 @@ export const useUpdateAdminOrderStatus = () => {
 
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (_, { id }) => {
+      // Invalidar en cascada para que todas las vistas se actualicen
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-order", id] });
+      queryClient.invalidateQueries({ queryKey: ["my-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order", id] });
       addToast("Estado del pedido actualizado", "success");
     },
     onError: () => {

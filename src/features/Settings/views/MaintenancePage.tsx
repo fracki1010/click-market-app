@@ -11,8 +11,8 @@ export const MaintenancePage: React.FC = () => {
   );
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-neutral-950 transition-colors duration-300">
-      <Card className="max-w-md w-full border-none shadow-2xl dark:bg-neutral-900/50">
+    <main className="min-h-screen flex items-center justify-center p-4 bg-background transition-colors duration-300">
+      <Card className="max-w-md w-full border-none shadow-2xl bg-content1">
         <CardBody className="flex flex-col items-center text-center p-8 gap-6">
           <div className="p-4 bg-warning/10 rounded-full text-warning animate-pulse">
             <Construction size={48} />

@@ -39,19 +39,19 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
   const remainingForFreeShipping = thresholdConfig - subtotal;
 
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl p-8 border border-slate-100 dark:border-zinc-800 flex flex-col gap-6">
-      <h2 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2">
-        <FaBagShopping className="text-orange-500" /> Resumen
+    <div className="bg-content1 rounded-3xl shadow-xl p-8 border border-divider flex flex-col gap-6">
+      <h2 className="text-2xl font-black text-default-800 flex items-center gap-2">
+        <FaBagShopping className="text-primary" /> Resumen
       </h2>
 
       {/* Free Shipping Progress */}
       {subtotal > 0 && (
-        <div className="bg-slate-50 dark:bg-zinc-800/50 p-4 rounded-2xl border border-slate-100 dark:border-zinc-700/50">
+        <div className="bg-default-50 p-4 rounded-2xl border border-divider">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-bold text-slate-600 dark:text-zinc-400">
+            <span className="text-sm font-bold text-default-600">
               {shipping === 0 ? "¡Tenés envío gratis!" : "Envío gratis"}
             </span>
-            {shipping === 0 && <FaCircleCheck className="text-emerald-500" />}
+            {shipping === 0 && <FaCircleCheck className="text-success" />}
           </div>
           <Progress
             color={shipping === 0 ? "success" : "warning"}
@@ -60,15 +60,15 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
             className="mb-2"
           />
           {remainingForFreeShipping > 0 ? (
-            <p className="text-xs text-slate-500 dark:text-zinc-500">
+            <p className="text-xs text-default-500">
               Faltan{" "}
-              <span className="font-bold text-slate-700 dark:text-zinc-300">
+              <span className="font-bold text-default-700">
                 ${formatPrice(remainingForFreeShipping)}
               </span>{" "}
               para envío gratis
             </p>
           ) : (
-            <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+            <p className="text-xs text-success font-medium">
               Tu pedido califica para envío sin cargo
             </p>
           )}
@@ -76,16 +76,16 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
       )}
 
       <div className="space-y-4">
-        <div className="flex justify-between items-center text-slate-600 dark:text-zinc-400">
+        <div className="flex justify-between items-center text-default-600">
           <span className="font-medium font-outfit">Subtotal productos</span>
-          <span className="font-bold text-slate-800 dark:text-zinc-200">
+          <span className="font-bold text-default-800">
             ${formatPrice(subtotal)}
           </span>
         </div>
 
-        <div className="flex justify-between items-center text-slate-600 dark:text-zinc-400">
+        <div className="flex justify-between items-center text-default-600">
           <span className="flex items-center gap-2 font-medium">
-            <FaTruckFast className="text-slate-400" /> Envío
+            <FaTruckFast className="text-default-400" /> Envío
           </span>
           {shipping === 0 && subtotal > 0 ? (
             <Chip
@@ -97,18 +97,18 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
               GRATIS
             </Chip>
           ) : (
-            <span className="font-bold text-slate-800 dark:text-zinc-200">
+            <span className="font-bold text-default-800">
               ${formatPrice(shipping)}
             </span>
           )}
         </div>
 
-        <div className="pt-4 border-t-2 border-dashed border-slate-100 dark:border-zinc-800 flex justify-between items-end">
+        <div className="pt-4 border-t-2 border-dashed border-divider flex justify-between items-end">
           <div>
-            <span className="text-sm uppercase tracking-widest font-black text-slate-400 dark:text-zinc-500">
+            <span className="text-sm uppercase tracking-widest font-black text-default-400">
               Total a pagar
             </span>
-            <p className="text-4xl font-black text-slate-900 dark:text-white leading-none">
+            <p className="text-4xl font-black text-default-900 leading-none">
               ${formatPrice(total)}
             </p>
           </div>
@@ -117,11 +117,11 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
 
       <div className="flex flex-col gap-4 mt-2">
         <Button
-          className={`h-16 text-xl font-black shadow-lg transition-all
+          className={`h-16 text-xl font-black shadow-lg shadow-primary/20 transition-all active:scale-95
             ${
               items.length === 0
                 ? ""
-                : "bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/25"
+                : "bg-primary hover:bg-primary-600 text-white"
             }`}
           disabled={items.length === 0}
           endContent={user && items.length > 0 ? <FaArrowRight /> : null}
@@ -134,7 +134,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
 
         <Button
           as={Link}
-          className="font-bold text-slate-500 dark:text-zinc-400"
+          className="font-bold text-default-500"
           to="/products"
           variant="light"
         >

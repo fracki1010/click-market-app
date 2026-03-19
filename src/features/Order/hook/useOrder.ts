@@ -13,7 +13,8 @@ export const useMyOrders = () => {
   return useQuery({
     queryKey: ["my-orders"],
     queryFn: orderService.getMyOrders,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 30, // Reducir staleTime para mayor frescura
+    refetchInterval: 1000 * 10, // Refrescar cada 10 segundos
   });
 };
 
@@ -22,7 +23,8 @@ export const useOrderById = (id: string) => {
     queryKey: ["order", id],
     queryFn: () => orderService.getOrderById(id),
     enabled: !!id,
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 30,
+    refetchInterval: 1000 * 5, // Más frecuente en el detalle para cambios de estado rápidos
   });
 };
 
@@ -59,8 +61,11 @@ export const useUpdateOrderStatus = () => {
 
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (_, { id }) => {
+      // Invalidar todo lo relacionado a órdenes para asegurar consistencia
       queryClient.invalidateQueries({ queryKey: ["my-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order", id] });
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
       addToast("¡Gracias por confirmar la entrega!", "success");
     },
     onError: () => {

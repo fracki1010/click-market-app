@@ -13,21 +13,20 @@ import {
   FaCcPaypal,
 } from "react-icons/fa6";
 import { Link } from "react-router";
+import Logo from "../../assets/Recurso 1.svg";
 
 export const Footer = () => {
   return (
-    <footer className="bg-white dark:bg-neutral-950 text-gray-600 dark:text-neutral-400 border-t border-gray-100 dark:border-neutral-900 pt-12 pb-24 md:pb-12 px-4 transition-colors duration-300">
+    <footer className="bg-content1 text-default-600 border-t border-divider pt-12 pb-24 md:pb-12 px-4 transition-colors duration-300">
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand Column */}
           <div className="space-y-4">
             <Link
-              className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-black text-2xl tracking-tight"
+              className="flex items-center gap-2 text-primary font-black text-2xl tracking-tight"
               to="/"
             >
-              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-1.5 rounded-xl shadow-lg">
-                <FaBagShopping className="text-white text-xl" />
-              </div>
+              <img src={Logo} alt="Logo" className="w-10 h-10" />
               <span>Click Market</span>
             </Link>
             <p className="text-sm leading-relaxed max-w-xs">
@@ -58,14 +57,14 @@ export const Footer = () => {
 
           {/* Links Column */}
           <div>
-            <h4 className="text-gray-900 dark:text-white font-bold mb-6 text-sm uppercase tracking-widest">
+            <h4 className="text-default-900 font-bold mb-6 text-sm uppercase tracking-widest">
               Nuestra Tienda
             </h4>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link
                   to="/products"
-                  className="hover:text-indigo-600 transition-colors"
+                  className="hover:text-primary transition-colors"
                 >
                   Todos los productos
                 </Link>
@@ -73,7 +72,7 @@ export const Footer = () => {
               <li>
                 <Link
                   to="/products?categories=OFERTAS"
-                  className="hover:text-indigo-600 transition-colors text-secondary font-medium"
+                  className="hover:text-primary transition-colors text-secondary font-medium"
                 >
                   Ofertas del día
                 </Link>
@@ -81,7 +80,7 @@ export const Footer = () => {
               <li>
                 <Link
                   to="/home"
-                  className="hover:text-indigo-600 transition-colors"
+                  className="hover:text-primary transition-colors"
                 >
                   Cómo funciona
                 </Link>
@@ -89,7 +88,7 @@ export const Footer = () => {
               <li>
                 <Link
                   to="/zonas-de-entrega"
-                  className="hover:text-indigo-600 transition-colors"
+                  className="hover:text-primary transition-colors"
                 >
                   Zonas de entrega
                 </Link>
@@ -97,7 +96,7 @@ export const Footer = () => {
               <li>
                 <Link
                   to="/nosotros"
-                  className="hover:text-indigo-600 transition-colors"
+                  className="hover:text-primary transition-colors"
                 >
                   Quiénes somos
                 </Link>
@@ -107,15 +106,12 @@ export const Footer = () => {
 
           {/* Contact Column */}
           <div>
-            <h4 className="text-gray-900 dark:text-white font-bold mb-6 text-sm uppercase tracking-widest">
+            <h4 className="text-default-900 font-bold mb-6 text-sm uppercase tracking-widest">
               Atención al Cliente
             </h4>
             <ul className="space-y-4 text-sm">
               <li className="flex items-start gap-3">
-                <FiMapPin
-                  className="text-indigo-500 shrink-0 mt-0.5"
-                  size={16}
-                />
+                <FiMapPin className="text-primary shrink-0 mt-0.5" size={16} />
                 <span>
                   Valle de Uco, Mendoza, Argentina
                   <br />
@@ -125,11 +121,11 @@ export const Footer = () => {
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <FiPhone className="text-indigo-500 shrink-0" size={16} />
+                <FiPhone className="text-primary shrink-0" size={16} />
                 <span>+54 9 2622 430004</span>
               </li>
               <li className="flex items-center gap-3">
-                <FiMail className="text-indigo-500 shrink-0" size={16} />
+                <FiMail className="text-primary shrink-0" size={16} />
                 <span>click.market.serv@gmail.com</span>
               </li>
             </ul>
@@ -138,7 +134,7 @@ export const Footer = () => {
           {/* Newsletter/Payments Column */}
           <div className="space-y-6">
             <div>
-              <h4 className="text-gray-900 dark:text-white font-bold mb-4 text-sm uppercase tracking-widest">
+              <h4 className="text-default-900 font-bold mb-4 text-sm uppercase tracking-widest">
                 Métodos de Pago
               </h4>
               <div className="flex gap-4 text-gray-400 dark:text-neutral-600">
@@ -148,28 +144,28 @@ export const Footer = () => {
               </div>
             </div>
             <div className="pt-2">
-              <p className="text-xs font-bold text-gray-400 dark:text-neutral-600 mb-2 italic">
+              <p className="text-xs font-bold text-default-400 mb-2 italic">
                 100% SEGURO
               </p>
-              <div className="h-0.5 w-12 bg-indigo-500 rounded-full"></div>
+              <div className="h-0.5 w-12 bg-primary rounded-full"></div>
             </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-16 pt-8 border-t border-gray-100 dark:border-neutral-900 flex flex-col md:flex-row justify-between items-center gap-4 text-[12px] font-medium text-gray-400">
+        <div className="mt-16 pt-8 border-t border-divider flex flex-col md:flex-row justify-between items-center gap-4 text-[12px] font-medium text-default-400">
           <p>
             © {new Date().getFullYear()} Click Market. Hecho con ❤️ para tu
             barrio.
           </p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-indigo-500">
+            <a href="#" className="hover:text-primary">
               Privacidad
             </a>
-            <a href="#" className="hover:text-indigo-500">
+            <a href="#" className="hover:text-primary">
               Términos
             </a>
-            <a href="#" className="hover:text-indigo-500">
+            <a href="#" className="hover:text-primary">
               Devoluciones
             </a>
           </div>

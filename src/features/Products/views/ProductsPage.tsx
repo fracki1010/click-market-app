@@ -89,7 +89,7 @@ const MobileProducts = ({ filters }: any) => {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <Spinner color="primary" size="lg" />
-        <p className="text-gray-400 mt-4 text-sm animate-pulse">
+        <p className="text-default-400 mt-4 text-sm animate-pulse">
           Cargando catálogo...
         </p>
       </div>
@@ -107,7 +107,7 @@ const MobileProducts = ({ filters }: any) => {
       >
         {isFetchingNextPage && <Spinner color="primary" size="md" />}
         {!hasNextPage && allProducts.length > 0 && (
-          <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
+          <p className="text-default-400 text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
             Fin del catálogo
           </p>
         )}
@@ -206,19 +206,19 @@ export const ProductsPage: React.FC = () => {
   const rootCategories = categories.filter((c) => !c.parent);
 
   return (
-    <main className="flex-grow bg-white dark:bg-neutral-950 transition-colors duration-500 min-h-screen">
+    <main className="flex-grow bg-background transition-colors duration-500 min-h-screen">
       {/* 1. Header de sección Moderno */}
-      <div className="bg-gray-50/50 dark:bg-neutral-900/40 border-b border-gray-100 dark:border-neutral-900 pb-3 pt-4 md:pb-8 md:pt-10 px-4">
+      <div className="bg-default-50/50 border-b border-divider pb-3 pt-4 md:pb-8 md:pt-10 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="flex flex-col md:flex-row justify-between items-end gap-3 md:gap-6">
             <div className="space-y-0.5">
-              <div className="hidden md:flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-black text-[10px] uppercase tracking-[0.3em]">
+              <div className="hidden md:flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.3em]">
                 <span className="w-8 h-[2px] bg-current opacity-30"></span>
                 Explora
               </div>
-              <h1 className="text-2xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tighter">
+              <h1 className="text-2xl md:text-5xl font-black text-default-900 tracking-tighter">
                 Click{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
                   Catálogo
                 </span>
               </h1>
@@ -230,24 +230,22 @@ export const ProductsPage: React.FC = () => {
                   isClearable
                   classNames={{
                     inputWrapper:
-                      "h-10 md:h-12 bg-white dark:bg-neutral-900 border-none shadow-xl shadow-indigo-500/5 rounded-2xl",
+                      "h-10 md:h-12 bg-content1 border-divider shadow-xl shadow-primary/5 rounded-2xl",
                     input: "text-sm font-medium",
                   }}
                   placeholder="Busca por nombre o marca..."
                   radius="none"
-                  startContent={
-                    <FiSearch className="text-indigo-500" size={18} />
-                  }
+                  startContent={<FiSearch className="text-primary" size={18} />}
                   value={searchTerm}
                   onValueChange={setSearchTerm}
                 />
               </div>
               <Button
                 isIconOnly
-                className="h-12 w-12 bg-white dark:bg-neutral-900 shadow-xl shadow-indigo-500/5 rounded-2xl border-none"
+                className="h-12 w-12 bg-content1 shadow-xl shadow-primary/5 rounded-2xl border-none"
                 onClick={onOpen}
               >
-                <FiFilter className="text-gray-900 dark:text-white" size={20} />
+                <FiFilter className="text-default-900" size={20} />
               </Button>
             </div>
           </div>
@@ -255,7 +253,7 @@ export const ProductsPage: React.FC = () => {
       </div>
 
       {/* 2. Barra de Filtros Horizontales (Modern Pills) */}
-      <div className="sticky top-[56px] lg:top-[115px] z-30 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-neutral-900 py-5 md:py-4 mb-6 md:mb-8">
+      <div className="sticky top-[56px] lg:top-[115px] z-30 bg-background/80 backdrop-blur-xl border-b border-divider py-5 md:py-4 mb-6 md:mb-8">
         <div className="container mx-auto max-w-7xl px-4 flex items-center gap-4">
           <div className="flex-grow overflow-x-auto no-scrollbar flex items-center gap-2 pr-10">
             <Button
@@ -287,7 +285,7 @@ export const ProductsPage: React.FC = () => {
             ))}
           </div>
 
-          <div className="hidden lg:flex shrink-0 border-l border-gray-100 dark:border-neutral-800 pl-4 items-center gap-3">
+          <div className="hidden lg:flex shrink-0 border-l border-divider pl-4 items-center gap-3">
             <Select
               aria-label="Ordenar"
               className="w-36"
@@ -295,8 +293,7 @@ export const ProductsPage: React.FC = () => {
               size="sm"
               variant="flat"
               classNames={{
-                trigger:
-                  "bg-transparent h-8 hover:bg-gray-50 dark:hover:bg-neutral-900",
+                trigger: "bg-transparent h-8 hover:bg-default-100",
                 value: "text-[10px] font-black uppercase tracking-widest",
               }}
               onSelectionChange={(k) =>
@@ -323,7 +320,7 @@ export const ProductsPage: React.FC = () => {
             <Chip
               key={cat}
               onClose={() => removeCategory(cat)}
-              className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-[10px] uppercase border-none"
+              className="bg-primary-50 dark:bg-primary-500/10 text-primary font-bold text-[10px] uppercase border-none"
               variant="flat"
             >
               {cat}
@@ -332,7 +329,7 @@ export const ProductsPage: React.FC = () => {
           {(filters.price_min && filters.price_min > 0) ||
           (filters.price_max && filters.price_max < 100000) ? (
             <Chip
-              className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-[10px] uppercase border-none"
+              className="bg-warning-50 dark:bg-warning-500/10 text-warning font-bold text-[10px] uppercase border-none"
               variant="flat"
               onClose={() =>
                 updateUrl({ ...filters, price_min: 0, price_max: 100000 })
@@ -359,18 +356,18 @@ export const ProductsPage: React.FC = () => {
           {!isLoading && totalItems === 0 && (
             <div className="flex flex-col items-center justify-center py-32">
               <div className="relative mb-6">
-                <div className="absolute inset-0 bg-indigo-500/10 blur-3xl rounded-full"></div>
+                <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full"></div>
                 <div className="relative text-6xl">✨</div>
               </div>
-              <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
+              <h3 className="text-xl font-black text-default-900 tracking-tight">
                 Vaya, no hay nada aquí
               </h3>
-              <p className="text-gray-400 text-sm mt-3 text-center max-w-xs leading-relaxed">
+              <p className="text-default-400 text-sm mt-3 text-center max-w-xs leading-relaxed">
                 Parece que esos filtros son muy específicos. ¡Prueba quitando
                 algunos!
               </p>
               <Button
-                className="mt-8 bg-indigo-600 text-white font-black px-8 h-12 rounded-2xl shadow-xl shadow-indigo-600/20"
+                className="mt-8 bg-primary text-primary-foreground font-black px-8 h-12 rounded-2xl shadow-xl shadow-primary/20"
                 onPress={() =>
                   updateUrl({
                     categories: [],
@@ -395,14 +392,14 @@ export const ProductsPage: React.FC = () => {
         size="sm"
         placement="right"
       >
-        <DrawerContent className="bg-white dark:bg-neutral-950">
+        <DrawerContent className="bg-background">
           {(onClose) => (
             <>
-              <DrawerHeader className="flex flex-col gap-1 border-b border-gray-100 dark:border-neutral-900 px-6 py-6">
-                <div className="flex items-center gap-2 text-indigo-600 font-black text-[10px] uppercase tracking-widest">
+              <DrawerHeader className="flex flex-col gap-1 border-b border-divider px-6 py-6">
+                <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
                   <FiFilter /> Configuración Avanzada
                 </div>
-                <h2 className="text-2xl font-black tracking-tight dark:text-white leading-tight">
+                <h2 className="text-2xl font-black tracking-tight text-default-900 leading-tight">
                   Ajusta tu búsqueda
                 </h2>
               </DrawerHeader>

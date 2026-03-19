@@ -58,27 +58,27 @@ export const LoginPage = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50/50 dark:bg-neutral-950 p-4 sm:p-8">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-8 transition-colors">
       <div className="w-full max-w-[420px] animate-appearance-in">
         {/* Logo and Header */}
         <div className="flex flex-col items-center mb-10">
-          <div className="bg-white dark:bg-neutral-900 p-5 rounded-[2rem] shadow-sm mb-8 ring-1 ring-gray-100 dark:ring-neutral-800">
+          <div className="bg-content1 p-5 rounded-[2rem] shadow-sm mb-8 ring-1 ring-divider">
             <img
               src={logoExt}
               alt="Click Market Logo"
               className="h-16 w-auto object-contain"
             />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center tracking-tight">
+          <h2 className="text-3xl font-bold text-default-900 text-center tracking-tight">
             Bienvenido de vuelta
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-3 text-center text-sm font-medium px-4">
+          <p className="text-default-500 mt-3 text-center text-sm font-medium px-4">
             Ingresa a tu cuenta para continuar
           </p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white dark:bg-neutral-900/80 backdrop-blur-xl shadow-xl shadow-black/5 dark:shadow-black/20 rounded-[2.5rem] p-8 sm:p-10 border border-gray-100 dark:border-neutral-800">
+        <div className="bg-content1 backdrop-blur-xl shadow-xl shadow-black/5 dark:shadow-black/20 rounded-[2.5rem] p-8 sm:p-10 border border-divider">
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             <div className="flex flex-col gap-5">
               <Input
@@ -91,8 +91,8 @@ export const LoginPage = () => {
                 variant="faded"
                 classNames={{
                   inputWrapper:
-                    "bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 shadow-none hover:bg-gray-100 dark:hover:bg-neutral-900 transition-colors",
-                  label: "text-gray-600 dark:text-gray-400 font-medium",
+                    "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
+                  label: "text-default-600 font-medium",
                 }}
               />
               <Input
@@ -105,14 +105,14 @@ export const LoginPage = () => {
                 variant="faded"
                 classNames={{
                   inputWrapper:
-                    "bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 shadow-none hover:bg-gray-100 dark:hover:bg-neutral-900 transition-colors",
-                  label: "text-gray-600 dark:text-gray-400 font-medium",
+                    "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
+                  label: "text-default-600 font-medium",
                 }}
               />
             </div>
 
             {error && (
-              <div className="bg-red-50/80 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-4 rounded-2xl text-sm text-center font-medium border border-red-100 dark:border-red-500/20">
+              <div className="bg-danger-50 text-danger p-4 rounded-2xl text-sm text-center font-medium border border-danger-100">
                 {error}
               </div>
             )}
@@ -138,7 +138,7 @@ export const LoginPage = () => {
         onClose={() => setIsSessionExpiredModalOpen(false)}
       >
         <div className="text-center p-2">
-          <p className="text-gray-600 dark:text-gray-300 mb-6 font-medium">
+          <p className="text-default-600 mb-6 font-medium">
             Tu sesión ha expirado por seguridad. Por favor, vuelve a iniciar
             sesión para continuar.
           </p>

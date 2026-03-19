@@ -34,6 +34,7 @@ export interface IProduct {
   name: string;
   description: string;
   price: number;
+  costPrice: number;
   imageUrl?: string;
   categories: ICategory[];
   stock: number;
@@ -45,6 +46,7 @@ export type NewProductPayload = {
   name: string;
   description: string;
   price: number;
+  costPrice?: number;
   categories: ICategory[];
   image_url: string;
   stock: number;

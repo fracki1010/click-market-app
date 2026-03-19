@@ -10,7 +10,7 @@ export const ShopLayout = () => {
       <Header />
       <Navigation />
 
-      <main className="flex-1 p-4 bg-gray-50 dark:bg-neutral-900 pb-20 md:pb-4">
+      <main className="flex-1 p-4 bg-background pb-20 md:pb-4 transition-colors">
         <Outlet />
       </main>
 

@@ -14,9 +14,7 @@ export const ProductList = ({
   if (isLoading) return <LoadingComponent />;
 
   if (!products?.length)
-    return (
-      <p className="text-gray-500 dark:text-gray-300">No products found.</p>
-    );
+    return <p className="text-default-500">No products found.</p>;
 
   return (
     <main className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 w-full">

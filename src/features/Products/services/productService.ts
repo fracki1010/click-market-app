@@ -33,4 +33,13 @@ export const productService = {
   delete: async (id: string): Promise<void> => {
     return await productApi.deleteProduct(id);
   },
+  getMarkup: async () => {
+    return await productApi.getMarkup();
+  },
+  updateMarkup: async (markupPercentage: number) => {
+    return await productApi.updateMarkup(markupPercentage);
+  },
+  getMarkupProgress: async () => {
+    return await productApi.getMarkupProgress();
+  },
 };

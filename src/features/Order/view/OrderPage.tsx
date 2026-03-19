@@ -30,8 +30,8 @@ const getStatusConfig = (status: string) => {
         color: "success" as const,
         icon: <FaCircleCheck />,
         label: "Entregado",
-        bg: "bg-emerald-500/10",
-        text: "text-emerald-600 dark:text-emerald-400",
+        bg: "bg-success-50",
+        text: "text-success",
       };
     case "on way":
     case "shipped":
@@ -39,8 +39,8 @@ const getStatusConfig = (status: string) => {
         color: "primary" as const,
         icon: <FaMotorcycle />,
         label: "En Camino",
-        bg: "bg-blue-500/10",
-        text: "text-blue-600 dark:text-blue-400",
+        bg: "bg-primary-50",
+        text: "text-primary",
       };
     case "processing":
     case "packed":
@@ -48,32 +48,32 @@ const getStatusConfig = (status: string) => {
         color: "secondary" as const,
         icon: <FaBoxOpen />,
         label: "Preparando",
-        bg: "bg-purple-500/10",
-        text: "text-purple-600 dark:text-purple-400",
+        bg: "bg-secondary-50",
+        text: "text-secondary",
       };
     case "pending":
       return {
         color: "warning" as const,
         icon: <FaClock />,
         label: "Pendiente",
-        bg: "bg-orange-500/10",
-        text: "text-orange-600 dark:text-orange-400",
+        bg: "bg-warning-50",
+        text: "text-warning",
       };
     case "cancelled":
       return {
         color: "danger" as const,
         icon: null,
         label: "Cancelado",
-        bg: "bg-red-500/10",
-        text: "text-red-600 dark:text-red-400",
+        bg: "bg-danger-50",
+        text: "text-danger",
       };
     default:
       return {
         color: "default" as const,
         icon: null,
         label: status,
-        bg: "bg-slate-500/10",
-        text: "text-slate-600 dark:text-slate-400",
+        bg: "bg-default-100",
+        text: "text-default-600",
       };
   }
 };
@@ -103,7 +103,7 @@ export const OrderPage: React.FC = () => {
     return (
       <div className="flex flex-col justify-center items-center h-screen gap-4">
         <Spinner color="success" size="lg" />
-        <p className="text-slate-500 font-bold animate-pulse">
+        <p className="text-default-500 font-bold animate-pulse">
           Cargando tus pedidos...
         </p>
       </div>
@@ -112,8 +112,8 @@ export const OrderPage: React.FC = () => {
   if (isError)
     return (
       <div className="flex flex-col items-center justify-center p-10 min-h-screen">
-        <div className="bg-red-50 dark:bg-red-900/10 p-8 rounded-[2rem] text-center border border-red-100 dark:border-red-900/20">
-          <p className="text-red-500 font-black text-xl mb-4">
+        <div className="bg-danger-50 p-8 rounded-[2rem] text-center border border-danger-100">
+          <p className="text-danger font-black text-xl mb-4">
             ¡Ups! Algo salió mal
           </p>
           <Button
@@ -128,9 +128,9 @@ export const OrderPage: React.FC = () => {
     );
 
   return (
-    <main className="bg-slate-50 dark:bg-zinc-950 min-h-screen pb-20">
+    <main className="bg-background min-h-screen pb-20 transition-colors">
       {/* Header Section */}
-      <div className="bg-white dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800 pt-16 pb-10">
+      <div className="bg-content1 border-b border-divider pt-16 pb-10">
         <div className="container mx-auto max-w-5xl px-4">
           <div className="flex items-center gap-6">
             <Button
@@ -138,17 +138,17 @@ export const OrderPage: React.FC = () => {
               radius="full"
               variant="flat"
               onPress={() => navigate("/products")}
-              className="bg-slate-100 dark:bg-zinc-800"
+              className="bg-default-100"
             >
               <FaArrowLeft />
             </Button>
             <div>
-              <h1 className="text-4xl md:text-5xl font-black text-slate-800 dark:text-white">
+              <h1 className="text-4xl md:text-5xl font-black text-default-800">
                 Mis Pedidos
               </h1>
-              <div className="flex items-center gap-2 text-slate-500 dark:text-zinc-400 mt-2 font-medium">
-                <FaReceipt className="text-emerald-500" /> Historial de compras
-                y seguimiento activo
+              <div className="flex items-center gap-2 text-default-500 mt-2 font-medium">
+                <FaReceipt className="text-success" /> Historial de compras y
+                seguimiento activo
               </div>
             </div>
           </div>
@@ -160,24 +160,24 @@ export const OrderPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20 bg-white dark:bg-zinc-900 rounded-[3rem] shadow-sm border border-slate-100 dark:border-zinc-800 p-12"
+            className="text-center py-20 bg-content1 rounded-[3rem] shadow-sm border border-divider p-12"
           >
             <div className="relative w-32 h-32 mx-auto mb-8">
-              <div className="absolute inset-0 bg-slate-100 dark:bg-zinc-800 rounded-full scale-110" />
+              <div className="absolute inset-0 bg-default-100 rounded-full scale-110" />
               <div className="relative flex items-center justify-center w-full h-full">
-                <FaBagShopping className="text-6xl text-slate-300 dark:text-zinc-600" />
+                <FaBagShopping className="text-6xl text-default-300" />
               </div>
             </div>
-            <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4">
+            <h2 className="text-3xl font-black text-default-800 mb-4">
               Aún no tienes pedidos
             </h2>
-            <p className="text-slate-500 dark:text-zinc-400 text-lg mb-8 max-w-sm mx-auto">
+            <p className="text-default-500 text-lg mb-8 max-w-sm mx-auto">
               Tus compras aparecerán aquí una vez que las realices. ¡Empezá hoy
               mismo!
             </p>
             <Button
               onPress={() => navigate("/products")}
-              className="bg-emerald-600 text-white font-black px-10 h-14 text-lg shadow-xl shadow-emerald-500/20"
+              className="bg-success text-white font-black px-10 h-14 text-lg shadow-xl shadow-success/20"
               radius="full"
             >
               Ir al Supermercado
@@ -189,7 +189,7 @@ export const OrderPage: React.FC = () => {
               className="px-0 gap-6"
               variant="splitted"
               itemClasses={{
-                base: "group-[.is-splitted]:bg-white dark:group-[.is-splitted]:bg-zinc-900 group-[.is-splitted]:shadow-sm group-[.is-splitted]:rounded-[2rem] border border-slate-100 dark:border-zinc-800 overflow-hidden",
+                base: "group-[.is-splitted]:bg-content1 group-[.is-splitted]:shadow-sm group-[.is-splitted]:rounded-[2rem] border border-divider overflow-hidden",
                 title: "w-full",
                 trigger: "px-6 py-4",
                 content: "px-6 pb-6 pt-0",
@@ -214,11 +214,11 @@ export const OrderPage: React.FC = () => {
                             )}
                           </div>
                           <div className="flex flex-col text-left">
-                            <span className="text-xl font-black text-slate-800 dark:text-white leading-none mb-1">
+                            <span className="text-xl font-black text-default-800 leading-none mb-1">
                               {order.orderNumber ||
                                 `#${order.id.slice(-6).toUpperCase()}`}
                             </span>
-                            <span className="text-xs font-bold text-slate-400 flex items-center gap-1">
+                            <span className="text-xs font-bold text-default-400 flex items-center gap-1">
                               <FaCalendarDays size={10} />{" "}
                               {formatDate(order.orderDate)} •{" "}
                               {formatTime(order.orderDate)}
@@ -227,10 +227,10 @@ export const OrderPage: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-4 ml-12 sm:ml-0">
                           <div className="text-right flex flex-col">
-                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+                            <span className="text-xs font-black text-default-400 uppercase tracking-widest leading-none mb-1">
                               Total
                             </span>
-                            <span className="font-black text-emerald-600 text-2xl leading-none">
+                            <span className="font-black text-success text-2xl leading-none">
                               ${formatPrice(order.total)}
                             </span>
                           </div>
@@ -250,25 +250,25 @@ export const OrderPage: React.FC = () => {
                       className="space-y-6 pt-4"
                     >
                       {/* Tracking Card */}
-                      <div className="bg-slate-50 dark:bg-zinc-800/50 p-6 rounded-[1.5rem] border border-slate-100 dark:border-zinc-800/80">
+                      <div className="bg-default-50 p-6 rounded-[1.5rem] border border-divider">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                           <div className="space-y-4">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-default-400">
                               Detalles de Envío
                             </p>
                             <div className="flex items-start gap-4">
-                              <div className="mt-1 flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-zinc-800 shadow-sm text-emerald-500">
+                              <div className="mt-1 flex items-center justify-center w-8 h-8 rounded-full bg-content2 shadow-sm text-success">
                                 <FaMapLocationDot size={14} />
                               </div>
                               <div className="flex flex-col">
-                                <span className="font-bold text-slate-700 dark:text-zinc-200">
+                                <span className="font-bold text-default-700">
                                   {order.shipping.neighborhood}
                                 </span>
-                                <span className="text-sm text-slate-500 dark:text-zinc-400">
+                                <span className="text-sm text-default-500">
                                   {order.shipping.address}
                                 </span>
                                 {order.shipping.deliveryNotes && (
-                                  <p className="text-xs text-slate-400 mt-2 bg-white dark:bg-zinc-800 p-2 rounded-lg border border-slate-100 dark:border-zinc-700 italic">
+                                  <p className="text-xs text-default-400 mt-2 bg-content2 p-2 rounded-lg border border-divider italic">
                                     "{order.shipping.deliveryNotes}"
                                   </p>
                                 )}
@@ -277,31 +277,31 @@ export const OrderPage: React.FC = () => {
                           </div>
 
                           <div className="space-y-4">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-default-400">
                               Preferencias
                             </p>
                             <div className="flex items-start gap-4">
-                              <div className="mt-1 flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-zinc-800 shadow-sm text-orange-500">
+                              <div className="mt-1 flex items-center justify-center w-8 h-8 rounded-full bg-content2 shadow-sm text-warning">
                                 <FaClock size={14} />
                               </div>
                               <div className="flex flex-col">
-                                <span className="font-bold text-slate-700 dark:text-zinc-200">
+                                <span className="font-bold text-default-700">
                                   Entrega Estimada
                                 </span>
-                                <span className="text-sm text-slate-500 dark:text-zinc-400">
+                                <span className="text-sm text-default-500">
                                   {order.shipping.deliverySlot}
                                 </span>
                               </div>
                             </div>
                             <div className="flex items-start gap-4">
-                              <div className="mt-1 flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-zinc-800 shadow-sm text-blue-500">
+                              <div className="mt-1 flex items-center justify-center w-8 h-8 rounded-full bg-content2 shadow-sm text-primary">
                                 <FaTruckFast size={14} />
                               </div>
                               <div className="flex flex-col">
-                                <span className="font-bold text-slate-700 dark:text-zinc-200">
+                                <span className="font-bold text-default-700">
                                   Método de Pago
                                 </span>
-                                <span className="text-sm text-slate-500 dark:text-zinc-400">
+                                <span className="text-sm text-default-500">
                                   {order.payment.method === "Transfer"
                                     ? "Transferencia Bancaria"
                                     : order.payment.method}
@@ -314,10 +314,10 @@ export const OrderPage: React.FC = () => {
 
                       {/* Items List */}
                       <div className="space-y-3">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-default-400 ml-2">
                           Productos ({order.items.length})
                         </p>
-                        <div className="divide-y divide-slate-100 dark:divide-zinc-800">
+                        <div className="divide-y divide-divider">
                           {order.items.map((item, idx) => (
                             <OrderItemRow
                               key={`${order.id}-${idx}`}
@@ -341,7 +341,7 @@ export const OrderPage: React.FC = () => {
                         </Button>
                         {order.status === "On Way" && (
                           <Button
-                            className="flex-1 h-12 bg-emerald-600 text-white font-black shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 active:scale-95 transition-all"
+                            className="flex-1 h-12 bg-success text-white font-black shadow-lg shadow-success/20 hover:bg-success-600 active:scale-95 transition-all"
                             isLoading={isUpdating}
                             radius="lg"
                             startContent={!isUpdating && <FaCheck />}

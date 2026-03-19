@@ -86,8 +86,8 @@ const CategoryItem = ({
       <div
         className={`group flex items-center gap-2 py-1.5 rounded-xl px-2 transition-all duration-200 ${
           isSelected
-            ? "bg-indigo-50 dark:bg-indigo-500/10"
-            : "hover:bg-gray-50 dark:hover:bg-neutral-800/50"
+            ? "bg-primary-50 dark:bg-primary-500/10"
+            : "hover:bg-default-100"
         }`}
         style={{ marginLeft: `${level * 8}px` }}
       >
@@ -95,8 +95,8 @@ const CategoryItem = ({
           <button
             className={`p-1 rounded-md transition-colors ${
               isOpen
-                ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-500/20"
-                : "text-gray-400 group-hover:text-gray-600"
+                ? "text-primary bg-primary-50 dark:bg-primary-500/20"
+                : "text-default-400 group-hover:text-default-600"
             }`}
             onClick={(e) => {
               e.preventDefault();
@@ -104,7 +104,7 @@ const CategoryItem = ({
             }}
           >
             <FiChevronRight
-              className={`w-3.5 h-3.5 transition-transform duration-300 ${isOpen ? "rotate-90 text-indigo-500" : ""}`}
+              className={`w-3.5 h-3.5 transition-transform duration-300 ${isOpen ? "rotate-90 text-primary" : ""}`}
             />
           </button>
         ) : (
@@ -113,8 +113,8 @@ const CategoryItem = ({
 
         <Checkbox
           classNames={{
-            label: `text-sm font-medium transition-colors ${isSelected ? "text-indigo-600 dark:text-indigo-400" : "text-gray-600 dark:text-neutral-400"}`,
-            wrapper: "after:bg-indigo-600 before:border-indigo-600",
+            label: `text-sm font-medium transition-colors ${isSelected ? "text-primary" : "text-default-600"}`,
+            wrapper: "after:bg-primary before:border-primary",
           }}
           isSelected={isSelected}
           size="sm"
@@ -130,7 +130,7 @@ const CategoryItem = ({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-l-2 border-gray-100 dark:border-neutral-800 ml-4.5 mt-1 pb-1"
+            className="overflow-hidden border-l-2 border-divider ml-4.5 mt-1 pb-1"
           >
             {category.children!.map((child) => (
               <CategoryItem
@@ -196,14 +196,14 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
       {/* Header con indicador de activos */}
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 rounded-xl shadow-sm text-indigo-500">
+          <div className="p-2 bg-content1 border border-divider rounded-xl shadow-sm text-primary">
             <FiFilter size={18} />
           </div>
           <div>
-            <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-tight">
+            <h3 className="text-sm font-black text-default-800 uppercase tracking-tight">
               Filtros
             </h3>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+            <p className="text-[10px] text-default-400 font-bold uppercase tracking-wider">
               Refina tu búsqueda
             </p>
           </div>
@@ -223,12 +223,12 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         )}
       </div>
 
-      <div className="bg-white dark:bg-neutral-900 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none border border-gray-50 dark:border-neutral-800/50 space-y-8">
+      <div className="bg-content1 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none border border-divider space-y-8">
         {/* Sección Categorías */}
         <section>
-          <h4 className="text-[11px] font-black text-gray-400 dark:text-neutral-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+          <h4 className="text-[11px] font-black text-default-500 uppercase tracking-widest mb-4 flex items-center gap-2">
             Categorías
-            <span className="w-1 h-1 bg-indigo-500 rounded-full"></span>
+            <span className="w-1 h-1 bg-primary rounded-full"></span>
           </h4>
 
           {isLoading ? (
@@ -256,9 +256,9 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         {/* Sección Precio */}
         <section>
           <div className="flex justify-between items-center mb-6">
-            <h4 className="text-[11px] font-black text-gray-400 dark:text-neutral-500 uppercase tracking-widest flex items-center gap-2">
+            <h4 className="text-[11px] font-black text-default-500 uppercase tracking-widest flex items-center gap-2">
               Rango de Precio
-              <span className="w-1 h-1 bg-indigo-500 rounded-full"></span>
+              <span className="w-1 h-1 bg-primary rounded-full"></span>
             </h4>
           </div>
 
@@ -275,10 +275,10 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                 localFilters.price_max || 100000,
               ]}
               classNames={{
-                track: "bg-gray-100 dark:bg-neutral-800 h-1.5",
-                filler: "bg-indigo-500",
+                track: "bg-default-100 h-1.5",
+                filler: "bg-primary",
                 thumb:
-                  "bg-white border-2 border-indigo-500 shadow-md w-4 h-4 after:bg-indigo-500",
+                  "bg-white border-2 border-primary shadow-md w-4 h-4 after:bg-primary",
               }}
               onChange={(val) =>
                 Array.isArray(val) &&
@@ -291,19 +291,19 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
             />
 
             <div className="flex justify-between mt-4">
-              <div className="bg-gray-50 dark:bg-neutral-800/50 px-3 py-1.5 rounded-xl border border-gray-100 dark:border-neutral-800">
-                <p className="text-[9px] text-gray-400 font-bold uppercase block">
+              <div className="bg-default-50 px-3 py-1.5 rounded-xl border border-divider">
+                <p className="text-[9px] text-default-400 font-bold uppercase block">
                   Mín
                 </p>
-                <span className="text-xs font-black text-gray-700 dark:text-neutral-200">
+                <span className="text-xs font-black text-default-700">
                   ${formatPrice(localFilters.price_min || 0)}
                 </span>
               </div>
-              <div className="bg-gray-50 dark:bg-neutral-800/50 px-3 py-1.5 rounded-xl border border-gray-100 dark:border-neutral-800 text-right">
-                <p className="text-[9px] text-gray-400 font-bold uppercase block">
+              <div className="bg-default-50 px-3 py-1.5 rounded-xl border border-divider text-right">
+                <p className="text-[9px] text-default-400 font-bold uppercase block">
                   Máx
                 </p>
-                <span className="text-xs font-black text-gray-700 dark:text-neutral-200">
+                <span className="text-xs font-black text-default-700">
                   ${formatPrice(localFilters.price_max || 100000)}
                 </span>
               </div>
@@ -313,7 +313,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
 
         <Button
           fullWidth
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest h-12 shadow-xl shadow-indigo-500/20 rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="bg-primary hover:bg-primary-600 text-primary-foreground font-black text-xs uppercase tracking-widest h-12 shadow-xl shadow-primary/20 rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
           onPress={() => onApply(localFilters)}
         >
           Aplicar Cambios

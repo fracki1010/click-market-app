@@ -11,6 +11,9 @@ import {
   FaTableCells,
   FaGear,
   FaChevronRight,
+  FaSun,
+  FaMoon,
+  FaLaptop,
 } from "react-icons/fa6";
 import { Link } from "react-router";
 
@@ -20,6 +23,7 @@ import { useAddresses } from "../hooks/useAddresses";
 import { AddressCard } from "../components/AddressCard";
 import { AddAddressModal } from "../components/AddAddressModal";
 import { CreateAddressPayload } from "../types/Address";
+import { useTheme } from "../../Settings/hooks/useTheme";
 
 export const ProfilePage = () => {
   const { user, logoutUser, updateUserState, loading: authLoading } = useAuth();
@@ -34,6 +38,7 @@ export const ProfilePage = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
   const [showAddresses, setShowAddresses] = useState(false);
+  const [currentTheme, setTheme] = useTheme();
 
   const handleEditSubmit = async (data: any) => {
     try {
@@ -71,17 +76,10 @@ export const ProfilePage = () => {
           <Icon size={20} />
         </div>
         <div className="flex-1">
-          <p className="font-bold text-gray-900 dark:text-white leading-tight">
-            {title}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-            {subtitle}
-          </p>
+          <p className="font-bold text-default-900 leading-tight">{title}</p>
+          <p className="text-xs text-default-500 mt-0.5">{subtitle}</p>
         </div>
-        <FaChevronRight
-          className="text-gray-300 dark:text-gray-600"
-          size={14}
-        />
+        <FaChevronRight className="text-default-300" size={14} />
       </CardBody>
     );
 
@@ -90,7 +88,7 @@ export const ProfilePage = () => {
         <Card
           as={Link}
           isPressable
-          className="border-none shadow-sm hover:shadow-md transition-all bg-white dark:bg-neutral-800"
+          className="border-none shadow-sm hover:shadow-md transition-all bg-content1"
           to={to}
         >
           {content}
@@ -101,7 +99,7 @@ export const ProfilePage = () => {
     return (
       <Card
         isPressable
-        className="border-none shadow-sm hover:shadow-md transition-all bg-white dark:bg-neutral-800"
+        className="border-none shadow-sm hover:shadow-md transition-all bg-content1"
         onPress={onPress}
       >
         {content}
@@ -123,7 +121,7 @@ export const ProfilePage = () => {
           />
           <Button
             isIconOnly
-            className="absolute -bottom-1 -right-1 shadow-lg bg-white dark:bg-neutral-700"
+            className="absolute -bottom-1 -right-1 shadow-lg bg-content1"
             radius="full"
             size="sm"
             variant="flat"
@@ -132,10 +130,10 @@ export const ProfilePage = () => {
             <FaUserPen className="text-primary" size={14} />
           </Button>
         </div>
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white text-center">
+        <h1 className="text-2xl font-black text-default-900 text-center">
           {user.name}
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-2">
+        <p className="text-sm text-default-500 text-center mb-2">
           {user.email}
         </p>
         {isAdmin && (
@@ -153,7 +151,7 @@ export const ProfilePage = () => {
       <div className="space-y-6">
         {/* Sección: Mi Actividad */}
         <section>
-          <h2 className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest px-1 mb-3">
+          <h2 className="text-xs font-bold text-default-400 uppercase tracking-widest px-1 mb-3">
             Mi Actividad
           </h2>
           <div className="grid gap-3">
@@ -171,7 +169,7 @@ export const ProfilePage = () => {
               onPress={() => setShowAddresses(!showAddresses)}
             />
             {showAddresses && (
-              <div className="mt-2 space-y-3 pl-4 border-l-2 border-warning-100 dark:border-warning-900/30">
+              <div className="mt-2 space-y-3 pl-4 border-l-2 border-warning-200">
                 {addresses.map((addr) => (
                   <AddressCard
                     key={addr._id}
@@ -199,7 +197,7 @@ export const ProfilePage = () => {
         {/* Sección: Administración (Solo si es Admin) */}
         {isAdmin && (
           <section>
-            <h2 className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest px-1 mb-3">
+            <h2 className="text-xs font-bold text-default-400 uppercase tracking-widest px-1 mb-3">
               Administración
             </h2>
             <div className="grid gap-3">
@@ -237,10 +235,60 @@ export const ProfilePage = () => {
 
         {/* Sección: Cuenta y Soporte */}
         <section>
-          <h2 className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest px-1 mb-3">
+          <h2 className="text-xs font-bold text-default-400 uppercase tracking-widest px-1 mb-3">
             Cuenta
           </h2>
           <div className="grid gap-3">
+            {/* Theme Switcher Discreto */}
+            <Card className="border-none shadow-sm bg-content1 px-1">
+              <CardBody className="flex flex-row items-center gap-4 p-4">
+                <div className="p-3 rounded-2xl bg-primary/10 text-primary">
+                  {currentTheme === "light" ? (
+                    <FaSun size={20} />
+                  ) : currentTheme === "dark" ? (
+                    <FaMoon size={20} />
+                  ) : (
+                    <FaGear size={20} />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-default-900 leading-tight">
+                    Apariencia
+                  </p>
+                  <p className="text-xs text-default-500 mt-0.5">
+                    {currentTheme === "light"
+                      ? "Modo Claro"
+                      : currentTheme === "dark"
+                        ? "Modo Oscuro"
+                        : "Tema del Sistema"}
+                  </p>
+                </div>
+                <div className="flex bg-default-100 p-1 rounded-xl gap-1">
+                  {[
+                    { key: "light", icon: FaSun },
+                    { key: "dark", icon: FaMoon },
+                    { key: "system", icon: FaLaptop },
+                  ].map((t) => (
+                    <Button
+                      key={t.key}
+                      isIconOnly
+                      className={`w-9 h-9 min-w-0 transition-all ${
+                        currentTheme === t.key
+                          ? "bg-white dark:bg-default-600 shadow-sm text-primary"
+                          : "bg-transparent text-default-400"
+                      }`}
+                      radius="lg"
+                      size="sm"
+                      variant="light"
+                      onPress={() => setTheme(t.key as any)}
+                    >
+                      <t.icon size={16} />
+                    </Button>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+
             <DashItem
               icon={FaUserPen}
               subtitle="Cambia tu nombre, email o contraseña"
@@ -249,7 +297,7 @@ export const ProfilePage = () => {
             />
             <Divider className="my-2 bg-transparent" />
             <Button
-              className="w-full h-14 font-bold text-danger bg-danger/10 hover:bg-danger/20"
+              className="w-full h-14 font-bold text-danger bg-danger-50 hover:bg-danger-100 transition-colors"
               radius="full"
               startContent={<FaArrowRightFromBracket size={20} />}
               variant="flat"

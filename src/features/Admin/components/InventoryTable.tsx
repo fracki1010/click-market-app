@@ -6,6 +6,7 @@ import {
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
+import { useNavigate } from "react-router";
 import {
   Table,
   TableHeader,
@@ -19,6 +20,7 @@ import {
   Pagination,
 } from "@heroui/react";
 import { FaPencil, FaTrash } from "react-icons/fa6";
+import { FiEye } from "react-icons/fi";
 import { formatPrice } from "@/utils/currencyFormat";
 
 // Definición de tipos para la tabla
@@ -26,6 +28,7 @@ type InventoryProduct = {
   id: string;
   name: string;
   sku: string;
+  costPrice: number;
   price: number;
   stock: number;
   stockMin: number;
@@ -46,15 +49,23 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const navigate = useNavigate();
+
   // 1. Definición de Columnas con TanStack Table
   const columns = [
     columnHelper.accessor("name", {
       header: "PRODUCTO",
       cell: (info) => (
         <User
-          avatarProps={{ radius: "lg", src: info.row.original.imageUrl }}
+          avatarProps={{
+            radius: "lg",
+            src: info.row.original.imageUrl,
+            className: "cursor-pointer",
+          }}
           description={info.row.original.sku}
           name={info.getValue()}
+          className="cursor-pointer hover:text-indigo-600 transition-colors"
+          onClick={() => navigate(`/admin/inventory/${info.row.original.id}`)}
         >
           {info.getValue()}
         </User>
@@ -66,10 +77,20 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
         <span className="capitalize text-sm">{info.getValue()}</span>
       ),
     }),
-    columnHelper.accessor("price", {
-      header: "PRECIO",
+    columnHelper.accessor("costPrice", {
+      header: "COSTO",
       cell: (info) => (
-        <span className="font-bold">${formatPrice(info.getValue())}</span>
+        <span className="text-sm text-slate-500">
+          ${formatPrice(info.getValue())}
+        </span>
+      ),
+    }),
+    columnHelper.accessor("price", {
+      header: "VENTA",
+      cell: (info) => (
+        <span className="font-bold text-indigo-600 dark:text-indigo-400">
+          ${formatPrice(info.getValue())}
+        </span>
       ),
     }),
     columnHelper.accessor("stock", {
@@ -102,6 +123,16 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
       header: "ACCIONES",
       cell: (info) => (
         <div className="relative flex items-center gap-2">
+          <Tooltip content="Ver Detalle">
+            <span
+              className="text-lg text-indigo-500 cursor-pointer active:opacity-50"
+              onClick={() =>
+                navigate(`/admin/inventory/${info.row.original.id}`)
+              }
+            >
+              <FiEye />
+            </span>
+          </Tooltip>
           <Tooltip content="Editar">
             <span
               className="text-lg text-default-400 cursor-pointer active:opacity-50"
@@ -131,7 +162,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
     getPaginationRowModel: getPaginationRowModel(),
     initialState: {
       pagination: {
-        pageSize: 5,
+        pageSize: 10,
       },
     },
   });
@@ -139,7 +170,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
   return (
     <div className="flex flex-col gap-4">
       <Table
-        aria-label="Tabla de Inventario con TanStack Table"
+        aria-label="Tabla de Inventario"
         bottomContent={
           <div className="flex w-full justify-center">
             <Pagination

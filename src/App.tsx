@@ -5,12 +5,14 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { store } from "./store/store";
 import { queryClient } from "./lib/queryClient";
 import { AppRouter } from "./routes/AppRouter";
+import { GlobalLoader } from "./components/layout/GlobalLoader";
 import "./index.css";
 
 export const App = () => {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
+        <GlobalLoader />
         <AppRouter />
       </QueryClientProvider>
     </Provider>

@@ -96,3 +96,29 @@ export async function updateProduct(
 export async function deleteProduct(id: string): Promise<void> {
   await apiClient.delete(`/products/${id}`);
 }
+
+export async function getMarkup(): Promise<{ markupPercentage: number }> {
+  const response = await apiClient.get<{ markupPercentage: number }>(
+    "/settings/markup",
+  );
+  return response.data;
+}
+
+export async function updateMarkup(
+  markupPercentage: number,
+): Promise<{ markupPercentage: number }> {
+  const response = await apiClient.put<{ markupPercentage: number }>(
+    "/settings/markup",
+    { markupPercentage },
+  );
+  return response.data;
+}
+
+export async function getMarkupProgress(): Promise<{
+  total: number;
+  processed: number;
+  status: string;
+}> {
+  const response = await apiClient.get<any>("/settings/markup/progress");
+  return response.data;
+}

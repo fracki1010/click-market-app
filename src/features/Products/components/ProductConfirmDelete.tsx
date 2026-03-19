@@ -25,14 +25,14 @@ export const ProductConfirmDelete = ({
 
   return (
     <div className="space-y-4">
-      <p className="text-gray-700 dark:text-gray-300">
+      <p className="text-default-700">
         ¿Está seguro de que desea eliminar el producto{" "}
-        <span className="font-semibold text-purple-500">{productName}</span>?
-        Esta acción es irreversible.
+        <span className="font-semibold text-primary">{productName}</span>? Esta
+        acción es irreversible.
       </p>
 
       {deleteMutation.isError && (
-        <div className="p-3 bg-red-100 border-l-4 border-red-500 text-red-700 dark:bg-red-900 dark:border-red-600 dark:text-red-300 rounded">
+        <div className="p-3 bg-danger-50 border-l-4 border-danger text-danger rounded">
           <p className="font-bold">Error al eliminar</p>
           <p>Ocurrió un error: {deleteMutation.error.message}</p>
         </div>
@@ -40,7 +40,7 @@ export const ProductConfirmDelete = ({
 
       <div className="pt-4 flex justify-end space-x-3">
         <button
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-neutral-600 dark:text-gray-200 dark:hover:bg-neutral-500 transition-colors"
+          className="px-4 py-2 text-sm font-medium text-default-700 bg-default-200 rounded-xl hover:bg-default-300 transition-colors"
           disabled={deleteMutation.isPending}
           type="button"
           onClick={onClose}
@@ -48,10 +48,10 @@ export const ProductConfirmDelete = ({
           Cancelar
         </button>
         <button
-          className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${
+          className={`px-4 py-2 text-sm font-medium text-white shadow-lg rounded-xl transition-all ${
             deleteMutation.isPending
-              ? "bg-red-400 cursor-not-allowed"
-              : "bg-red-600 hover:bg-red-700"
+              ? "bg-danger-300 cursor-not-allowed"
+              : "bg-danger hover:bg-danger-600 shadow-danger/20 active:scale-95"
           }`}
           disabled={deleteMutation.isPending}
           type="button"

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router";
 import {
   Button,
   Input,
@@ -7,6 +8,7 @@ import {
   Chip,
   Avatar,
   Spinner,
+  Progress,
 } from "@heroui/react";
 import {
   FaPlus,
@@ -14,6 +16,7 @@ import {
   FaPencil,
   FaTrash,
   FaBoxesStacked,
+  FaEye,
 } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice } from "@/utils/currencyFormat";
@@ -38,6 +41,7 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const navigate = useNavigate();
   let stockColor: "success" | "warning" | "danger" = "success";
   let stockText = "Normal";
 
@@ -55,8 +59,10 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       layout
+      className="cursor-pointer"
+      onClick={() => navigate(`/admin/inventory/${product.id}`)}
     >
-      <Card className="shadow-sm border border-slate-100 dark:border-zinc-800">
+      <Card className="shadow-sm border border-slate-100 dark:border-zinc-800 active:scale-[0.98] transition-all">
         <CardBody className="p-4">
           <div className="flex items-center gap-3">
             <Avatar
@@ -73,42 +79,58 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
                 {product.name}
               </p>
               <p className="text-xs text-slate-400 truncate">{product.sku}</p>
-              <p className="text-xs text-slate-500 truncate mt-0.5">
-                {product.category}
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-[10px] font-black uppercase text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 px-1.5 py-0.5 rounded-md">
+                  Costo: ${formatPrice(product.costPrice)}
+                </p>
+              </div>
             </div>
 
             <div className="flex flex-col items-end gap-1.5 shrink-0">
-              <span className="font-black text-slate-800 dark:text-white text-sm">
+              <span className="font-black text-teal-600 dark:text-teal-400 text-sm">
                 ${formatPrice(product.price)}
               </span>
               <Chip color={stockColor} size="sm" variant="flat">
-                {stockText} ({product.stock})
+                {stockText} (x{product.stock})
               </Chip>
             </div>
           </div>
 
-          <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-zinc-800">
+          <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800">
+            <Button
+              className="flex-1"
+              color="primary"
+              variant="flat"
+              size="sm"
+              onPress={() => navigate(`/admin/inventory/${product.id}`)}
+              startContent={<FaEye className="text-xs" />}
+            >
+              Ver
+            </Button>
             <Button
               className="flex-1"
               color="default"
               size="sm"
               variant="flat"
               startContent={<FaPencil className="text-xs" />}
-              onPress={() => onEdit(product)}
+              onClick={(e: any) => {
+                e.stopPropagation();
+                onEdit(product);
+              }}
             >
               Editar
             </Button>
             <Button
-              className="flex-1"
+              className="min-w-0 px-3"
               color="danger"
               size="sm"
               variant="flat"
+              onClick={(e: any) => {
+                e.stopPropagation();
+                onDelete(product.id);
+              }}
               startContent={<FaTrash className="text-xs" />}
-              onPress={() => onDelete(product.id)}
-            >
-              Eliminar
-            </Button>
+            />
           </div>
         </CardBody>
       </Card>
@@ -127,7 +149,23 @@ export const InventoryPage = () => {
     deleteProduct,
     isCreating,
     isUpdating,
+    markup,
+    updateMarkupMutation,
+    markupProgress,
   } = useAdminInventory();
+
+  const [markupValue, setMarkupValue] = useState(markup.toString());
+
+  // Sincronizar markup cuando carga la data
+  useEffect(() => {
+    setMarkupValue(markup.toString());
+  }, [markup]);
+
+  const handleUpdateMarkup = () => {
+    if (Number(markupValue) !== markup) {
+      updateMarkupMutation.mutate(Number(markupValue));
+    }
+  };
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
@@ -178,6 +216,7 @@ export const InventoryPage = () => {
     const payload = {
       ...values,
       price: Number(values.price),
+      costPrice: Number(values.costPrice || 0),
       stock_current: Number(values.stock_current),
       stock_min: Number(values.stock_min),
       categories: selectedCategories,
@@ -205,6 +244,7 @@ export const InventoryPage = () => {
         id: product.id,
         name: product.name,
         sku: product.sku || "N/A",
+        costPrice: product.costPrice,
         price: product.price,
         stock: product.stock,
         stockMin: product.stock_min,
@@ -272,6 +312,67 @@ export const InventoryPage = () => {
           <p className="text-slate-500 text-xs md:text-sm mt-0.5">
             Gestión de productos y existencias ({filteredProducts.length})
           </p>
+          <div className="flex items-center gap-2 mt-3 bg-indigo-50/50 dark:bg-indigo-900/10 p-2 px-3 rounded-xl border border-indigo-100/50 dark:border-indigo-800/30 w-fit">
+            <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+              Margen Ganancia
+            </span>
+            <div className="flex items-center gap-1">
+              <Input
+                type="number"
+                size="sm"
+                variant="flat"
+                className="w-16"
+                classNames={{
+                  input: "text-center font-black",
+                  inputWrapper: "bg-transparent h-6 min-h-unit-6 px-1",
+                }}
+                value={markupValue}
+                onValueChange={setMarkupValue}
+                onBlur={handleUpdateMarkup}
+                endContent={
+                  <span className="text-xs font-black text-indigo-700 dark:text-indigo-300">
+                    %
+                  </span>
+                }
+              />
+            </div>
+            {updateMarkupMutation.isPending && (
+              <Spinner className="ml-1" size="sm" />
+            )}
+          </div>
+
+          {/* BARRA DE PROGRESO */}
+          <AnimatePresence>
+            {markupProgress?.status === "running" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-4 w-full max-w-md"
+              >
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase">
+                    Actualizando Precios...
+                  </span>
+                  <span className="text-[10px] font-black text-slate-500">
+                    {markupProgress.processed} / {markupProgress.total}
+                  </span>
+                </div>
+                <Progress
+                  size="sm"
+                  radius="sm"
+                  classNames={{
+                    base: "max-w-md",
+                    track: "drop-shadow-md border border-default",
+                    indicator: "bg-gradient-to-r from-indigo-500 to-teal-400",
+                  }}
+                  value={
+                    (markupProgress.processed / markupProgress.total) * 100
+                  }
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="flex gap-2 w-full sm:w-auto">

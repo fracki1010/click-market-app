@@ -44,14 +44,14 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     <>
       <motion.div
         whileHover={{ y: -4 }}
-        className="group bg-white dark:bg-neutral-800 rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] overflow-hidden border border-gray-100 dark:border-neutral-700 flex flex-col h-full transition-all duration-300"
+        className="group bg-content1 rounded-2xl shadow-md overflow-hidden border border-divider flex flex-col h-full transition-all duration-300"
       >
         <Link
           className="flex flex-col flex-grow"
           to={`/products/${product.id}`}
         >
           {/* Image Section */}
-          <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-neutral-900">
+          <div className="relative aspect-square overflow-hidden bg-default-50">
             <img
               alt={product.name}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -82,38 +82,38 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           {/* Content Section */}
           <div className="p-4 flex flex-col flex-grow">
             <div className="flex-grow">
-              <h3 className="text-[13px] font-semibold text-gray-800 dark:text-gray-100 line-clamp-2 leading-snug h-9 mb-1">
+              <h3 className="text-[13px] font-semibold text-default-800 line-clamp-2 leading-snug h-9 mb-1">
                 {product.name}
               </h3>
 
               <div className="flex items-center gap-1.5 mb-2">
-                <div className="flex items-center text-amber-400">
+                <div className="flex items-center text-warning">
                   <FaStar size={10} />
                 </div>
-                <span className="text-[10px] text-gray-400 font-bold">
+                <span className="text-[10px] text-default-400 font-bold">
                   4.9 (45)
                 </span>
               </div>
 
               <div className="flex flex-col gap-0.5">
                 {hasDiscount && (
-                  <span className="text-[11px] text-gray-400 line-through font-medium">
+                  <span className="text-[11px] text-default-400 line-through font-medium">
                     ${formatPrice(originalPrice)}
                   </span>
                 )}
                 <div className="flex items-center gap-2">
-                  <span className="text-xl font-black text-gray-900 dark:text-white">
+                  <span className="text-xl font-black text-default-900">
                     ${formatPrice(product.price)}
                   </span>
                   {hasDiscount && (
-                    <span className="text-[11px] font-bold text-green-500">
+                    <span className="text-[11px] font-bold text-success">
                       15% OFF
                     </span>
                   )}
                 </div>
               </div>
 
-              <p className="text-[10px] font-bold text-green-600 dark:text-green-400 mt-1">
+              <p className="text-[10px] font-bold text-success mt-1">
                 Llega gratis mañana
               </p>
             </div>
@@ -125,7 +125,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           <div className="flex items-center gap-2">
             <Button
               fullWidth
-              className="font-black text-[12px] h-10 shadow-lg shadow-indigo-100 dark:shadow-none bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="font-black text-[12px] h-10 shadow-lg shadow-primary/20 bg-primary hover:bg-primary-600 text-primary-foreground"
               color="primary"
               disabled={user?.role === "ADMIN"}
               isLoading={isAdding}
@@ -140,7 +140,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               <div className="flex gap-1 shrink-0">
                 <Button
                   isIconOnly
-                  className="bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400"
+                  className="bg-warning-50 text-warning"
                   radius="full"
                   size="sm"
                   variant="flat"
@@ -150,7 +150,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                 </Button>
                 <Button
                   isIconOnly
-                  className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
+                  className="bg-danger-50 text-danger"
                   radius="full"
                   size="sm"
                   variant="flat"

@@ -19,17 +19,15 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-neutral-900 p-4 transition-colors">
-      <Card className="w-full max-w-md shadow-xl border border-gray-100 dark:border-neutral-800">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4 transition-colors">
+      <Card className="w-full max-w-md shadow-xl border border-divider bg-content1">
         <CardHeader className="flex flex-col gap-1 items-center pb-0 pt-8">
-          <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-full text-indigo-600 dark:text-indigo-400 mb-2">
+          <div className="p-3 bg-primary-50 rounded-full text-primary mb-2">
             <FaUserPlus className="text-2xl" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-            Crear cuenta
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Únete a la comunidad educativa
+          <h1 className="text-2xl font-bold text-default-800">Crear cuenta</h1>
+          <p className="text-sm text-default-500">
+            Únete a la comunidad de Click Market
           </p>
         </CardHeader>
 
@@ -50,11 +48,11 @@ export const RegisterPage = () => {
 
         <Divider />
 
-        <CardFooter className="justify-center py-6 bg-gray-50/50 dark:bg-neutral-800/50">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+        <CardFooter className="justify-center py-6 bg-default-50">
+          <p className="text-sm text-default-600">
             ¿Ya tienes una cuenta?{" "}
             <Link
-              className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline transition-colors"
+              className="text-primary font-bold hover:underline transition-colors"
               to="/login"
             >
               Inicia sesión

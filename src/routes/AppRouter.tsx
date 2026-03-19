@@ -13,6 +13,7 @@ import { MaintenancePage } from "../features/Settings/views/MaintenancePage";
 
 import { ProtectedLayout } from "./ProtectedLayout";
 import { ShopLayout } from "./ShopLayout";
+import { AuthLayout } from "./AuthLayout";
 import { AdminGuard } from "./AdminGuard";
 import { MaintenanceGuard } from "./MaintenanceGuard";
 
@@ -23,6 +24,7 @@ import { InventoryPage } from "@/features/Admin/views/InventoryPage";
 import { ProfilePage } from "@/features/Auth/views/ProfilePage";
 import { AdminOrdersPage } from "@/features/Admin/views/AdminOrdersPage";
 import { AdminOrderDetailPage } from "@/features/Admin/views/AdminOrderDetailPage";
+import { AdminProductDetailPage } from "@/features/Admin/views/AdminProductDetailPage";
 import { DeliveryZonesPage } from "@/features/Home/views/DeliveryZonePage";
 import { AboutPage } from "@/features/Home/views/AboutPage";
 import { ScrollToTop } from "../components/layout/ScrollToTop";
@@ -38,8 +40,10 @@ export const AppRouter = () => {
         {/* GUARD DE MANTENIMIENTO: Envuelve todo el resto de la app */}
         <Route element={<MaintenanceGuard />}>
           {/* 1. RUTAS DE AUTENTICACIÓN (Públicas restringidas) */}
-          <Route element={<LoginPage />} path="/login" />
-          <Route element={<RegisterPage />} path="/register" />
+          <Route element={<AuthLayout />}>
+            <Route element={<LoginPage />} path="/login" />
+            <Route element={<RegisterPage />} path="/register" />
+          </Route>
 
           {/* 2. RUTAS DE LA TIENDA (Públicas abiertas - Visitantes y Clientes) */}
           <Route element={<ShopLayout />}>
@@ -68,6 +72,10 @@ export const AppRouter = () => {
               <Route
                 element={<AdminOrderDetailPage />}
                 path="/admin/orders/:id"
+              />
+              <Route
+                element={<AdminProductDetailPage />}
+                path="/admin/inventory/:id"
               />
             </Route>
           </Route>

@@ -91,14 +91,14 @@ export const UserMenu = ({ onClose }: { onClose?: () => void }) => {
           />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-0 rounded-2xl">
-        <div className="w-full rounded-2xl flex flex-col bg-white dark:bg-neutral-800">
+      <PopoverContent className="w-64 p-0 rounded-2xl border-divider">
+        <div className="w-full rounded-2xl flex flex-col bg-content1 shadow-xl">
           {/* 1. Cabecera con info del usuario */}
-          <div className="px-4 py-3 rounded-t-2xl border-b border-gray-100 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-900/50">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+          <div className="px-4 py-3 rounded-t-2xl border-b border-divider bg-default-50">
+            <p className="text-sm font-semibold text-default-900 truncate">
               {user?.name || "Usuario"}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+            <p className="text-xs text-default-500 truncate">
               {user?.email || "usuario@educart.com"}
             </p>
           </div>
@@ -108,7 +108,7 @@ export const UserMenu = ({ onClose }: { onClose?: () => void }) => {
             {/* Solo mostrar Dashboard si es ADMIN  */}
             {user?.role === "ADMIN" && (
               <Link
-                className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
+                className="flex items-center px-4 py-2 text-sm text-default-700 hover:bg-default-100 transition-colors"
                 to="/admin/dashboard"
                 onClick={handleLinkClick}
               >
@@ -117,7 +117,7 @@ export const UserMenu = ({ onClose }: { onClose?: () => void }) => {
             )}
 
             <Link
-              className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
+              className="flex items-center px-4 py-2 text-sm text-default-700 hover:bg-default-100 transition-colors"
               to="/profile"
               onClick={handleLinkClick}
             >
@@ -126,7 +126,7 @@ export const UserMenu = ({ onClose }: { onClose?: () => void }) => {
 
             {/* Enlace a "Mis Órdenes" (Requisito RF-AUTH-03) [cite: 195] */}
             <Link
-              className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
+              className="flex items-center px-4 py-2 text-sm text-default-700 hover:bg-default-100 transition-colors"
               to="/my-orders"
               onClick={handleLinkClick}
             >
@@ -135,27 +135,27 @@ export const UserMenu = ({ onClose }: { onClose?: () => void }) => {
             {user?.role === "admin" && (
               <>
                 <Link
-                  className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
+                  className="flex items-center px-4 py-2 text-default-700 hover:bg-default-100 transition-colors"
                   to="/admin/dashboard"
                 >
                   <DashboardIcon /> Panel Admin
                 </Link>
                 <Link
-                  className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
+                  className="flex items-center px-4 py-2 text-sm text-default-700 hover:bg-default-100 transition-colors"
                   to="/admin/inventory"
                   onClick={handleLinkClick}
                 >
                   <FaBoxesStacked className="w-4 h-4 mr-2" /> Inventario
                 </Link>
                 <Link
-                  className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
+                  className="flex items-center px-4 py-2 text-sm text-default-700 hover:bg-default-100 transition-colors"
                   to="/admin/orders"
                   onClick={handleLinkClick}
                 >
                   <FaTableCells className="w-4 h-4 mr-2" /> Ordenes
                 </Link>
                 <Link
-                  className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
+                  className="flex items-center px-4 py-2 text-sm text-default-700 hover:bg-default-100 transition-colors"
                   to="/settings"
                   onClick={handleLinkClick}
                 >
@@ -165,21 +165,21 @@ export const UserMenu = ({ onClose }: { onClose?: () => void }) => {
             )}
           </div>
 
-          <div className="border-t border-gray-100 dark:border-neutral-700 my-1" />
+          <div className="border-t border-divider my-1" />
 
           {/* 3. Selector de Tema (Estilo Segmented Control) */}
           <div className="px-4 py-2">
-            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+            <p className="text-xs font-medium text-default-500 mb-2 uppercase tracking-wider">
               Apariencia
             </p>
-            <div className="flex bg-gray-100 dark:bg-neutral-900 p-1 rounded-lg">
+            <div className="flex bg-default-100 p-1 rounded-lg">
               {["light", "system", "dark"].map((theme) => (
                 <button
                   key={theme}
                   className={`flex-1 text-xs py-1.5 rounded-md capitalize font-medium transition-all ${
                     currentTheme === theme
-                      ? "bg-white dark:bg-neutral-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                      : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      ? "bg-content1 text-primary shadow-sm"
+                      : "text-default-500 hover:text-default-700"
                   }`}
                   onClick={() =>
                     setCurrentTheme(theme as "light" | "dark" | "system")
@@ -191,7 +191,7 @@ export const UserMenu = ({ onClose }: { onClose?: () => void }) => {
             </div>
           </div>
 
-          <div className="border-t border-gray-100 dark:border-neutral-700 my-1" />
+          <div className="border-t border-divider my-1" />
 
           {/* 4. Logout */}
           <div className="p-2 text-center">

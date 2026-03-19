@@ -1,12 +1,12 @@
-import { heroui } from "@heroui/theme"
+import { heroui } from "@heroui/theme";
 
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./index.html",
-    './src/layouts/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    "./src/layouts/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
@@ -18,37 +18,35 @@ export default {
       themes: {
         light: {
           colors: {
-            background: "#f9fafb", // gray-50
-            foreground: "#1f2937", // gray-800
+            background: "#fdfdfd",
+            foreground: "#1e293b",
             primary: {
-              DEFAULT: "#4f46e5", // indigo-600
+              DEFAULT: "#1e3a8a", // Azul Marino del logo
               foreground: "#ffffff",
             },
             secondary: {
-              DEFAULT: "#d97706", // amber-600
-              foreground: "#000000",
+              DEFAULT: "#b08d48", // Dorado/Ocre del logo
+              foreground: "#ffffff",
             },
-            // Color de fondo para las tarjetas (bg-white)
             content1: "#ffffff",
           },
         },
         dark: {
           colors: {
-            background: "#171717", // neutral-900
-            foreground: "#f3f4f6", // gray-100
+            background: "#0d1117", // Azul medianoche muy oscuro
+            foreground: "#f0f6fc",
             primary: {
-              DEFAULT: "#6366f1", // indigo-500
+              DEFAULT: "#c4a75b", // Dorado del logo (brillante)
               foreground: "#ffffff",
             },
             secondary: {
-              DEFAULT: "#f59e0b", // amber-500
-              foreground: "#000000",
+              DEFAULT: "#1a4d8c", // Azul marino del logo
+              foreground: "#ffffff",
             },
-            // Color de fondo para las tarjetas (neutral-800)
-            content1: "#262626",
+            content1: "#161b22", // Fondo de tarjetas (azul oscuro)
           },
         },
       },
     }),
   ],
-}
+};

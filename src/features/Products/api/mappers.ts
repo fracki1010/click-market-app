@@ -17,6 +17,7 @@ export interface ProductApi {
   name: string;
   description: string;
   price: number;
+  costPrice: number;
   image_url?: string;
   categories: { id: string; name: string }[];
   stock: number;
@@ -39,6 +40,7 @@ export function toProduct(api: ProductApi): IProduct {
     name: api.name,
     description: api.description,
     price: api.price,
+    costPrice: api.costPrice,
     imageUrl: api.image_url,
     categories: api.categories,
     stock: api.stock,
@@ -54,6 +56,7 @@ export function toProductApiCreate(
     name: payload.name,
     description: payload.description,
     price: payload.price,
+    costPrice: payload.costPrice,
     categories: payload.categories,
     image_url: payload.image_url,
     stock: payload.stock,
@@ -69,6 +72,7 @@ export function toProductApiUpdate(
     ...(payload.name && { name: payload.name }),
     ...(payload.description && { description: payload.description }),
     ...(payload.price && { price: payload.price }),
+    ...(payload.costPrice && { costPrice: payload.costPrice }),
     ...(payload.categories && { categories: payload.categories }),
     ...(payload.image_url && { image_url: payload.image_url }),
     ...(payload.stock && { stock: payload.stock }),
