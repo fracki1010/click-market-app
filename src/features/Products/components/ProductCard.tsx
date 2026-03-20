@@ -114,7 +114,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               </div>
 
               <p className="text-[10px] font-bold text-success mt-1">
-                Llega gratis mañana
+                Llega mañana
               </p>
             </div>
           </div>

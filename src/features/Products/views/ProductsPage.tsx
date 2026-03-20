@@ -12,7 +12,6 @@ import {
   DrawerHeader,
   DrawerBody,
   useDisclosure,
-  Chip,
 } from "@heroui/react";
 import { FiSearch, FiFilter } from "react-icons/fi";
 
@@ -21,8 +20,30 @@ import { ProductList } from "../components/ProductList";
 import { useProducts } from "../hooks/useProducts";
 import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 import { useCategories } from "../hooks/useCategory";
+import type { IProduct } from "../types/Product";
 
 const ITEMS_PER_PAGE = 12;
+const toSingleCategory = (categories: string[] = []) =>
+  categories.length ? [categories[0]] : [];
+
+const normalizeCategoryName = (name: string) => name.trim().toLowerCase();
+
+const filterProductsBySelectedCategories = (
+  products: IProduct[],
+  selectedCategories: string[],
+) => {
+  if (!selectedCategories.length) return products;
+
+  const selectedNormalized = selectedCategories.map(normalizeCategoryName);
+
+  return products.filter((product) =>
+    selectedNormalized.every((selected) =>
+      product.categories.some(
+        (category) => normalizeCategoryName(category.name) === selected,
+      ),
+    ),
+  );
+};
 
 // --- Versión Desktop con Paginación ---
 const DesktopProducts = ({
@@ -33,6 +54,10 @@ const DesktopProducts = ({
 }: any) => {
   const { data: response } = useProducts(filters);
   const products = response?.data || [];
+  const filteredProducts = filterProductsBySelectedCategories(
+    products,
+    filters.categories || [],
+  );
   const pagination = response?.pagination;
 
   return (
@@ -40,7 +65,7 @@ const DesktopProducts = ({
       <div
         className={`transition-opacity duration-300 ${isFetching ? "opacity-50" : "opacity-100"}`}
       >
-        <ProductList isLoading={isLoading} products={products} />
+        <ProductList isLoading={isLoading} products={filteredProducts} />
       </div>
 
       {pagination && pagination.totalPages > 1 && (
@@ -84,6 +109,10 @@ const MobileProducts = ({ filters }: any) => {
   );
 
   const allProducts = data?.pages.flatMap((page) => page.data) || [];
+  const filteredProducts = filterProductsBySelectedCategories(
+    allProducts,
+    filters.categories || [],
+  );
 
   if (isLoading) {
     return (
@@ -98,7 +127,7 @@ const MobileProducts = ({ filters }: any) => {
 
   return (
     <div className="space-y-6">
-      <ProductList isLoading={false} products={allProducts} />
+      <ProductList isLoading={false} products={filteredProducts} />
 
       {/* Sentinel para el scroll infinito */}
       <div
@@ -106,7 +135,7 @@ const MobileProducts = ({ filters }: any) => {
         className="h-20 flex items-center justify-center"
       >
         {isFetchingNextPage && <Spinner color="primary" size="md" />}
-        {!hasNextPage && allProducts.length > 0 && (
+        {!hasNextPage && filteredProducts.length > 0 && (
           <p className="text-default-400 text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
             Fin del catálogo
           </p>
@@ -131,7 +160,7 @@ export const ProductsPage: React.FC = () => {
   }, []);
 
   const [filters, setFilters] = useState<FilterState>({
-    categories: searchParams.getAll("categories"),
+    categories: toSingleCategory(searchParams.getAll("categories")),
     price_min: searchParams.get("price_min")
       ? Number(searchParams.get("price_min"))
       : undefined,
@@ -149,7 +178,7 @@ export const ProductsPage: React.FC = () => {
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
-      categories: searchParams.getAll("categories"),
+      categories: toSingleCategory(searchParams.getAll("categories")),
       price_min: searchParams.get("price_min")
         ? Number(searchParams.get("price_min"))
         : undefined,
@@ -174,7 +203,9 @@ export const ProductsPage: React.FC = () => {
 
   const updateUrl = (newFilters: FilterState) => {
     const params = new URLSearchParams();
-    newFilters.categories?.forEach((cat) => params.append("categories", cat));
+    toSingleCategory(newFilters.categories).forEach((cat) =>
+      params.append("categories", cat),
+    );
     if (newFilters.price_min !== undefined)
       params.set("price_min", String(newFilters.price_min));
     if (newFilters.price_max !== undefined)
@@ -186,16 +217,9 @@ export const ProductsPage: React.FC = () => {
     if (!isMobile) window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const removeCategory = (catName: string) => {
-    const newCats = filters.categories.filter((c) => c !== catName);
-    updateUrl({ ...filters, categories: newCats, page: 1 });
-  };
-
   const toggleCategory = (catName: string) => {
     const isSelected = filters.categories.includes(catName);
-    const newCats = isSelected
-      ? filters.categories.filter((c) => c !== catName)
-      : [...filters.categories, catName];
+    const newCats = isSelected ? [] : [catName];
     updateUrl({ ...filters, categories: newCats, page: 1 });
   };
 
@@ -314,32 +338,6 @@ export const ProductsPage: React.FC = () => {
       </div>
 
       <div className="container mx-auto max-w-7xl px-4 pb-20">
-        {/* Chips de filtros activos */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {filters.categories.map((cat) => (
-            <Chip
-              key={cat}
-              onClose={() => removeCategory(cat)}
-              className="bg-primary-50 dark:bg-primary-500/10 text-primary font-bold text-[10px] uppercase border-none"
-              variant="flat"
-            >
-              {cat}
-            </Chip>
-          ))}
-          {(filters.price_min && filters.price_min > 0) ||
-          (filters.price_max && filters.price_max < 100000) ? (
-            <Chip
-              className="bg-warning-50 dark:bg-warning-500/10 text-warning font-bold text-[10px] uppercase border-none"
-              variant="flat"
-              onClose={() =>
-                updateUrl({ ...filters, price_min: 0, price_max: 100000 })
-              }
-            >
-              Precio: ${filters.price_min || 0} - ${filters.price_max || 100000}
-            </Chip>
-          ) : null}
-        </div>
-
         {/* 3. Rejilla de Productos Principal */}
         <div className="relative">
           {isMobile ? (

@@ -3,11 +3,13 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 
 interface User {
-  id: number;
+  id: string;
   username: string;
   name?: string;
   role: string;
   email: string;
+  authProvider?: "local" | "google";
+  avatar?: string;
 }
 
 interface AuthState {

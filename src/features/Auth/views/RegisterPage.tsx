@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { Button, Input } from "@heroui/react";
 
 import { useAuth } from "../hooks/useAuth";
+import { LoadingComponent } from "../../../components/layout/LoadingComponent";
 import logoBrand from "../../../assets/Recurso 1.svg";
 
 export const RegisterPage = () => {
@@ -50,6 +51,10 @@ export const RegisterPage = () => {
     setFormError(null);
     await register(username, email, password, name);
   };
+
+  if (loading) {
+    return <LoadingComponent />;
+  }
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-b from-amber-50 via-background to-content1 px-4 py-10 transition-colors sm:px-8">

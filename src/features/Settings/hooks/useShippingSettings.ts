@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getShippingSettings } from "../api/settings";
 
 /**
- * Hook para manejar la lógica de envíos (Click Market)
+ * Hook para manejar la lógica de costo del servicio (Click Market)
  * Sincronizado con el backend.
  */
 export const useShippingSettings = () => {
@@ -17,23 +17,24 @@ export const useShippingSettings = () => {
   });
 
   // Valores por defecto (mientras carga, si falla, o si el backend devuelve un objeto vacío)
-  const shippingPriceConfig = shippingConfig?.shippingPrice ?? 1500;
+  const serviceCostConfig =
+    shippingConfig?.serviceCost ?? (shippingConfig as any)?.shippingPrice ?? 1500;
   const thresholdConfig = shippingConfig?.largePurchaseThreshold ?? 20000;
 
   /**
-   * Calcula el costo de envío según la lógica del backend
+   * Calcula el costo del servicio según la lógica del backend
    * @param subtotal Suma de los precios de los productos en el carrito
-   * @returns 0 si el subtotal supera el umbral, de lo contrario shippingPriceConfig
+   * @returns 0 si el subtotal supera el umbral, de lo contrario serviceCostConfig
    */
-  const calculateShipping = (subtotal: number): number => {
+  const calculateServiceCost = (subtotal: number): number => {
     // La lógica del backend utiliza >= thresholdConfig
-    return subtotal >= thresholdConfig ? 0 : shippingPriceConfig;
+    return subtotal >= thresholdConfig ? 0 : serviceCostConfig;
   };
 
   return {
-    shippingPriceConfig,
+    serviceCostConfig,
     thresholdConfig,
-    calculateShipping,
+    calculateServiceCost,
     isLoading,
     error,
   };

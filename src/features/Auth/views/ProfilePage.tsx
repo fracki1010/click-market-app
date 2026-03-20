@@ -14,6 +14,7 @@ import {
   FaSun,
   FaMoon,
   FaLaptop,
+  FaGoogle,
 } from "react-icons/fa6";
 import { Link } from "react-router";
 
@@ -61,6 +62,11 @@ export const ProfilePage = () => {
   if (!user) return null;
 
   const isAdmin = user.role === "admin" || user.role === "ADMIN";
+  const isGoogleProfile = user.authProvider === "google";
+  const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+    user.name || "",
+  )}&background=random`;
+  const profileAvatar = user.avatar || fallbackAvatar;
 
   const DashItem = ({
     icon: Icon,
@@ -117,18 +123,20 @@ export const ProfilePage = () => {
             className="w-24 h-24 text-2xl"
             color={isAdmin ? "secondary" : "primary"}
             name={user.name}
-            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "")}&background=random`}
+            src={profileAvatar}
           />
-          <Button
-            isIconOnly
-            className="absolute -bottom-1 -right-1 shadow-lg bg-content1"
-            radius="full"
-            size="sm"
-            variant="flat"
-            onPress={() => setIsEditOpen(true)}
-          >
-            <FaUserPen className="text-primary" size={14} />
-          </Button>
+          {!isGoogleProfile && (
+            <Button
+              isIconOnly
+              className="absolute -bottom-1 -right-1 shadow-lg bg-content1"
+              radius="full"
+              size="sm"
+              variant="flat"
+              onPress={() => setIsEditOpen(true)}
+            >
+              <FaUserPen className="text-primary" size={14} />
+            </Button>
+          )}
         </div>
         <h1 className="text-2xl font-black text-default-900 text-center">
           {user.name}
@@ -144,6 +152,17 @@ export const ProfilePage = () => {
             variant="flat"
           >
             Administrador
+          </Chip>
+        )}
+        {isGoogleProfile && (
+          <Chip
+            className="mt-2"
+            color="primary"
+            size="sm"
+            startContent={<FaGoogle />}
+            variant="flat"
+          >
+            Perfil gestionado por Google
           </Chip>
         )}
       </div>
@@ -289,12 +308,14 @@ export const ProfilePage = () => {
               </CardBody>
             </Card>
 
-            <DashItem
-              icon={FaUserPen}
-              subtitle="Cambia tu nombre, email o contraseña"
-              title="Editar Perfil"
-              onPress={() => setIsEditOpen(true)}
-            />
+            {!isGoogleProfile && (
+              <DashItem
+                icon={FaUserPen}
+                subtitle="Cambia tu nombre, email o contraseña"
+                title="Editar Perfil"
+                onPress={() => setIsEditOpen(true)}
+              />
+            )}
             <Divider className="my-2 bg-transparent" />
             <Button
               className="w-full h-14 font-bold text-danger bg-danger-50 hover:bg-danger-100 transition-colors"
@@ -309,13 +330,15 @@ export const ProfilePage = () => {
         </section>
       </div>
 
-      <EditProfileModal
-        isLoading={authLoading}
-        isOpen={isEditOpen}
-        user={user}
-        onClose={() => setIsEditOpen(false)}
-        onSubmit={handleEditSubmit}
-      />
+      {!isGoogleProfile && (
+        <EditProfileModal
+          isLoading={authLoading}
+          isOpen={isEditOpen}
+          user={user}
+          onClose={() => setIsEditOpen(false)}
+          onSubmit={handleEditSubmit}
+        />
+      )}
 
       <AddAddressModal
         isLoading={addressesLoading}

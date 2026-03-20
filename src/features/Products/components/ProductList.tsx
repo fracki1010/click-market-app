@@ -1,7 +1,5 @@
 import type { IProduct } from "../types/Product";
 
-import { LoadingComponent } from "../../../components/layout/LoadingComponent";
-
 import { ProductCard } from "./ProductCard";
 
 export const ProductList = ({
@@ -11,7 +9,8 @@ export const ProductList = ({
   products?: IProduct[];
   isLoading: boolean;
 }) => {
-  if (isLoading) return <LoadingComponent />;
+  if (isLoading)
+    return <p className="text-default-500">Cargando productos...</p>;
 
   if (!products?.length)
     return <p className="text-default-500">No products found.</p>;

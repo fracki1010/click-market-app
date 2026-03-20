@@ -1,8 +1,10 @@
 import type { AppDispatch, RootState } from "../../../store/store";
 
 import { useDispatch, useSelector } from "react-redux";
+import { signInWithPopup, signOut as firebaseSignOut } from "firebase/auth";
 
 import { apiClient } from "../../../services/apiClient";
+import { auth, googleProvider } from "../../../lib/firebase";
 import {
   loginStart,
   loginSuccess,
@@ -18,6 +20,32 @@ export const useAuth = () => {
     (state: RootState) => state.auth,
   );
 
+  const normalizeAuthPayload = (data: any) => {
+    const {
+      access_token,
+      name: nameData,
+      _id,
+      role,
+      email: emailData,
+      username: usernameData,
+      authProvider,
+      avatar,
+    } = data;
+
+    return {
+      token: access_token,
+      user: {
+        id: _id,
+        username: usernameData,
+        name: nameData,
+        role,
+        email: emailData,
+        authProvider,
+        avatar,
+      },
+    };
+  };
+
   //Login
   const login = async (email: string, password: string) => {
     try {
@@ -28,23 +56,7 @@ export const useAuth = () => {
         password,
       });
 
-      const {
-        access_token,
-        name: nameData,
-        _id,
-        role,
-        email: emailData,
-        username: usernameData,
-      } = response.data;
-
-      //convertimos para el slice
-      const user = {
-        id: _id,
-        username: usernameData,
-        name: nameData,
-        role: role,
-        email: emailData,
-      };
+      const { user, token: access_token } = normalizeAuthPayload(response.data);
 
       //Tiempo para el loading
       await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -58,7 +70,39 @@ export const useAuth = () => {
     }
   };
 
+  const loginWithGoogle = async () => {
+    try {
+      dispatch(loginStart());
+
+      const firebaseResult = await signInWithPopup(auth, googleProvider);
+      const idToken = await firebaseResult.user.getIdToken();
+
+      const response = await apiClient.post("/auth/google", { idToken });
+      const { user, token: access_token } = normalizeAuthPayload(response.data);
+
+      dispatch(loginSuccess({ user, token: access_token }));
+      localStorage.setItem("token", access_token);
+    } catch (err: any) {
+      console.error("Error en login con Google:", err);
+
+      if (err?.code === "auth/popup-closed-by-user") {
+        dispatch(loginFailure("Cerraste la ventana antes de completar el login"));
+        return;
+      }
+
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "No se pudo iniciar sesión con Google";
+      dispatch(loginFailure(message));
+    }
+  };
+
   const logoutUser = () => {
+    firebaseSignOut(auth).catch((error) => {
+      console.error("Error cerrando sesión de Firebase:", error);
+    });
+
     dispatch(logout());
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -117,6 +161,7 @@ export const useAuth = () => {
     loading,
     error,
     login,
+    loginWithGoogle,
     logoutUser,
     isAuthenticated: Boolean(token),
     register,

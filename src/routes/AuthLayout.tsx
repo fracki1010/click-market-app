@@ -7,7 +7,9 @@ export const AuthLayout = () => {
       <main className="flex-1 bg-background transition-colors">
         <Outlet />
       </main>
-      <Footer />
+      <div className="hidden md:block">
+        <Footer />
+      </div>
     </div>
   );
 };

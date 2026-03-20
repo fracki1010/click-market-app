@@ -23,6 +23,7 @@ import {
 } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice } from "@/utils/currencyFormat";
+import { LoadingComponent } from "@/components/layout/LoadingComponent";
 
 import { useCreateOrder } from "../hook/useOrder";
 import { useCart } from "../../Cart/hooks/useCart";
@@ -43,7 +44,7 @@ export const CheckoutPage: React.FC = () => {
     setDefaultAddress,
     addAddress,
   } = useAddresses();
-  const { calculateShipping } = useShippingSettings();
+  const { calculateServiceCost } = useShippingSettings();
   const navigate = useNavigate();
 
   // Estados del formulario
@@ -51,9 +52,9 @@ export const CheckoutPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState("Transfer");
   const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
 
-  // Lógica de costo de envío
-  const shippingCost = calculateShipping(total);
-  const finalTotal = total + shippingCost;
+  // Lógica de costo del servicio
+  const serviceCost = calculateServiceCost(total);
+  const finalTotal = total + serviceCost;
 
   useEffect(() => {
     fetchCart();
@@ -85,6 +86,10 @@ export const CheckoutPage: React.FC = () => {
   };
 
   const defaultAddress = addresses.find((addr) => addr.isDefault);
+
+  if (isPending) {
+    return <LoadingComponent />;
+  }
 
   return (
     <main className="min-h-screen bg-background pb-24 lg:pb-12 transition-colors">
@@ -352,9 +357,10 @@ export const CheckoutPage: React.FC = () => {
 
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-2 text-default-600 font-medium">
-                        <FaTruckFast className="text-success" /> Envío
+                        <FaTruckFast className="text-success" /> Costo del
+                        servicio
                       </span>
-                      {shippingCost === 0 ? (
+                      {serviceCost === 0 ? (
                         <Chip
                           color="success"
                           size="sm"
@@ -365,7 +371,7 @@ export const CheckoutPage: React.FC = () => {
                         </Chip>
                       ) : (
                         <span className="font-bold text-default-800">
-                          ${formatPrice(shippingCost)}
+                          ${formatPrice(serviceCost)}
                         </span>
                       )}
                     </div>

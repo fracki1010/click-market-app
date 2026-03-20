@@ -52,14 +52,14 @@ export const Setting: React.FC = () => {
     const fetchBackendSettings = async () => {
       try {
         const backendShipping = await getShippingSettings();
+        const resolvedServiceCost =
+          backendShipping?.serviceCost ??
+          (backendShipping as any)?.shippingPrice;
         // Solo actualizamos si el backend devolvió valores válidos para evitar pisar los defaults con undefined
-        if (
-          backendShipping &&
-          typeof backendShipping.shippingPrice === "number"
-        ) {
+        if (backendShipping && typeof resolvedServiceCost === "number") {
           setFormData((prev) => ({
             ...prev,
-            shippingCost: backendShipping.shippingPrice,
+            shippingCost: resolvedServiceCost,
             freeShippingThreshold:
               backendShipping.largePurchaseThreshold ??
               prev.freeShippingThreshold,
@@ -97,7 +97,7 @@ export const Setting: React.FC = () => {
 
       // Guardar en Backend (Solo envío por ahora, que es lo crítico)
       await updateShippingSettings({
-        shippingPrice: shippingCost,
+        serviceCost: shippingCost,
         largePurchaseThreshold: freeShippingThreshold,
       });
 
@@ -223,7 +223,7 @@ export const Setting: React.FC = () => {
             </div>
           </Tab>
 
-          {/* PESTAÑA: ENVÍOS Y LOGÍSTICA */}
+          {/* PESTAÑA: COSTO DEL SERVICIO Y LOGÍSTICA */}
           <Tab
             key="shipping"
             title={
@@ -237,18 +237,18 @@ export const Setting: React.FC = () => {
               <Card className="shadow-sm border border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                 <CardBody className="gap-6 p-6">
                   <h3 className="text-lg font-bold flex items-center gap-2 text-slate-800 dark:text-white">
-                    <Truck className="text-blue-500" /> Costos de Envío
+                    <Truck className="text-blue-500" /> Costo del Servicio
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
-                      label="Costo de Envío Base ($)"
+                      label="Costo del Servicio Base ($)"
                       type="number"
                       variant="bordered"
                       value={formData.shippingCost.toString()}
                       onValueChange={(val) => handleChange("shippingCost", val)}
                     />
                     <Input
-                      label="Monto para Envío Gratis ($)"
+                      label="Monto para Costo del Servicio Gratis ($)"
                       type="number"
                       variant="bordered"
                       value={formData.freeShippingThreshold.toString()}

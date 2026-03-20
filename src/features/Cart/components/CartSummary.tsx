@@ -16,13 +16,13 @@ import { useShippingSettings } from "../../Settings/hooks/useShippingSettings";
 
 interface CartSummaryProps {
   subtotal: number;
-  shipping: number;
+  serviceCost: number;
   total: number;
 }
 
 export const CartSummary: React.FC<CartSummaryProps> = ({
   subtotal,
-  shipping,
+  serviceCost,
   total,
 }) => {
   const navigate = useNavigate();
@@ -49,12 +49,14 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
         <div className="bg-default-50 p-4 rounded-2xl border border-divider">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-bold text-default-600">
-              {shipping === 0 ? "¡Tenés envío gratis!" : "Envío gratis"}
+              {serviceCost === 0
+                ? "¡Tenés costo del servicio gratis!"
+                : "Costo del servicio gratis"}
             </span>
-            {shipping === 0 && <FaCircleCheck className="text-success" />}
+            {serviceCost === 0 && <FaCircleCheck className="text-success" />}
           </div>
           <Progress
-            color={shipping === 0 ? "success" : "warning"}
+            color={serviceCost === 0 ? "success" : "warning"}
             size="md"
             value={progressValue}
             className="mb-2"
@@ -65,11 +67,11 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
               <span className="font-bold text-default-700">
                 ${formatPrice(remainingForFreeShipping)}
               </span>{" "}
-              para envío gratis
+              para costo del servicio gratis
             </p>
           ) : (
             <p className="text-xs text-success font-medium">
-              Tu pedido califica para envío sin cargo
+              Tu pedido califica para costo del servicio sin cargo
             </p>
           )}
         </div>
@@ -85,9 +87,9 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
 
         <div className="flex justify-between items-center text-default-600">
           <span className="flex items-center gap-2 font-medium">
-            <FaTruckFast className="text-default-400" /> Envío
+            <FaTruckFast className="text-default-400" /> Costo del servicio
           </span>
-          {shipping === 0 && subtotal > 0 ? (
+          {serviceCost === 0 && subtotal > 0 ? (
             <Chip
               className="font-black px-2"
               color="success"
@@ -98,7 +100,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
             </Chip>
           ) : (
             <span className="font-bold text-default-800">
-              ${formatPrice(shipping)}
+              ${formatPrice(serviceCost)}
             </span>
           )}
         </div>

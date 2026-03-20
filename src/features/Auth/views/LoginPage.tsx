@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { Button, Input } from "@heroui/react";
+import { FcGoogle } from "react-icons/fc";
 
 import { useAuth } from "../hooks/useAuth";
 import { LoadingComponent } from "../../../components/layout/LoadingComponent";
@@ -8,7 +9,7 @@ import { Modal } from "../../../components/layout/Modal";
 import logoBrand from "../../../assets/Recurso 1.svg";
 
 export const LoginPage = () => {
-  const { login, loading, error, token, user } = useAuth();
+  const { login, loginWithGoogle, loading, error, token, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSessionExpiredModalOpen, setIsSessionExpiredModalOpen] =
@@ -52,6 +53,10 @@ export const LoginPage = () => {
     }
 
     await login(email, password);
+  };
+
+  const handleGoogleLogin = async () => {
+    await loginWithGoogle();
   };
 
   if (loading) {
@@ -126,6 +131,27 @@ export const LoginPage = () => {
               radius="full"
             >
               {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+            </Button>
+
+            <div className="flex items-center gap-3 pt-2">
+              <span className="h-px flex-1 bg-divider" />
+              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-default-400">
+                o
+              </span>
+              <span className="h-px flex-1 bg-divider" />
+            </div>
+
+            <Button
+              type="button"
+              variant="bordered"
+              size="lg"
+              className="w-full border-divider bg-default-50 font-semibold text-default-700 transition-colors hover:bg-default-100"
+              radius="full"
+              isDisabled={loading}
+              onPress={handleGoogleLogin}
+              startContent={<FcGoogle className="text-xl" />}
+            >
+              Continuar con Google
             </Button>
           </form>
 

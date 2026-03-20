@@ -20,7 +20,7 @@ import { useShippingSettings } from "../../Settings/hooks/useShippingSettings";
 export const CartPage: React.FC = () => {
   const navigate = useNavigate();
   const { items, fetchCart } = useCart();
-  const { calculateShipping } = useShippingSettings();
+  const { calculateServiceCost } = useShippingSettings();
 
   useEffect(() => {
     fetchCart();
@@ -31,8 +31,8 @@ export const CartPage: React.FC = () => {
     0,
   );
 
-  const shipping = calculateShipping(subtotal);
-  const grandTotal = subtotal + shipping;
+  const serviceCost = calculateServiceCost(subtotal);
+  const grandTotal = subtotal + serviceCost;
 
   return (
     <main className="flex-grow bg-background transition-colors min-h-screen pb-20">
@@ -116,7 +116,7 @@ export const CartPage: React.FC = () => {
           <div className="lg:w-[35%]">
             <div className="sticky top-28">
               <CartSummary
-                shipping={shipping}
+                serviceCost={serviceCost}
                 subtotal={subtotal}
                 total={grandTotal}
               />

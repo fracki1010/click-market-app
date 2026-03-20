@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 
 import { useCreateProduct } from "../hooks/useCreateProduct"; // Ajusta la ruta
 import { useCategories } from "../hooks/useCategory";
+import { LoadingComponent } from "../../../components/layout/LoadingComponent";
 
 type ProductCreateForm = {
   name: string;
@@ -78,6 +79,10 @@ export const ProductCreate = ({ onClose }: ProductCreateProps) => {
 
   // Determina el estado de carga y envío
   const isSaving = form.state.isSubmitting || createProductMutation.isPending;
+
+  if (isSaving) {
+    return <LoadingComponent />;
+  }
 
   return (
     <form

@@ -405,7 +405,7 @@ export const OrderDetailPage: React.FC = () => {
                 Subtotal productos
               </span>
               <span className="text-sm font-bold text-default-700">
-                ${order.subtotal ?? order.total - (order.shippingPrice ?? 0)}
+                ${order.subtotal ?? order.total - (order.serviceCost ?? 0)}
               </span>
             </div>
 
@@ -413,18 +413,18 @@ export const OrderDetailPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-sm text-default-500">
                 <FaTruck className="text-xs" />
-                Costo de envío
+                Costo del servicio
               </div>
               <span
                 className={`text-sm font-bold ${
-                  order.shippingPrice === 0
+                  order.serviceCost === 0
                     ? "text-success"
                     : "text-default-700"
                 }`}
               >
-                {order.shippingPrice === 0
+                {order.serviceCost === 0
                   ? "🎉 Gratis"
-                  : `$${formatPrice(order.shippingPrice)}`}
+                  : `$${formatPrice(order.serviceCost)}`}
               </span>
             </div>
 

@@ -35,7 +35,8 @@ export interface IOrder {
 
   // Desglose de precios
   subtotal: number;
-  shippingPrice: number;
+  serviceCost: number;
+  shippingPrice?: number; // compatibilidad
   total: number;
 
   items: IOrderItem[];
@@ -62,7 +63,8 @@ export interface OrderApi {
   };
 
   subtotal: number;
-  shippingPrice: number;
+  serviceCost?: number;
+  shippingPrice?: number;
   total: number;
 
   items: {

@@ -25,6 +25,8 @@ export function toOrder(api: any): IOrder {
   const customerName = isUserObject ? api.user.name : "Cliente Desconocido";
   const customerPhone = isUserObject ? api.user.phone : api.userPhone || "";
 
+  const resolvedServiceCost = api.serviceCost ?? api.shippingPrice ?? 0;
+
   return {
     id: api._id || api.id,
     orderNumber:
@@ -70,7 +72,8 @@ export function toOrder(api: any): IOrder {
     },
 
     subtotal: api.subtotal || 0,
-    shippingPrice: api.shippingPrice || 0,
+    serviceCost: resolvedServiceCost,
+    shippingPrice: resolvedServiceCost,
     total: api.total || 0,
 
     items: (api.items || []).map(toOrderItem),

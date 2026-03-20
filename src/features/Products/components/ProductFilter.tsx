@@ -166,10 +166,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
 
   const handleCategoryToggle = (name: string, checked: boolean) => {
     setLocalFilters((prev) => {
-      const currentCats = prev.categories || [];
-      const newCats = checked
-        ? [...currentCats, name]
-        : currentCats.filter((c) => c !== name);
+      const newCats = checked ? [name] : [];
       return { ...prev, categories: newCats };
     });
   };

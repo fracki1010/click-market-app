@@ -1,10 +1,17 @@
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 
 import { Header } from "../components/layout/Header";
 import { Navigation } from "../components/layout/Navigation";
 import { Footer } from "../components/layout/Footer";
 
 export const ShopLayout = () => {
+  const location = useLocation();
+  const showMobileFooter = [
+    "/home",
+    "/nosotros",
+    "/zonas-de-entrega",
+  ].includes(location.pathname);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -14,7 +21,14 @@ export const ShopLayout = () => {
         <Outlet />
       </main>
 
-      <Footer />
+      <div className="hidden md:block">
+        <Footer />
+      </div>
+      {showMobileFooter && (
+        <div className="md:hidden">
+          <Footer />
+        </div>
+      )}
     </div>
   );
 };
