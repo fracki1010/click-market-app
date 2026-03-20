@@ -68,8 +68,9 @@ const authSlice = createSlice({
       localStorage.setItem("user", JSON.stringify(state.user));
     },
 
-    setErrorRegister: (state) => {
-      state.error = "No se pudo registrar el usuario";
+    setErrorRegister: (state, action: PayloadAction<string | undefined>) => {
+      state.loading = false;
+      state.error = action.payload || "No se pudo registrar el usuario";
     },
   },
 });

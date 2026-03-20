@@ -6,12 +6,7 @@ import {
   FiPhone,
   FiMapPin,
 } from "react-icons/fi";
-import {
-  FaBagShopping,
-  FaCcVisa,
-  FaCcMastercard,
-  FaCcPaypal,
-} from "react-icons/fa6";
+import { FaCcVisa, FaCcMastercard, FaCcPaypal } from "react-icons/fa6";
 import { Link } from "react-router";
 import Logo from "../../assets/Recurso 1.svg";
 

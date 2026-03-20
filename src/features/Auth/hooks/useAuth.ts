@@ -72,6 +72,8 @@ export const useAuth = () => {
     name: string,
   ) => {
     try {
+      dispatch(loginStart());
+
       const res = await apiClient.post("/auth/register", {
         username,
         name,
@@ -79,11 +81,16 @@ export const useAuth = () => {
         password,
       });
 
-      login(res.data.username, password);
+      await login(res.data.email || email, password);
     } catch (err: any) {
       console.error(err);
 
-      dispatch(setErrorRegister(err.message || "Error al registrarse"));
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Error al registrarse";
+      dispatch(loginFailure(message));
+      dispatch(setErrorRegister(err.message || message));
     }
   };
 

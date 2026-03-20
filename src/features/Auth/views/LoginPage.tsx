@@ -1,12 +1,11 @@
-// src/features/Auth/views/LoginPage.tsx
 import { useState, useEffect, FormEvent } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { Button, Input } from "@heroui/react";
 
 import { useAuth } from "../hooks/useAuth";
 import { LoadingComponent } from "../../../components/layout/LoadingComponent";
 import { Modal } from "../../../components/layout/Modal";
-import logoExt from "../../../assets/logo.svg";
+import logoBrand from "../../../assets/Recurso 1.svg";
 
 export const LoginPage = () => {
   const { login, loading, error, token, user } = useAuth();
@@ -15,7 +14,6 @@ export const LoginPage = () => {
   const [isSessionExpiredModalOpen, setIsSessionExpiredModalOpen] =
     useState(false);
 
-  // Estados del formulario
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -24,7 +22,6 @@ export const LoginPage = () => {
 
     if (params.get("session_expired") === "true") {
       setIsSessionExpiredModalOpen(true);
-      // Limpiar el parámetro de la URL sin recargar la página
       navigate("/login", { replace: true });
     }
   }, [location.search, navigate]);
@@ -49,7 +46,11 @@ export const LoginPage = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
+
+    if (!email || !password) {
+      return;
+    }
+
     await login(email, password);
   };
 
@@ -58,61 +59,60 @@ export const LoginPage = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-8 transition-colors">
-      <div className="w-full max-w-[420px] animate-appearance-in">
-        {/* Logo and Header */}
-        <div className="flex flex-col items-center mb-10">
-          <div className="bg-content1 p-5 rounded-[2rem] shadow-sm mb-8 ring-1 ring-divider">
-            <img
-              src={logoExt}
-              alt="Click Market Logo"
-              className="h-16 w-auto object-contain"
-            />
-          </div>
-          <h2 className="text-3xl font-bold text-default-900 text-center tracking-tight">
-            Bienvenido de vuelta
-          </h2>
-          <p className="text-default-500 mt-3 text-center text-sm font-medium px-4">
-            Ingresa a tu cuenta para continuar
-          </p>
-        </div>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-b from-amber-50 via-background to-content1 px-4 py-10 transition-colors sm:px-8">
+      <div className="pointer-events-none absolute -left-20 top-14 h-64 w-64 rounded-full bg-amber-200/35 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 bottom-14 h-64 w-64 rounded-full bg-primary-200/35 blur-3xl" />
 
-        {/* Form Card */}
-        <div className="bg-content1 backdrop-blur-xl shadow-xl shadow-black/5 dark:shadow-black/20 rounded-[2.5rem] p-8 sm:p-10 border border-divider">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            <div className="flex flex-col gap-5">
-              <Input
-                label="Correo electrónico"
-                placeholder="Ingresa tu email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                isRequired
-                variant="faded"
-                classNames={{
-                  inputWrapper:
-                    "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
-                  label: "text-default-600 font-medium",
-                }}
-              />
-              <Input
-                label="Contraseña"
-                placeholder="Ingresa tu contraseña"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                isRequired
-                variant="faded"
-                classNames={{
-                  inputWrapper:
-                    "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
-                  label: "text-default-600 font-medium",
-                }}
+      <div className="relative z-10 w-full max-w-[460px] animate-appearance-in">
+        <div className="rounded-[2.25rem] border border-divider bg-content1/90 p-8 shadow-2xl shadow-black/10 backdrop-blur-xl sm:p-10">
+          <div className="mb-8 flex flex-col items-center text-center">
+            <div className="mb-6 rounded-3xl bg-default-50 p-4 ring-1 ring-divider">
+              <img
+                src={logoBrand}
+                alt="Click Market"
+                className="h-14 w-auto object-contain"
               />
             </div>
+            <h1 className="text-3xl font-bold tracking-tight text-default-900">
+              Bienvenido otra vez
+            </h1>
+            <p className="mt-3 text-sm font-medium text-default-500">
+              Iniciá sesión para continuar tu compra
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <Input
+              label="Correo electrónico"
+              placeholder="tuemail@ejemplo.com"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              isRequired
+              variant="faded"
+              classNames={{
+                inputWrapper:
+                  "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
+                label: "text-default-600 font-medium",
+              }}
+            />
+            <Input
+              label="Contraseña"
+              placeholder="Ingresá tu contraseña"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              isRequired
+              variant="faded"
+              classNames={{
+                inputWrapper:
+                  "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
+                label: "text-default-600 font-medium",
+              }}
+            />
 
             {error && (
-              <div className="bg-danger-50 text-danger p-4 rounded-2xl text-sm text-center font-medium border border-danger-100">
+              <div className="rounded-2xl border border-danger-100 bg-danger-50 p-4 text-center text-sm font-medium text-danger">
                 {error}
               </div>
             )}
@@ -121,26 +121,32 @@ export const LoginPage = () => {
               color="primary"
               type="submit"
               size="lg"
-              className="w-full mt-2 font-semibold shadow-md hover:shadow-lg transition-all"
+              className="mt-1 w-full font-semibold shadow-md transition-all hover:shadow-lg"
               isLoading={loading}
               radius="full"
             >
               {loading ? "Iniciando sesión..." : "Iniciar sesión"}
             </Button>
           </form>
+
+          <p className="mt-7 text-center text-sm text-default-600">
+            ¿No tenés cuenta?{" "}
+            <Link className="font-semibold text-primary hover:underline" to="/register">
+              Registrate
+            </Link>
+          </p>
         </div>
       </div>
 
-      {/* Modal de Sesión Expirada */}
       <Modal
         isOpen={isSessionExpiredModalOpen}
-        title="Sesión Expirada"
+        title="Sesión expirada"
         onClose={() => setIsSessionExpiredModalOpen(false)}
       >
-        <div className="text-center p-2">
-          <p className="text-default-600 mb-6 font-medium">
-            Tu sesión ha expirado por seguridad. Por favor, vuelve a iniciar
-            sesión para continuar.
+        <div className="p-2 text-center">
+          <p className="mb-6 font-medium text-default-600">
+            Tu sesión expiró por seguridad. Iniciá sesión nuevamente para
+            continuar.
           </p>
           <Button
             fullWidth
