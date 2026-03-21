@@ -21,8 +21,6 @@ import { useProducts } from "../hooks/useProducts";
 import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 import { useCategories } from "../hooks/useCategory";
 import type { IProduct } from "../types/Product";
-import { useShippingSettings } from "../../Settings/hooks/useShippingSettings";
-import { useCart } from "../../Cart/hooks/useCart";
 
 const ITEMS_PER_PAGE = 12;
 const toSingleCategory = (categories: string[] = []) =>
@@ -152,7 +150,7 @@ export const ProductsPage: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data: categories = [] } = useCategories();
-  const { items } = useCart();
+
 
   // Detección de mobile
   useEffect(() => {

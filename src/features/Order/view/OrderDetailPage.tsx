@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, useNavigate, Link } from "react-router";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router";
 import { Button, Chip, Skeleton, Divider } from "@heroui/react";
 import {
   FaArrowLeft,
@@ -22,6 +22,7 @@ import { useOrderById, useUpdateOrderStatus } from "../hook/useOrder";
 import { useOrderInvoice } from "../../Admin/hook/useAdminOrders";
 import { IOrderItem } from "../types/Order";
 import { formatPrice } from "@/utils/currencyFormat";
+import logoImage from "@/assets/logo-3.png";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const getStatusConfig = (status: string) => {
@@ -244,11 +245,13 @@ const DetailSkeleton = () => (
 export const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { data: order, isLoading, isError } = useOrderById(id ?? "");
   const { mutate: updateStatus, isPending: isUpdating } =
     useUpdateOrderStatus();
   const { mutate: downloadInvoice, isPending: isDownloading } =
     useOrderInvoice();
+  const showPurchaseSuccess = searchParams.get("success") === "1";
 
   // ── Loading ──
   if (isLoading) {
@@ -362,6 +365,88 @@ export const OrderDetailPage: React.FC = () => {
       </div>
 
       <div className="container mx-auto max-w-2xl px-4 py-5 space-y-4">
+        {showPurchaseSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="relative overflow-hidden rounded-3xl border border-success/30 bg-gradient-to-br from-success-50 via-content1 to-warning-50 p-5 md:p-6"
+          >
+            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-success/10 blur-2xl" />
+            <div className="absolute -left-10 -bottom-12 h-36 w-36 rounded-full bg-warning/10 blur-2xl" />
+
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-5">
+              <div className="relative w-20 h-20 shrink-0">
+                <motion.div
+                  initial={{ scale: 0.7, opacity: 0, rotate: -120 }}
+                  animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                  transition={{ duration: 0.7, type: "spring" }}
+                  className="absolute inset-0 rounded-full bg-white shadow-xl shadow-success/20 border border-success/20 flex items-center justify-center"
+                >
+                  <motion.img
+                    src={logoImage}
+                    alt="Click Market"
+                    className="w-12 h-12 object-contain"
+                    animate={{ rotate: [0, 20, -16, 8, 0] }}
+                    transition={{ duration: 1.4, ease: "easeInOut" }}
+                  />
+                </motion.div>
+
+                {[...Array(8)].map((_, i) => (
+                  <motion.span
+                    key={`spark-${i}`}
+                    initial={{ scale: 0, opacity: 0, x: 0, y: 0 }}
+                    animate={{
+                      scale: [0, 1, 0.6],
+                      opacity: [0, 1, 0],
+                      x: Math.cos((i * Math.PI) / 4) * 42,
+                      y: Math.sin((i * Math.PI) / 4) * 42,
+                    }}
+                    transition={{
+                      delay: 0.25 + i * 0.04,
+                      duration: 0.8,
+                      ease: "easeOut",
+                    }}
+                    className="absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-success"
+                  />
+                ))}
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase tracking-widest text-success">
+                  Compra confirmada
+                </p>
+                <h2 className="text-2xl font-black text-default-800 mt-1">
+                  Pedido recibido con éxito
+                </h2>
+                <p className="text-sm md:text-base text-default-600 mt-2">
+                  Tu pedido{" "}
+                  <span className="font-bold text-default-800">
+                    {order.orderNumber || `#${order.id.slice(-6).toUpperCase()}`}
+                  </span>{" "}
+                  ya está en preparación. Entrega estimada:{" "}
+                  <span className="font-bold text-default-800">
+                    {getDeliveryDisplay(order.orderDate)}
+                  </span>
+                  .
+                </p>
+                <div className="mt-4">
+                  <Button
+                    className="bg-success text-white font-black"
+                    radius="lg"
+                    size="sm"
+                    startContent={<FaFilePdf />}
+                    isLoading={isDownloading}
+                    onPress={() => downloadInvoice(order.id)}
+                  >
+                    Descargar factura
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* ── Timeline de progreso (solo si no cancelado) ── */}
         {!isCancelled && (
           <motion.div

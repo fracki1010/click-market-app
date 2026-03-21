@@ -36,15 +36,23 @@ export const useCreateOrder = () => {
 
   return useMutation({
     mutationFn: (payload: CreateOrderPayload) => orderService.create(payload),
-    onSuccess: async () => {
+    onSuccess: async (order) => {
+      const createdOrderId = order?.id;
+
+      if (createdOrderId) {
+        // Navegar primero a la pantalla de éxito para evitar la redirección
+        // del checkout cuando el carrito queda vacío.
+        navigate(`/checkout/success/${createdOrderId}`);
+      } else {
+        // Fallback de seguridad para evitar rutas inválidas
+        navigate("/my-orders");
+      }
+
       // Vaciar carrito
       await emptyCart();
 
       // Invalidar caché para que se recargue la lista de órdenes
       queryClient.invalidateQueries({ queryKey: ["my-orders"] });
-
-      // Redirigir
-      navigate("/my-orders");
     },
     onError: (error: any) => {
       console.error("Error creating order:", error);

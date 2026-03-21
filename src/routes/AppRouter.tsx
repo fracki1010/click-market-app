@@ -9,6 +9,7 @@ import { RegisterPage } from "../features/Auth/views/RegisterPage";
 import { Setting } from "../features/Settings/views/Settings";
 import { HomePage } from "../features/Home/views/HomePage";
 import { CheckoutPage } from "../features/Order/view/CheckoutPage";
+import { OrderSuccessPage } from "../features/Order/view/OrderSuccessPage";
 import { MaintenancePage } from "../features/Settings/views/MaintenancePage";
 
 import { ProtectedLayout } from "./ProtectedLayout";
@@ -61,6 +62,7 @@ export const AppRouter = () => {
             <Route element={<ProfilePage />} path="/profile" />
             <Route element={<Setting />} path="/settings" />
             <Route element={<CheckoutPage />} path="/checkout" />
+            <Route element={<OrderSuccessPage />} path="/checkout/success/:id" />
             <Route element={<OrderPage />} path="/my-orders" />
             <Route element={<OrderDetailPage />} path="/my-orders/:id" />
 

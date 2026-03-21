@@ -7,6 +7,7 @@ import {
   Card,
   CardBody,
   Chip,
+  Input,
 } from "@heroui/react";
 import {
   FaTruckFast,
@@ -18,6 +19,7 @@ import {
   FaArrowRight,
   FaCreditCard,
   FaLandmark,
+  FaPhone,
 } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice } from "@/utils/currencyFormat";
@@ -45,7 +47,7 @@ export const CheckoutPage: React.FC = () => {
     addAddress,
   } = useAddresses();
   const { addToast } = useToast();
-  const { user } = useAuth();
+  const { user, updateUserState } = useAuth();
   const {
     calculateServiceCost,
     isMinimumProductsMet,
@@ -56,6 +58,12 @@ export const CheckoutPage: React.FC = () => {
   // Estados del formulario
   const [paymentMethod, setPaymentMethod] = useState("Transfer");
   const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState("");
+  const [allowEmptyCartRedirect, setAllowEmptyCartRedirect] = useState(true);
+  const [phoneDraft, setPhoneDraft] = useState(
+    user?.phone?.trim().toLowerCase() === "no informado" ? "" : user?.phone || "",
+  );
+  const [isSavingPhone, setIsSavingPhone] = useState(false);
 
   // Lógica de costo del servicio
   const serviceCost = calculateServiceCost(total);
@@ -65,51 +73,114 @@ export const CheckoutPage: React.FC = () => {
     0,
   );
   const defaultAddress = addresses.find((addr) => addr.isDefault);
+  const selectedAddress =
+    addresses.find((addr) => addr._id === selectedAddressId) || defaultAddress;
   const minimumReached = isMinimumProductsMet(totalProductUnits);
   const hasValidPhone =
     !!user?.phone &&
     user.phone.trim() !== "" &&
     user.phone.trim().toLowerCase() !== "no informado";
-  const canConfirmOrder = !!defaultAddress && minimumReached && hasValidPhone;
+  const canConfirmOrder = !!selectedAddress && minimumReached && hasValidPhone;
 
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
 
   useEffect(() => {
-    if (items.length === 0 && !isPending) {
+    if (items.length === 0 && !isPending && allowEmptyCartRedirect) {
       navigate("/products");
     }
-  }, [items, navigate, isPending]);
+  }, [items, navigate, isPending, allowEmptyCartRedirect]);
+
+  useEffect(() => {
+    if (!addresses.length) {
+      setSelectedAddressId("");
+      return;
+    }
+
+    const hasSelected = addresses.some((addr) => addr._id === selectedAddressId);
+    if (hasSelected) return;
+
+    const fallbackAddress = addresses.find((addr) => addr.isDefault) || addresses[0];
+    setSelectedAddressId(fallbackAddress?._id || "");
+  }, [addresses, selectedAddressId]);
 
   const handleAddAddress = async (data: CreateAddressPayload) => {
     try {
-      await addAddress(data);
+      const created = await addAddress(data);
+      const createdAddressId = created?.address?._id || created?._id;
+
+      if (createdAddressId) {
+        setSelectedAddressId(createdAddressId);
+        await setDefaultAddress(createdAddressId);
+      }
+
       setIsAddAddressOpen(false);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!defaultAddress) return;
+    if (!selectedAddress) return;
     if (!minimumReached) {
       addToast(getMinimumProductsMessage(totalProductUnits), "info");
       return;
     }
     if (!hasValidPhone) {
-      addToast(
-        "Para confirmar tu compra primero agrega un teléfono en tu perfil.",
-        "info",
-      );
-      navigate("/profile");
+      addToast("Completa y guarda tu teléfono para confirmar la compra.", "info");
       return;
     }
 
-    createOrder({
-      paymentMethod: paymentMethod as "Cash" | "Card" | "Transfer",
-    });
+    if (!selectedAddress.isDefault) {
+      await setDefaultAddress(selectedAddress._id);
+    }
+
+    setAllowEmptyCartRedirect(false);
+
+    createOrder(
+      {
+        paymentMethod: paymentMethod as "Cash" | "Card" | "Transfer",
+      },
+      {
+        onError: () => {
+          setAllowEmptyCartRedirect(true);
+        },
+      },
+    );
+  };
+
+  const handleSavePhone = async () => {
+    const normalizedPhone = phoneDraft.trim();
+    const validPhonePattern = /^[0-9+\-()\s]*$/;
+    const totalDigits = normalizedPhone.replace(/\D/g, "").length;
+
+    if (!normalizedPhone) {
+      addToast("Ingresa un número de teléfono.", "info");
+      return;
+    }
+
+    if (!validPhonePattern.test(normalizedPhone)) {
+      addToast("Formato de teléfono inválido.", "error");
+      return;
+    }
+
+    if (totalDigits < 8) {
+      addToast("El teléfono debe tener al menos 8 dígitos.", "info");
+      return;
+    }
+
+    try {
+      setIsSavingPhone(true);
+      await updateUserState({ phone: normalizedPhone });
+      addToast("Teléfono guardado correctamente.", "success");
+    } catch (error) {
+      console.error(error);
+      addToast("No se pudo guardar el teléfono.", "error");
+    } finally {
+      setIsSavingPhone(false);
+    }
   };
 
   if (isPending) {
@@ -193,31 +264,38 @@ export const CheckoutPage: React.FC = () => {
                       </Button>
                     </div>
                   ) : (
-                    addresses.map((addr) => (
-                      <motion.div
-                        key={addr._id}
-                        whileHover={{ scale: 1.01 }}
-                        className={`relative cursor-pointer transition-all duration-300 rounded-2xl border-2 ${
-                          addr.isDefault
-                            ? "border-success bg-success-50 shadow-md shadow-success/10"
-                            : "border-transparent hover:border-default-200"
-                        }`}
-                        onClick={() => setDefaultAddress(addr._id!)}
-                      >
-                        <AddressCard
-                          address={addr}
-                          isLoading={addressesLoading}
-                          onSetDefault={setDefaultAddress}
-                        />
-                        {addr.isDefault && (
-                          <div className="absolute -top-2 -right-2">
-                            <div className="bg-success text-white p-1.5 rounded-full shadow-lg">
-                              <FaCheck size={12} />
+                    addresses.map((addr) => {
+                      const isSelected = selectedAddressId === addr._id;
+
+                      return (
+                        <motion.div
+                          key={addr._id}
+                          whileHover={{ scale: 1.01 }}
+                          className={`relative cursor-pointer transition-all duration-300 rounded-2xl border-2 ${
+                            isSelected
+                              ? "border-success bg-success-50 shadow-md shadow-success/10"
+                              : "border-transparent hover:border-default-200"
+                          }`}
+                          onClick={() => {
+                            setSelectedAddressId(addr._id);
+                            void setDefaultAddress(addr._id);
+                          }}
+                        >
+                          <AddressCard
+                            address={addr}
+                            isLoading={addressesLoading}
+                            onSetDefault={setDefaultAddress}
+                          />
+                          {isSelected && (
+                            <div className="absolute -top-2 -right-2">
+                              <div className="bg-success text-white p-1.5 rounded-full shadow-lg">
+                                <FaCheck size={12} />
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </motion.div>
-                    ))
+                          )}
+                        </motion.div>
+                      );
+                    })
                   )}
                 </div>
               </motion.section>
@@ -311,6 +389,46 @@ export const CheckoutPage: React.FC = () => {
                 </RadioGroup>
               </motion.section>
 
+              {!hasValidPhone && (
+                <motion.section
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.35 }}
+                  className="bg-content1 p-6 md:p-8 rounded-[2rem] shadow-sm border border-divider"
+                >
+                  <h3 className="flex items-center gap-3 text-xl font-black text-default-800 mb-3">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-danger-100 text-danger text-sm">
+                      4
+                    </span>
+                    Teléfono de contacto
+                  </h3>
+                  <p className="text-sm text-default-500 font-medium mb-4">
+                    Necesitamos un número para coordinar tu entrega si surge
+                    algún detalle en el envío.
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Input
+                      className="flex-1"
+                      value={phoneDraft}
+                      onValueChange={setPhoneDraft}
+                      variant="bordered"
+                      placeholder="+54 9 11 1234-5678"
+                      startContent={<FaPhone className="text-default-400" />}
+                    />
+                    <Button
+                      type="button"
+                      className="bg-primary text-primary-foreground font-bold"
+                      radius="lg"
+                      isLoading={isSavingPhone}
+                      onPress={handleSavePhone}
+                    >
+                      Guardar número
+                    </Button>
+                  </div>
+                </motion.section>
+              )}
+
               <Button
                 className={`hidden lg:flex w-full h-16 text-xl font-black shadow-xl transition-all active:scale-[0.98] ${
                   !canConfirmOrder
@@ -326,7 +444,7 @@ export const CheckoutPage: React.FC = () => {
                 {isPending
                   ? "Procesando..."
                   : !hasValidPhone
-                    ? "Agrega teléfono en tu perfil"
+                    ? "Guarda tu teléfono para continuar"
                     : `Confirmar Pedido • $${formatPrice(finalTotal)}`}
               </Button>
             </form>
@@ -470,7 +588,7 @@ export const CheckoutPage: React.FC = () => {
               onClick={() => handleSubmit()}
             >
               {!hasValidPhone
-                ? "Agrega teléfono"
+                ? "Guarda tu teléfono"
                 : minimumReached
                   ? "Comprar Ahora"
                   : "Mínimo no alcanzado"}
