@@ -28,10 +28,16 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
   const navigate = useNavigate();
   const { items } = useCart();
   const { user } = useAuth();
-  const { thresholdConfig } = useShippingSettings();
+  const { thresholdConfig, isMinimumProductsMet, getMinimumProductsMessage } =
+    useShippingSettings();
+  const totalProductUnits = items.reduce(
+    (acc, item) => acc + Number(item.quantity || 0),
+    0,
+  );
+  const minimumReached = isMinimumProductsMet(totalProductUnits);
 
   const handleCheckout = () => {
-    if (items.length === 0) return;
+    if (items.length === 0 || !minimumReached) return;
     navigate("/checkout");
   };
 
@@ -76,6 +82,18 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
           )}
         </div>
       )}
+
+      <div
+        className={`p-4 rounded-2xl border ${
+          minimumReached
+            ? "bg-success-50 border-success-100"
+            : "bg-warning-50 border-warning-100"
+        }`}
+      >
+        <p className="text-xs font-semibold text-default-700">
+          {getMinimumProductsMessage(totalProductUnits)}
+        </p>
+      </div>
 
       <div className="space-y-4">
         <div className="flex justify-between items-center text-default-600">
@@ -123,15 +141,21 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
             ${
               items.length === 0
                 ? ""
+                : !minimumReached
+                ? ""
                 : "bg-primary hover:bg-primary-600 text-white"
             }`}
-          disabled={items.length === 0}
+          disabled={items.length === 0 || !minimumReached}
           endContent={user && items.length > 0 ? <FaArrowRight /> : null}
           radius="lg"
           size="lg"
           onClick={handleCheckout}
         >
-          {user ? "Continuar Compra" : "Iniciar Sesión"}
+          {!minimumReached
+            ? "Completá el mínimo"
+            : user
+              ? "Continuar Compra"
+              : "Iniciar Sesión"}
         </Button>
 
         <Button

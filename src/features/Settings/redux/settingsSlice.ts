@@ -6,32 +6,37 @@ interface SettingsState {
   storeEmail: string;
   shippingCost: number;
   freeShippingThreshold: number;
+  minimumProducts: number;
   whatsappNumber: string;
   lowStockAlert: number;
 }
 
 const STORAGE_KEY = "click_market_settings";
 
+const DEFAULT_SETTINGS: SettingsState = {
+  isMaintenance: false,
+  storeName: "Click Market",
+  storeEmail: "admin@clickmarket.com",
+  shippingCost: 500,
+  freeShippingThreshold: 5000,
+  minimumProducts: 0,
+  whatsappNumber: "+54 9 2622 456789",
+  lowStockAlert: 5,
+};
+
 const getInitialState = (): SettingsState => {
   const saved = localStorage.getItem(STORAGE_KEY);
 
   if (saved) {
     try {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      return { ...DEFAULT_SETTINGS, ...parsed };
     } catch (e) {
       console.error("Error parsing settings from localStorage", e);
     }
   }
 
-  return {
-    isMaintenance: false,
-    storeName: "Click Market",
-    storeEmail: "admin@clickmarket.com",
-    shippingCost: 500,
-    freeShippingThreshold: 5000,
-    whatsappNumber: "+54 9 2622 456789",
-    lowStockAlert: 5,
-  };
+  return DEFAULT_SETTINGS;
 };
 
 const initialState: SettingsState = getInitialState();

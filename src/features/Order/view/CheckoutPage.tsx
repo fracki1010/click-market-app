@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router"; // Standardizing to react-router
 import {
-  Select,
-  SelectItem,
   RadioGroup,
   Radio,
   Button,
@@ -32,8 +30,10 @@ import { AddressCard } from "../../Auth/components/AddressCard";
 import { AddAddressModal } from "../../Auth/components/AddAddressModal";
 import { CreateAddressPayload } from "../../Auth/types/Address";
 import { useShippingSettings } from "../../Settings/hooks/useShippingSettings";
+import { useToast } from "@/components/ui/ToastProvider";
+import { useAuth } from "../../Auth/hooks/useAuth";
 
-const DELIVERY_SLOTS = [{ key: "next_day", label: "Mañana (16:00 - 20:00)" }];
+const FIXED_DELIVERY_SLOT = "16:00 - 20:00";
 
 export const CheckoutPage: React.FC = () => {
   const { items, total, fetchCart } = useCart();
@@ -44,17 +44,33 @@ export const CheckoutPage: React.FC = () => {
     setDefaultAddress,
     addAddress,
   } = useAddresses();
-  const { calculateServiceCost } = useShippingSettings();
+  const { addToast } = useToast();
+  const { user } = useAuth();
+  const {
+    calculateServiceCost,
+    isMinimumProductsMet,
+    getMinimumProductsMessage,
+  } = useShippingSettings();
   const navigate = useNavigate();
 
   // Estados del formulario
-  const [deliverySlot, setDeliverySlot] = useState(DELIVERY_SLOTS[0].label);
   const [paymentMethod, setPaymentMethod] = useState("Transfer");
   const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
 
   // Lógica de costo del servicio
   const serviceCost = calculateServiceCost(total);
   const finalTotal = total + serviceCost;
+  const totalProductUnits = items.reduce(
+    (acc, item) => acc + Number(item.quantity || 0),
+    0,
+  );
+  const defaultAddress = addresses.find((addr) => addr.isDefault);
+  const minimumReached = isMinimumProductsMet(totalProductUnits);
+  const hasValidPhone =
+    !!user?.phone &&
+    user.phone.trim() !== "" &&
+    user.phone.trim().toLowerCase() !== "no informado";
+  const canConfirmOrder = !!defaultAddress && minimumReached && hasValidPhone;
 
   useEffect(() => {
     fetchCart();
@@ -77,15 +93,24 @@ export const CheckoutPage: React.FC = () => {
 
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!deliverySlot || !defaultAddress) return;
+    if (!defaultAddress) return;
+    if (!minimumReached) {
+      addToast(getMinimumProductsMessage(totalProductUnits), "info");
+      return;
+    }
+    if (!hasValidPhone) {
+      addToast(
+        "Para confirmar tu compra primero agrega un teléfono en tu perfil.",
+        "info",
+      );
+      navigate("/profile");
+      return;
+    }
 
     createOrder({
-      deliverySlot,
       paymentMethod: paymentMethod as "Cash" | "Card" | "Transfer",
     });
   };
-
-  const defaultAddress = addresses.find((addr) => addr.isDefault);
 
   if (isPending) {
     return <LoadingComponent />;
@@ -122,6 +147,17 @@ export const CheckoutPage: React.FC = () => {
                 transition={{ delay: 0.1 }}
                 className="bg-content1 p-6 md:p-8 rounded-[2rem] shadow-sm border border-divider"
               >
+                <div
+                  className={`rounded-2xl p-4 mb-6 border ${
+                    minimumReached
+                      ? "bg-success-50 border-success-100"
+                      : "bg-warning-50 border-warning-100"
+                  }`}
+                >
+                  <p className="text-sm font-semibold text-default-700">
+                    {getMinimumProductsMessage(totalProductUnits)}
+                  </p>
+                </div>
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="flex items-center gap-3 text-xl font-black text-default-800">
                     <span className="flex items-center justify-center w-8 h-8 rounded-full bg-success-50 text-success text-sm">
@@ -200,27 +236,17 @@ export const CheckoutPage: React.FC = () => {
                   Horario de Entrega
                 </h3>
                 <p className="text-sm text-default-500 mb-4 font-medium -mt-4 ml-11">
-                  Todos nuestros pedidos se entregan al día siguiente de la
-                  compra en el horario fijo establecido.
+                  Todos nuestros pedidos se entregan en la franja fija
+                  establecida.
                 </p>
-                <Select
-                  isRequired
-                  classNames={{
-                    trigger: "h-14 border-2 rounded-2xl",
-                    label: "font-bold text-default-600",
-                  }}
-                  label="Fecha y Horario de Entrega"
-                  placeholder="Entrega asegurada para mañana"
-                  selectedKeys={deliverySlot ? [deliverySlot] : []}
-                  variant="bordered"
-                  onChange={(e) => setDeliverySlot(e.target.value)}
-                >
-                  {DELIVERY_SLOTS.map((slot) => (
-                    <SelectItem key={slot.label} textValue={slot.label}>
-                      {slot.label}
-                    </SelectItem>
-                  ))}
-                </Select>
+                <div className="h-14 border-2 border-divider rounded-2xl bg-default-50 px-4 flex items-center justify-between">
+                  <span className="font-bold text-default-700">
+                    Franja fija
+                  </span>
+                  <Chip color="warning" size="sm" variant="flat">
+                    {FIXED_DELIVERY_SLOT}
+                  </Chip>
+                </div>
               </motion.section>
 
               {/* Step 3: Pago */}
@@ -287,11 +313,11 @@ export const CheckoutPage: React.FC = () => {
 
               <Button
                 className={`hidden lg:flex w-full h-16 text-xl font-black shadow-xl transition-all active:scale-[0.98] ${
-                  !deliverySlot || !defaultAddress
+                  !canConfirmOrder
                     ? "bg-default-200 text-default-400"
                     : "bg-primary text-primary-foreground shadow-primary/25 hover:bg-primary-600"
                 }`}
-                isDisabled={!deliverySlot || !defaultAddress}
+                isDisabled={!canConfirmOrder}
                 isLoading={isPending}
                 radius="lg"
                 size="lg"
@@ -299,7 +325,9 @@ export const CheckoutPage: React.FC = () => {
               >
                 {isPending
                   ? "Procesando..."
-                  : `Confirmar Pedido • $${formatPrice(finalTotal)}`}
+                  : !hasValidPhone
+                    ? "Agrega teléfono en tu perfil"
+                    : `Confirmar Pedido • $${formatPrice(finalTotal)}`}
               </Button>
             </form>
           </div>
@@ -316,7 +344,9 @@ export const CheckoutPage: React.FC = () => {
                 <CardBody className="p-8">
                   <h3 className="font-black text-2xl mb-6 text-default-800 flex items-center gap-2">
                     Mi Pedido{" "}
-                    <span className="text-default-300">({items.length})</span>
+                    <span className="text-default-300">
+                      ({totalProductUnits})
+                    </span>
                   </h3>
 
                   <div className="space-y-4 max-h-[350px] overflow-y-auto pr-4 custom-scrollbar lg:pr-6">
@@ -429,17 +459,21 @@ export const CheckoutPage: React.FC = () => {
             </div>
             <Button
               className={`font-black px-10 h-14 shadow-lg transition-all active:scale-95 ${
-                !deliverySlot || !defaultAddress
+                !canConfirmOrder
                   ? "bg-default-200 text-default-400"
                   : "bg-primary text-primary-foreground shadow-primary/20"
               }`}
-              isDisabled={!deliverySlot || !defaultAddress}
+              isDisabled={!canConfirmOrder}
               isLoading={isPending}
               endContent={!isPending && <FaArrowRight />}
               radius="full"
               onClick={() => handleSubmit()}
             >
-              Comprar Ahora
+              {!hasValidPhone
+                ? "Agrega teléfono"
+                : minimumReached
+                  ? "Comprar Ahora"
+                  : "Mínimo no alcanzado"}
             </Button>
           </motion.div>
         )}

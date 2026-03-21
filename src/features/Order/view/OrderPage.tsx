@@ -14,6 +14,7 @@ import {
   FaCalendarDays,
   FaReceipt,
   FaArrowRight,
+  FaTriangleExclamation,
 } from "react-icons/fa6";
 import { motion } from "framer-motion";
 import { formatPrice } from "@/utils/currencyFormat";
@@ -91,6 +92,47 @@ const formatTime = (dateString: string) => {
     hour: "2-digit",
     minute: "2-digit",
   });
+};
+
+const getDeliveryDisplay = (orderDate: string) => {
+  const scheduledDate = new Date(orderDate);
+  scheduledDate.setDate(scheduledDate.getDate() + 1);
+
+  const scheduledStart = new Date(scheduledDate);
+  scheduledStart.setHours(0, 0, 0, 0);
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const diffDays = Math.round(
+    (scheduledStart.getTime() - todayStart.getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  const relativeLabel =
+    diffDays === 0 ? "hoy" : diffDays === 1 ? "mañana" : "";
+
+  const exactDate = new Intl.DateTimeFormat("es-AR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(scheduledDate);
+
+  return `${exactDate}${relativeLabel ? ` (${relativeLabel})` : ""} · 16:00 - 20:00`;
+};
+
+const isOrderDelayed = (orderDate: string, status: string) => {
+  const normalizedStatus = status.toLowerCase();
+  if (normalizedStatus === "completed" || normalizedStatus === "cancelled") {
+    return false;
+  }
+
+  const createdAt = new Date(orderDate);
+  const deadline = new Date(createdAt);
+  deadline.setDate(deadline.getDate() + 1);
+  deadline.setHours(20, 0, 0, 0);
+
+  return new Date() > deadline;
 };
 
 export const OrderPage: React.FC = () => {
@@ -191,30 +233,34 @@ export const OrderPage: React.FC = () => {
               itemClasses={{
                 base: "group-[.is-splitted]:bg-content1 group-[.is-splitted]:shadow-sm group-[.is-splitted]:rounded-[2rem] border border-divider overflow-hidden",
                 title: "w-full",
-                trigger: "px-6 py-4",
-                content: "px-6 pb-6 pt-0",
+                trigger: "px-4 sm:px-6 py-4",
+                content: "px-4 sm:px-6 pb-5 sm:pb-6 pt-0",
               }}
             >
               {orders.map((order) => {
                 const statusConfig = getStatusConfig(order.status);
+                const delayed = isOrderDelayed(order.orderDate, order.status);
+                const statusIcon = statusConfig.icon
+                  ? React.cloneElement(
+                      statusConfig.icon as React.ReactElement,
+                      { size: 20 },
+                    )
+                  : <FaReceipt size={20} />;
 
                 return (
                   <AccordionItem
                     key={order.id}
                     className="p-0 border-none shadow-none transition-all"
                     title={
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full pr-2">
-                        <div className="flex items-center gap-4">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 w-full pr-1 sm:pr-2">
+                        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                           <div
-                            className={`p-3 rounded-2xl ${statusConfig.bg} ${statusConfig.text}`}
+                            className={`p-2.5 sm:p-3 rounded-2xl ${statusConfig.bg} ${statusConfig.text} shrink-0`}
                           >
-                            {React.cloneElement(
-                              statusConfig.icon as React.ReactElement,
-                              { size: 24 },
-                            )}
+                            {statusIcon}
                           </div>
-                          <div className="flex flex-col text-left">
-                            <span className="text-xl font-black text-default-800 leading-none mb-1">
+                          <div className="flex flex-col text-left min-w-0">
+                            <span className="text-lg sm:text-xl font-black text-default-800 leading-none mb-1 truncate">
                               {order.orderNumber ||
                                 `#${order.id.slice(-6).toUpperCase()}`}
                             </span>
@@ -225,14 +271,21 @@ export const OrderPage: React.FC = () => {
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4 ml-12 sm:ml-0">
-                          <div className="text-right flex flex-col">
+
+                        <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4 pl-11 sm:pl-12 md:pl-0">
+                          <div className="text-left md:text-right flex flex-col">
                             <span className="text-xs font-black text-default-400 uppercase tracking-widest leading-none mb-1">
                               Total
                             </span>
-                            <span className="font-black text-success text-2xl leading-none">
+                            <span className="font-black text-success text-xl sm:text-2xl leading-none">
                               ${formatPrice(order.total)}
                             </span>
+                            {delayed && (
+                              <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-warning">
+                                <FaTriangleExclamation size={10} />
+                                Entrega demorada
+                              </span>
+                            )}
                           </div>
                           <Chip
                             className={`font-black px-3 ${statusConfig.bg} ${statusConfig.text}`}
@@ -289,7 +342,7 @@ export const OrderPage: React.FC = () => {
                                   Entrega Estimada
                                 </span>
                                 <span className="text-sm text-default-500">
-                                  {order.shipping.deliverySlot}
+                                  {getDeliveryDisplay(order.orderDate)}
                                 </span>
                               </div>
                             </div>

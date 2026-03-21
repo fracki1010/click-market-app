@@ -15,6 +15,7 @@ import {
   FaMoon,
   FaLaptop,
   FaGoogle,
+  FaPhone,
 } from "react-icons/fa6";
 import { Link } from "react-router";
 
@@ -125,24 +126,26 @@ export const ProfilePage = () => {
             name={user.name}
             src={profileAvatar}
           />
-          {!isGoogleProfile && (
-            <Button
-              isIconOnly
-              className="absolute -bottom-1 -right-1 shadow-lg bg-content1"
-              radius="full"
-              size="sm"
-              variant="flat"
-              onPress={() => setIsEditOpen(true)}
-            >
-              <FaUserPen className="text-primary" size={14} />
-            </Button>
-          )}
+          <Button
+            isIconOnly
+            className="absolute -bottom-1 -right-1 shadow-lg bg-content1"
+            radius="full"
+            size="sm"
+            variant="flat"
+            onPress={() => setIsEditOpen(true)}
+          >
+            <FaUserPen className="text-primary" size={14} />
+          </Button>
         </div>
         <h1 className="text-2xl font-black text-default-900 text-center">
           {user.name}
         </h1>
-        <p className="text-sm text-default-500 text-center mb-2">
+        <p className="text-sm text-default-500 text-center">
           {user.email}
+        </p>
+        <p className="text-sm text-default-500 text-center mb-2 flex items-center gap-2">
+          <FaPhone className="text-default-400" size={12} />
+          {user.phone || "Sin número de teléfono"}
         </p>
         {isAdmin && (
           <Chip
@@ -308,14 +311,12 @@ export const ProfilePage = () => {
               </CardBody>
             </Card>
 
-            {!isGoogleProfile && (
-              <DashItem
-                icon={FaUserPen}
-                subtitle="Cambia tu nombre, email o contraseña"
-                title="Editar Perfil"
-                onPress={() => setIsEditOpen(true)}
-              />
-            )}
+            <DashItem
+              icon={FaUserPen}
+              subtitle="Cambia tus datos y agrega tu teléfono"
+              title="Editar Perfil"
+              onPress={() => setIsEditOpen(true)}
+            />
             <Divider className="my-2 bg-transparent" />
             <Button
               className="w-full h-14 font-bold text-danger bg-danger-50 hover:bg-danger-100 transition-colors"
@@ -330,15 +331,13 @@ export const ProfilePage = () => {
         </section>
       </div>
 
-      {!isGoogleProfile && (
-        <EditProfileModal
-          isLoading={authLoading}
-          isOpen={isEditOpen}
-          user={user}
-          onClose={() => setIsEditOpen(false)}
-          onSubmit={handleEditSubmit}
-        />
-      )}
+      <EditProfileModal
+        isLoading={authLoading}
+        isOpen={isEditOpen}
+        user={user}
+        onClose={() => setIsEditOpen(false)}
+        onSubmit={handleEditSubmit}
+      />
 
       <AddAddressModal
         isLoading={addressesLoading}

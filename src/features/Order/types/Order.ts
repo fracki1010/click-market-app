@@ -87,6 +87,5 @@ export interface CreateOrderPayload {
     neighborhood: string;
     deliveryNotes: string;
   };
-  deliverySlot: string;
   paymentMethod: "Cash" | "Card" | "Transfer";
 }

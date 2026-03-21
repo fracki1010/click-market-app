@@ -119,6 +119,56 @@ const paymentLabel = (method: string) => {
   }
 };
 
+const formatPriceFixed = (value: number, digits = 2) => {
+  const safeValue = Number.isFinite(value) ? value : 0;
+
+  return new Intl.NumberFormat("es-AR", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(safeValue);
+};
+
+const getDeliveryDisplay = (orderDate: string) => {
+  const scheduledDate = new Date(orderDate);
+  scheduledDate.setDate(scheduledDate.getDate() + 1);
+
+  const scheduledStart = new Date(scheduledDate);
+  scheduledStart.setHours(0, 0, 0, 0);
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const diffDays = Math.round(
+    (scheduledStart.getTime() - todayStart.getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  const relativeLabel =
+    diffDays === 0 ? "hoy" : diffDays === 1 ? "mañana" : "";
+
+  const exactDate = new Intl.DateTimeFormat("es-AR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(scheduledDate);
+
+  return `${exactDate}${relativeLabel ? ` (${relativeLabel})` : ""} · 16:00 - 20:00`;
+};
+
+const isOrderDelayed = (orderDate: string, status: string) => {
+  const normalizedStatus = status.toLowerCase();
+  if (normalizedStatus === "completed" || normalizedStatus === "cancelled") {
+    return false;
+  }
+
+  const createdAt = new Date(orderDate);
+  const deadline = new Date(createdAt);
+  deadline.setDate(deadline.getDate() + 1);
+  deadline.setHours(20, 0, 0, 0);
+
+  return new Date() > deadline;
+};
+
 // ─── Timeline de estado ───────────────────────────────────────────────────────
 const STEPS = [
   { label: "Pendiente", icon: <FaClock /> },
@@ -244,6 +294,8 @@ export const OrderDetailPage: React.FC = () => {
 
   const statusConfig = getStatusConfig(order.status);
   const isCancelled = order.status.toLowerCase() === "cancelled";
+  const subtotalValue = order.subtotal ?? order.total - (order.serviceCost ?? 0);
+  const delayed = isOrderDelayed(order.orderDate, order.status);
 
   return (
     <main className="bg-background min-h-screen pb-28 transition-colors">
@@ -282,6 +334,18 @@ export const OrderDetailPage: React.FC = () => {
               {statusConfig.label}
             </Chip>
           </div>
+          {delayed && (
+            <div className="mt-3">
+              <Chip
+                color="warning"
+                variant="flat"
+                className="font-bold"
+                startContent={<FaTriangleExclamation />}
+              >
+                Entrega demorada
+              </Chip>
+            </div>
+          )}
 
           <div className="mt-6">
             <Button
@@ -405,7 +469,7 @@ export const OrderDetailPage: React.FC = () => {
                 Subtotal productos
               </span>
               <span className="text-sm font-bold text-default-700">
-                ${order.subtotal ?? order.total - (order.serviceCost ?? 0)}
+                ${formatPriceFixed(subtotalValue, 2)}
               </span>
             </div>
 
@@ -498,7 +562,7 @@ export const OrderDetailPage: React.FC = () => {
               <div className="flex items-center gap-1.5">
                 <FaClock className="text-warning text-xs" />
                 <span className="font-semibold text-default-600 text-sm">
-                  {order.shipping.deliverySlot}
+                  {getDeliveryDisplay(order.orderDate)}
                 </span>
               </div>
             </div>

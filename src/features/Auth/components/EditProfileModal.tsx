@@ -12,13 +12,19 @@ import {
 } from "@heroui/react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { FaUser, FaEnvelope, FaLock, FaKey } from "react-icons/fa6";
+import { FaUser, FaEnvelope, FaLock, FaKey, FaPhone } from "react-icons/fa6";
 
 const profileSchema = z
   .object({
     name: z.string().min(3, "El nombre es muy corto"),
     email: z.string().email("Correo inválido"),
     username: z.string().min(3, "Usuario muy corto"),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^[0-9+\-()\s]*$/, "Formato de teléfono inválido")
+      .optional()
+      .or(z.literal("")),
     changePassword: z.boolean(),
     password: z.string().optional(),
     confirmPassword: z.string().optional(),
@@ -86,20 +92,37 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
       name: user?.name || "",
       email: user?.email || "",
       username: user?.username || "",
+      phone: user?.phone || "",
       changePassword: false,
       password: "",
       confirmPassword: "",
     },
     onSubmit: async ({ value }: { value: ProfileFormValues }) => {
-      const payload: any = {
-        name: value.name,
-        email: value.email,
-        username: value.username,
-      };
+      const payload: any = {};
+
+      if (value.name !== (user?.name || "")) {
+        payload.name = value.name;
+      }
+      if (value.email !== (user?.email || "")) {
+        payload.email = value.email;
+      }
+      if (value.username !== (user?.username || "")) {
+        payload.username = value.username;
+      }
+      if ((value.phone || "") !== (user?.phone || "")) {
+        payload.phone = value.phone || "";
+      }
 
       if (value.changePassword && value.password) {
         payload.password = value.password;
       }
+
+      if (!Object.keys(payload).length) {
+        onClose();
+
+        return;
+      }
+
       await onSubmit(payload);
     },
   });
@@ -189,6 +212,26 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   }}
                 />
               </div>
+
+              <form.Field
+                children={(field) => (
+                  <Input
+                    errorMessage={field.state.meta.errors.join(", ")}
+                    isInvalid={!!field.state.meta.errors.length}
+                    label="Teléfono"
+                    startContent={<FaPhone className="text-default-400" />}
+                    value={field.state.value || ""}
+                    variant="bordered"
+                    onBlur={field.handleBlur}
+                    onValueChange={field.handleChange}
+                  />
+                )}
+                name="phone"
+                validators={{
+                  onChange: ({ value, fieldApi }) =>
+                    validate("phone", value, fieldApi.form.state.values),
+                }}
+              />
 
               <Divider className="my-2" />
 

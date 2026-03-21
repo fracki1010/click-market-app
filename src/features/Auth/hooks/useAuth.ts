@@ -28,6 +28,7 @@ export const useAuth = () => {
       role,
       email: emailData,
       username: usernameData,
+      phone: phoneData,
       authProvider,
       avatar,
     } = data;
@@ -40,6 +41,7 @@ export const useAuth = () => {
         name: nameData,
         role,
         email: emailData,
+        phone: phoneData,
         authProvider,
         avatar,
       },
@@ -142,12 +144,12 @@ export const useAuth = () => {
     try {
       dispatch(loginStart());
 
-      await apiClient.patch("/auth/me", {
+      const response = await apiClient.put("/auth/profile", {
         ...updatedUserData,
       });
 
       // Guardar en Redux + localStorage;
-      dispatch(updateUser(updatedUserData));
+      dispatch(updateUser(response?.data?.user || updatedUserData));
     } catch (err: any) {
       console.error(err);
 

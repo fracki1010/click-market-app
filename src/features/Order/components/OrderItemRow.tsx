@@ -17,7 +17,7 @@ export const OrderItemRow: React.FC<OrderItemRowProps> = ({ item }) => {
   const totalItem = item.price * item.quantity;
 
   return (
-    <div className="flex items-center justify-between py-4 group hover:bg-default-50 px-2 -mx-2 transition-colors rounded-2xl">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4 group hover:bg-default-50 px-2 -mx-2 transition-colors rounded-2xl">
       {/* Sección Izquierda: Imagen y Datos */}
       <div className="flex items-center gap-4 min-w-0">
         <div className="relative w-14 h-14 shrink-0 rounded-xl overflow-hidden bg-default-50 border border-divider">
@@ -35,7 +35,7 @@ export const OrderItemRow: React.FC<OrderItemRowProps> = ({ item }) => {
         </div>
 
         <div className="flex flex-col min-w-0">
-          <span className="text-base font-bold text-default-800 truncate">
+          <span className="text-sm sm:text-base font-bold text-default-800 truncate">
             {item.product.name}
           </span>
           <div className="flex items-center gap-2 mt-0.5">
@@ -50,11 +50,11 @@ export const OrderItemRow: React.FC<OrderItemRowProps> = ({ item }) => {
       </div>
 
       {/* Sección Derecha: Precio Total */}
-      <div className="pl-4 text-right flex flex-col">
+      <div className="pl-0 sm:pl-4 text-left sm:text-right flex flex-col self-end sm:self-auto">
         <span className="text-xs font-black text-default-300 uppercase tracking-tighter">
           Subtotal
         </span>
-        <p className="text-lg font-black text-default-900 leading-none">
+        <p className="text-base sm:text-lg font-black text-default-900 leading-none">
           ${formatPrice(totalItem)}
         </p>
       </div>

@@ -20,7 +20,11 @@ import { useShippingSettings } from "../../Settings/hooks/useShippingSettings";
 export const CartPage: React.FC = () => {
   const navigate = useNavigate();
   const { items, fetchCart } = useCart();
-  const { calculateServiceCost } = useShippingSettings();
+  const {
+    calculateServiceCost,
+    isMinimumProductsMet,
+    getMinimumProductsMessage,
+  } = useShippingSettings();
 
   useEffect(() => {
     fetchCart();
@@ -33,6 +37,11 @@ export const CartPage: React.FC = () => {
 
   const serviceCost = calculateServiceCost(subtotal);
   const grandTotal = subtotal + serviceCost;
+  const totalProductUnits = items.reduce(
+    (acc, item) => acc + Number(item.quantity || 0),
+    0,
+  );
+  const minimumReached = isMinimumProductsMet(totalProductUnits);
 
   return (
     <main className="flex-grow bg-background transition-colors min-h-screen pb-20">
@@ -55,9 +64,18 @@ export const CartPage: React.FC = () => {
             </div>
 
             {items.length > 0 && (
-              <p className="text-default-500 font-medium">
-                Revisa tus productos antes de finalizar el pedido.
-              </p>
+              <div className="text-right">
+                <p className="text-default-500 font-medium">
+                  Revisa tus productos antes de finalizar el pedido.
+                </p>
+                <p
+                  className={`text-sm font-semibold ${
+                    minimumReached ? "text-success" : "text-warning"
+                  }`}
+                >
+                  {getMinimumProductsMessage(totalProductUnits)}
+                </p>
+              </div>
             )}
           </div>
         </div>
@@ -162,15 +180,20 @@ export const CartPage: React.FC = () => {
               </span>
             </div>
             <Button
-              className="bg-primary text-primary-foreground font-black px-8 h-12 shadow-lg shadow-primary/20 active:scale-95 transition-all"
+              className={`font-black px-8 h-12 shadow-lg active:scale-95 transition-all ${
+                minimumReached
+                  ? "bg-primary text-primary-foreground shadow-primary/20"
+                  : "bg-default-200 text-default-500 shadow-none"
+              }`}
+              isDisabled={!minimumReached}
               endContent={<FaArrowRight />}
               radius="full"
               onClick={() => {
-                if (items.length === 0) return;
+                if (items.length === 0 || !minimumReached) return;
                 navigate("/checkout");
               }}
             >
-              Comprar
+              {minimumReached ? "Comprar" : "Mínimo no alcanzado"}
             </Button>
           </motion.div>
         )}

@@ -9,6 +9,7 @@ import {
   FaSprayCan,
   FaBolt,
   FaStar,
+  FaCartShopping,
 } from "react-icons/fa6";
 import { motion } from "framer-motion";
 import { useShippingSettings } from "@/features/Settings/hooks/useShippingSettings";
@@ -82,7 +83,7 @@ const banners = [
 ];
 
 export const HomePage: React.FC = () => {
-  const { thresholdConfig } = useShippingSettings();
+  const { thresholdConfig, minimumProductsConfig } = useShippingSettings();
   const { data: topSellers, isLoading } = useTopSellers();
 
   return (
@@ -175,6 +176,37 @@ export const HomePage: React.FC = () => {
           </CardBody>
         </Card>
       </section>
+
+      {/* Minimum Products Card */}
+      <section className="px-4">
+        <Card className="bg-gradient-to-r from-secondary-50 to-primary-50 dark:from-content1 dark:to-content1 border-none shadow-sm">
+          <CardBody className="py-3 px-4 flex-row items-center gap-4">
+            <div className="bg-background p-2.5 rounded-full shadow-sm text-secondary">
+              <FaCartShopping size={20} />
+            </div>
+            <div className="flex-grow">
+              <h4 className="text-sm font-bold text-default-800">
+                Pedido por Productos
+              </h4>
+              <p className="text-[11px] text-default-500 font-medium">
+                {minimumProductsConfig > 0
+                  ? `Pedido mínimo de ${minimumProductsConfig} productos`
+                  : "Sin mínimo de productos para comprar"}
+              </p>
+            </div>
+            <Button
+              isIconOnly
+              className="bg-background text-default-400 rotate-0"
+              radius="full"
+              size="sm"
+              variant="flat"
+            >
+              <FaArrowRight size={12} />
+            </Button>
+          </CardBody>
+        </Card>
+      </section>
+
 
       {/* Categories Grid (More visual) */}
       <section className="px-4 space-y-4">

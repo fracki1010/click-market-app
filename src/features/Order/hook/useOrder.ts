@@ -32,6 +32,7 @@ export const useCreateOrder = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { emptyCart } = useCart();
+  const { addToast } = useToast();
 
   return useMutation({
     mutationFn: (payload: CreateOrderPayload) => orderService.create(payload),
@@ -47,6 +48,9 @@ export const useCreateOrder = () => {
     },
     onError: (error: any) => {
       console.error("Error creating order:", error);
+      const backendMsg =
+        error?.response?.data?.msg || "No se pudo procesar el pedido";
+      addToast(backendMsg, "error");
     },
   });
 };

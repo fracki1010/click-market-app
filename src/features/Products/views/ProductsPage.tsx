@@ -21,6 +21,8 @@ import { useProducts } from "../hooks/useProducts";
 import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 import { useCategories } from "../hooks/useCategory";
 import type { IProduct } from "../types/Product";
+import { useShippingSettings } from "../../Settings/hooks/useShippingSettings";
+import { useCart } from "../../Cart/hooks/useCart";
 
 const ITEMS_PER_PAGE = 12;
 const toSingleCategory = (categories: string[] = []) =>
@@ -150,6 +152,7 @@ export const ProductsPage: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data: categories = [] } = useCategories();
+  const { items } = useCart();
 
   // Detección de mobile
   useEffect(() => {
@@ -234,18 +237,19 @@ export const ProductsPage: React.FC = () => {
       {/* 1. Header de sección Moderno */}
       <div className="bg-default-50/50 border-b border-divider pb-3 pt-4 md:pb-8 md:pt-10 px-4">
         <div className="container mx-auto max-w-7xl">
-          <div className="flex flex-col md:flex-row justify-between items-end gap-3 md:gap-6">
-            <div className="space-y-0.5">
-              <div className="hidden md:flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-[0.3em]">
-                <span className="w-8 h-[2px] bg-current opacity-30"></span>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 md:gap-6">
+            <div className="flex flex-col items-start text-left space-y-1 md:space-y-2">
+              <div className="md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/10 text-primary font-black text-[10px] uppercase tracking-[0.28em] shadow-sm shadow-primary/10">
+                <span className="w-7 h-[2px] bg-gradient-to-r from-primary to-secondary"></span>
                 Explora
               </div>
-              <h1 className="text-2xl md:text-5xl font-black text-default-900 tracking-tighter">
-                Click{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+              <h1 className="text-4xl md:text-5xl font-black text-default-900 tracking-[-0.04em] leading-[0.95]">
+                <span className="block text-5xl">Click</span>
+                <span className="block text-transparent text-6xl pb-1 bg-clip-text bg-gradient-to-r from-primary via-sky-500 to-secondary drop-shadow-[0_8px_24px_rgba(59,130,246,0.18)]">
                   Catálogo
                 </span>
               </h1>
+            
             </div>
 
             <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">

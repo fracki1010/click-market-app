@@ -3,6 +3,7 @@ import { apiClient } from "../../../services/apiClient";
 export interface ShippingSettings {
   serviceCost: number;
   largePurchaseThreshold: number;
+  minimumProducts: number;
 }
 
 export const getShippingSettings = async (): Promise<ShippingSettings> => {

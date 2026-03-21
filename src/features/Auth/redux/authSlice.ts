@@ -8,6 +8,7 @@ interface User {
   name?: string;
   role: string;
   email: string;
+  phone?: string;
   authProvider?: "local" | "google";
   avatar?: string;
 }

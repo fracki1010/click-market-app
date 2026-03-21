@@ -63,6 +63,10 @@ export const Setting: React.FC = () => {
             freeShippingThreshold:
               backendShipping.largePurchaseThreshold ??
               prev.freeShippingThreshold,
+            minimumProducts:
+              typeof backendShipping.minimumProducts === "number"
+                ? backendShipping.minimumProducts
+                : prev.minimumProducts,
           }));
         }
       } catch (error) {
@@ -94,11 +98,19 @@ export const Setting: React.FC = () => {
     try {
       const shippingCost = Number(formData.shippingCost);
       const freeShippingThreshold = Number(formData.freeShippingThreshold);
+      const minimumProducts = Number(formData.minimumProducts);
+
+      if (Number.isNaN(minimumProducts) || minimumProducts < 0) {
+        addToast("El mínimo de productos debe ser 0 o mayor", "error");
+        setIsSaving(false);
+        return;
+      }
 
       // Guardar en Backend (Solo envío por ahora, que es lo crítico)
       await updateShippingSettings({
         serviceCost: shippingCost,
         largePurchaseThreshold: freeShippingThreshold,
+        minimumProducts: Math.floor(minimumProducts),
       });
 
       // Guardar en Redux
@@ -107,6 +119,7 @@ export const Setting: React.FC = () => {
           ...formData,
           shippingCost,
           freeShippingThreshold,
+          minimumProducts: Math.floor(minimumProducts),
           lowStockAlert: Number(formData.lowStockAlert),
         }),
       );
@@ -239,7 +252,7 @@ export const Setting: React.FC = () => {
                   <h3 className="text-lg font-bold flex items-center gap-2 text-slate-800 dark:text-white">
                     <Truck className="text-blue-500" /> Costo del Servicio
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Input
                       label="Costo del Servicio Base ($)"
                       type="number"
@@ -254,6 +267,16 @@ export const Setting: React.FC = () => {
                       value={formData.freeShippingThreshold.toString()}
                       onValueChange={(val) =>
                         handleChange("freeShippingThreshold", val)
+                      }
+                    />
+                    <Input
+                      description="0 = sin mínimo de productos para comprar."
+                      label="Mínimo de Productos por Pedido"
+                      type="number"
+                      variant="bordered"
+                      value={formData.minimumProducts.toString()}
+                      onValueChange={(val) =>
+                        handleChange("minimumProducts", val)
                       }
                     />
                   </div>
