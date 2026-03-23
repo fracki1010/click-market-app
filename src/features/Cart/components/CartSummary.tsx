@@ -27,7 +27,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
 }) => {
   const navigate = useNavigate();
   const { items } = useCart();
-  const { user } = useAuth();
+  const { token } = useAuth();
   const { thresholdConfig, isMinimumProductsMet, getMinimumProductsMessage } =
     useShippingSettings();
   const totalProductUnits = items.reduce(
@@ -38,6 +38,12 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
 
   const handleCheckout = () => {
     if (items.length === 0 || !minimumReached) return;
+    if (!token) {
+      navigate("/login", {
+        state: { from: { pathname: "/checkout" } },
+      });
+      return;
+    }
     navigate("/checkout");
   };
 
@@ -146,16 +152,12 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
                 : "bg-primary hover:bg-primary-600 text-white"
             }`}
           disabled={items.length === 0 || !minimumReached}
-          endContent={user && items.length > 0 ? <FaArrowRight /> : null}
+          endContent={items.length > 0 ? <FaArrowRight /> : null}
           radius="lg"
           size="lg"
           onClick={handleCheckout}
         >
-          {!minimumReached
-            ? "Completá el mínimo"
-            : user
-              ? "Continuar Compra"
-              : "Iniciar Sesión"}
+          {!minimumReached ? "Completá el mínimo" : "Continuar compra"}
         </Button>
 
         <Button

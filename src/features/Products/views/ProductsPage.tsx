@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useSearchParams } from "react-router";
+import { useSearchParams, useLocation, useNavigate } from "react-router";
 import {
   Select,
   SelectItem,
@@ -147,6 +147,8 @@ const MobileProducts = ({ filters }: any) => {
 
 export const ProductsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data: categories = [] } = useCategories();
@@ -202,6 +204,29 @@ export const ProductsPage: React.FC = () => {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
+  useEffect(() => {
+    const shouldFocusSearch = Boolean((location.state as any)?.focusSearch);
+    if (!shouldFocusSearch) return;
+
+    const timeoutId = window.setTimeout(() => {
+      const input = document.getElementById(
+        "products-search-input",
+      ) as HTMLInputElement | null;
+
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    }, 80);
+
+    navigate(`${location.pathname}${location.search}`, {
+      replace: true,
+      state: null,
+    });
+
+    return () => window.clearTimeout(timeoutId);
+  }, [location, navigate]);
+
   const updateUrl = (newFilters: FilterState) => {
     const params = new URLSearchParams();
     toSingleCategory(newFilters.categories).forEach((cat) =>
@@ -253,6 +278,7 @@ export const ProductsPage: React.FC = () => {
             <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">
               <div className="grow md:w-80">
                 <Input
+                  id="products-search-input"
                   isClearable
                   classNames={{
                     inputWrapper:

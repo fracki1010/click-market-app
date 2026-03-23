@@ -16,6 +16,7 @@ import {
   FaLaptop,
   FaGoogle,
   FaPhone,
+  FaClockRotateLeft,
 } from "react-icons/fa6";
 import { Link } from "react-router";
 
@@ -243,6 +244,13 @@ export const ProfilePage = () => {
                 subtitle="Ver y procesar pedidos"
                 title="Ordenes Globales"
                 to="/admin/orders"
+              />
+              <DashItem
+                color="secondary"
+                icon={FaClockRotateLeft}
+                subtitle="Auditar eventos y actividad del sistema"
+                title="Trazabilidad"
+                to="/admin/movements"
               />
               <DashItem
                 color="secondary"

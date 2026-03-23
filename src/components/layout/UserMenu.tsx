@@ -2,7 +2,13 @@
 import { Link } from "react-router"; // Asumiendo React Router
 import { Button } from "@heroui/button";
 import { Avatar, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
-import { FaBoxesStacked, FaGear, FaTableCells } from "react-icons/fa6";
+import {
+  FaBoxesStacked,
+  FaGear,
+  FaTableCells,
+  FaUsers,
+  FaClockRotateLeft,
+} from "react-icons/fa6";
 
 import { useTheme } from "@/features/Settings/hooks/useTheme";
 import { useAuth } from "@/features/Auth/hooks/useAuth";
@@ -72,6 +78,7 @@ const LogoutIcon = () => (
 export const UserMenu = ({ onClose }: { onClose?: () => void }) => {
   const [currentTheme, setCurrentTheme] = useTheme();
   const { user, logoutUser } = useAuth(); // Asumo que 'user' trae datos como name, email, role
+  const isAdmin = (user?.role || "").toLowerCase() === "admin";
 
   // Helper para cerrar el popover al hacer click en un link
   const handleLinkClick = () => {
@@ -106,7 +113,7 @@ export const UserMenu = ({ onClose }: { onClose?: () => void }) => {
           {/* 2. Navegación Principal */}
           <div className="py-1">
             {/* Solo mostrar Dashboard si es ADMIN  */}
-            {user?.role === "ADMIN" && (
+            {isAdmin && (
               <Link
                 className="flex items-center px-4 py-2 text-sm text-default-700 hover:bg-default-100 transition-colors"
                 to="/admin/dashboard"
@@ -132,7 +139,7 @@ export const UserMenu = ({ onClose }: { onClose?: () => void }) => {
             >
               <OrderIcon /> Mis Compras
             </Link>
-            {user?.role === "admin" && (
+            {isAdmin && (
               <>
                 <Link
                   className="flex items-center px-4 py-2 text-default-700 hover:bg-default-100 transition-colors"
@@ -153,6 +160,20 @@ export const UserMenu = ({ onClose }: { onClose?: () => void }) => {
                   onClick={handleLinkClick}
                 >
                   <FaTableCells className="w-4 h-4 mr-2" /> Ordenes
+                </Link>
+                <Link
+                  className="flex items-center px-4 py-2 text-sm text-default-700 hover:bg-default-100 transition-colors"
+                  to="/admin/customers"
+                  onClick={handleLinkClick}
+                >
+                  <FaUsers className="w-4 h-4 mr-2" /> Clientes
+                </Link>
+                <Link
+                  className="flex items-center px-4 py-2 text-sm text-default-700 hover:bg-default-100 transition-colors"
+                  to="/admin/movements"
+                  onClick={handleLinkClick}
+                >
+                  <FaClockRotateLeft className="w-4 h-4 mr-2" /> Trazabilidad
                 </Link>
                 <Link
                   className="flex items-center px-4 py-2 text-sm text-default-700 hover:bg-default-100 transition-colors"

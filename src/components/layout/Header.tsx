@@ -18,9 +18,14 @@ export const Header = () => {
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (searchValue.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchValue.trim())}`);
+    const trimmedSearch = searchValue.trim();
+
+    if (trimmedSearch) {
+      navigate(`/products?search=${encodeURIComponent(trimmedSearch)}`);
+      return;
     }
+
+    navigate("/products", { state: { focusSearch: true } });
   };
 
   return (
@@ -75,11 +80,16 @@ export const Header = () => {
 
         {/* User & Cart Actions */}
         <div className="flex items-center gap-1 sm:gap-3">
-          <Link className="md:hidden" to="/products">
-            <Button isIconOnly className="text-default-600" variant="light">
+          <div className="md:hidden">
+            <Button
+              isIconOnly
+              className="text-default-600"
+              variant="light"
+              onPress={() => handleSearch()}
+            >
               <FiSearch size={22} />
             </Button>
-          </Link>
+          </div>
 
           <Link className="hidden md:block" to="/cart">
             <Badge

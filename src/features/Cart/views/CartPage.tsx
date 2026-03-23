@@ -16,10 +16,12 @@ import { CartItem } from "../components/CartItem";
 import { CartSummary } from "../components/CartSummary";
 import { useCart } from "../hooks/useCart";
 import { useShippingSettings } from "../../Settings/hooks/useShippingSettings";
+import { useAuth } from "../../Auth/hooks/useAuth";
 
 export const CartPage: React.FC = () => {
   const navigate = useNavigate();
   const { items, fetchCart } = useCart();
+  const { token } = useAuth();
   const {
     calculateServiceCost,
     isMinimumProductsMet,
@@ -190,6 +192,12 @@ export const CartPage: React.FC = () => {
               radius="full"
               onClick={() => {
                 if (items.length === 0 || !minimumReached) return;
+                if (!token) {
+                  navigate("/login", {
+                    state: { from: { pathname: "/checkout" } },
+                  });
+                  return;
+                }
                 navigate("/checkout");
               }}
             >

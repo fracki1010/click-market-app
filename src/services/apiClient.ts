@@ -28,7 +28,11 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const hadActiveSession = Boolean(
+      store.getState().auth.token || localStorage.getItem("token"),
+    );
+
+    if (error.response?.status === 401 && hadActiveSession) {
       store.dispatch(logout());
       localStorage.removeItem("token");
       localStorage.removeItem("user");

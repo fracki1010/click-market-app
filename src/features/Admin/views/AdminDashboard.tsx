@@ -19,6 +19,7 @@ import {
   FaBoxesStacked,
   FaArrowRight,
   FaChartLine,
+  FaUsers,
 } from "react-icons/fa6";
 import { Link } from "react-router";
 import { motion } from "framer-motion";
@@ -181,6 +182,26 @@ export const AdminDashboard = () => {
           </Button>
           <Button
             as={Link}
+            color="default"
+            endContent={<FaUsers />}
+            to="/admin/customers"
+            variant="flat"
+            size="sm"
+          >
+            Clientes
+          </Button>
+          <Button
+            as={Link}
+            color="warning"
+            endContent={<FaArrowRight />}
+            to="/admin/movements"
+            variant="flat"
+            size="sm"
+          >
+            Trazabilidad
+          </Button>
+          <Button
+            as={Link}
             color="primary"
             endContent={<FaArrowRight />}
             to="/admin/inventory"
@@ -203,6 +224,28 @@ export const AdminDashboard = () => {
             className="flex-1 text-xs"
           >
             Órdenes
+          </Button>
+          <Button
+            as={Link}
+            color="default"
+            endContent={<FaUsers />}
+            to="/admin/customers"
+            variant="flat"
+            size="sm"
+            className="flex-1 text-xs"
+          >
+            Clientes
+          </Button>
+          <Button
+            as={Link}
+            color="warning"
+            endContent={<FaArrowRight />}
+            to="/admin/movements"
+            variant="flat"
+            size="sm"
+            className="flex-1 text-xs"
+          >
+            Trazas
           </Button>
           <Button
             as={Link}

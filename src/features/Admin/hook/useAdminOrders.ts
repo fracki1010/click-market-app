@@ -43,6 +43,35 @@ export const useAdminOrders = ({
   });
 };
 
+export const useAdminAllOrders = () => {
+  return useQuery({
+    queryKey: ["admin-orders-all"],
+    queryFn: async () => {
+      const firstPageResponse = await apiClient.get("/orders/admin/all?page=1");
+      const firstPageData = firstPageResponse.data;
+
+      const pages = Number(firstPageData?.pages || 1);
+      const allRawOrders = [...(firstPageData?.orders || [])];
+
+      if (pages > 1) {
+        const requests: Promise<any>[] = [];
+        for (let page = 2; page <= pages; page += 1) {
+          requests.push(apiClient.get(`/orders/admin/all?page=${page}`));
+        }
+
+        const responses = await Promise.all(requests);
+        for (const response of responses) {
+          allRawOrders.push(...(response.data?.orders || []));
+        }
+      }
+
+      return allRawOrders.map(toOrder);
+    },
+    refetchInterval: 1000 * 60,
+    staleTime: 1000 * 30,
+  });
+};
+
 export const useAdminOrderById = (id: string) => {
   return useQuery({
     queryKey: ["admin-order", id],
