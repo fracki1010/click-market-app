@@ -72,14 +72,14 @@ export const Footer = () => {
                   Ofertas del día
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   to="/home"
                   className="hover:text-primary transition-colors"
                 >
                   Cómo funciona
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link
                   to="/zonas-de-entrega"

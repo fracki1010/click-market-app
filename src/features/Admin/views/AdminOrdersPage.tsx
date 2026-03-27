@@ -30,6 +30,7 @@ import {
   FaTriangleExclamation,
   FaChevronDown,
   FaArrowRight,
+  FaBasketShopping,
 } from "react-icons/fa6";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
@@ -338,6 +339,18 @@ export const AdminOrdersPage: React.FC = () => {
             variant="bordered"
             onValueChange={setFilterText}
           />
+        </div>
+
+        <div className="flex justify-start">
+          <Button
+            size="sm"
+            color="secondary"
+            variant="flat"
+            startContent={<FaBasketShopping />}
+            onPress={() => navigate("/admin/shopping-list")}
+          >
+            Ir a Lista de Compras
+          </Button>
         </div>
 
         {/* Date Filters Container */}

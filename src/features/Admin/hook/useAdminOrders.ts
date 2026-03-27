@@ -16,6 +16,17 @@ interface UseAdminOrdersParams {
   endDate?: string;
 }
 
+const buildAdminOrdersUrl = ({
+  page,
+  startDate,
+  endDate,
+}: UseAdminOrdersParams) => {
+  let url = `/orders/admin/all?page=${page}`;
+  if (startDate) url += `&startDate=${startDate}`;
+  if (endDate) url += `&endDate=${endDate}`;
+  return url;
+};
+
 export const useAdminOrders = ({
   page = 1,
   startDate,
@@ -24,11 +35,9 @@ export const useAdminOrders = ({
   return useQuery({
     queryKey: ["admin-orders", page, startDate, endDate],
     queryFn: async () => {
-      let url = `/orders/admin/all?page=${page}`;
-      if (startDate) url += `&startDate=${startDate}`;
-      if (endDate) url += `&endDate=${endDate}`;
-
-      const { data } = await apiClient.get(url);
+      const { data } = await apiClient.get(
+        buildAdminOrdersUrl({ page, startDate, endDate }),
+      );
 
       return {
         orders: data.orders.map(toOrder),
@@ -43,11 +52,16 @@ export const useAdminOrders = ({
   });
 };
 
-export const useAdminAllOrders = () => {
+export const useAdminAllOrders = ({
+  startDate,
+  endDate,
+}: Omit<UseAdminOrdersParams, "page"> = {}) => {
   return useQuery({
-    queryKey: ["admin-orders-all"],
+    queryKey: ["admin-orders-all", startDate, endDate],
     queryFn: async () => {
-      const firstPageResponse = await apiClient.get("/orders/admin/all?page=1");
+      const firstPageResponse = await apiClient.get(
+        buildAdminOrdersUrl({ page: 1, startDate, endDate }),
+      );
       const firstPageData = firstPageResponse.data;
 
       const pages = Number(firstPageData?.pages || 1);
@@ -56,7 +70,9 @@ export const useAdminAllOrders = () => {
       if (pages > 1) {
         const requests: Promise<any>[] = [];
         for (let page = 2; page <= pages; page += 1) {
-          requests.push(apiClient.get(`/orders/admin/all?page=${page}`));
+          requests.push(
+            apiClient.get(buildAdminOrdersUrl({ page, startDate, endDate })),
+          );
         }
 
         const responses = await Promise.all(requests);

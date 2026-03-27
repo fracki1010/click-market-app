@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "click-market-app",
-  },
+    "click_market_app": "click-market-app"
+  }
 
 }

@@ -30,6 +30,7 @@ import { DeliveryZonesPage } from "@/features/Home/views/DeliveryZonePage";
 import { AboutPage } from "@/features/Home/views/AboutPage";
 import { AdminCustomersPage } from "@/features/Admin/views/AdminCustomersPage";
 import { AdminMovementsPage } from "@/features/Admin/views/AdminMovementsPage";
+import { AdminShoppingListPage } from "@/features/Admin/views/AdminShoppingListPage";
 import { ScrollToTop } from "../components/layout/ScrollToTop";
 
 export const AppRouter = () => {
@@ -73,6 +74,10 @@ export const AppRouter = () => {
               <Route element={<AdminDashboard />} path="/admin/dashboard" />
               <Route element={<InventoryPage />} path="/admin/inventory" />
               <Route element={<AdminOrdersPage />} path="/admin/orders" />
+              <Route
+                element={<AdminShoppingListPage />}
+                path="/admin/shopping-list"
+              />
               <Route element={<AdminCustomersPage />} path="/admin/customers" />
               <Route element={<AdminMovementsPage />} path="/admin/movements" />
               <Route

@@ -7,12 +7,18 @@ import {
   FaHouse,
   FaUsers,
   FaClipboardList,
+  FaBasketShopping,
 } from "react-icons/fa6";
 
 const adminNavItems = [
   { to: "/home", label: "Tienda", icon: <FaHouse /> },
   { to: "/admin/dashboard", label: "Dashboard", icon: <FaChartLine /> },
   { to: "/admin/orders", label: "Entregas", icon: <FaMotorcycle /> },
+  {
+    to: "/admin/shopping-list",
+    label: "Compras",
+    icon: <FaBasketShopping />,
+  },
   { to: "/admin/movements", label: "Trazas", icon: <FaClipboardList /> },
   { to: "/admin/customers", label: "Clientes", icon: <FaUsers /> },
   { to: "/admin/inventory", label: "Inventario", icon: <FaBoxesStacked /> },

@@ -84,8 +84,7 @@ export const AboutPage: React.FC = () => {
                 Rapidez Real
               </h3>
               <p className="text-sm text-default-500">
-                Entendemos el valor de tu tiempo. Entregamos en el día, sin
-                vueltas ni demoras.
+                Entendemos el valor de tu tiempo. En tan solo 48 horas, podras disfrutar de tu pedido.
               </p>
             </CardBody>
           </Card>
