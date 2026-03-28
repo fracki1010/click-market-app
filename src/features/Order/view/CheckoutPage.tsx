@@ -314,7 +314,7 @@ export const CheckoutPage: React.FC = () => {
                   Horario de Entrega
                 </h3>
                 <p className="text-sm text-default-500 mb-4 font-medium -mt-4 ml-11">
-                  Todos nuestros pedidos se entregan en la franja fija
+                  Todos nuestros pedidos se entregan al siguiente dia de la compra en la franja fija
                   establecida.
                 </p>
                 <div className="h-14 border-2 border-divider rounded-2xl bg-default-50 px-4 flex items-center justify-between">

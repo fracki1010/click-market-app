@@ -32,6 +32,8 @@ import {
 import { RootState } from "../../../store/store";
 
 const ITEMS_PER_PAGE = 12;
+const MAIN_FILTER_BEST_SELLERS = "best_sellers";
+
 const toSingleCategory = (
   categories: string[] = [],
   blockedCategoryNames: string[] = [],
@@ -303,6 +305,11 @@ export const ProductsPage: React.FC = () => {
     updateUrl({ ...filters, categories: newCats, page: 1 });
   };
 
+  const isBestSellersMainFilterActive =
+    filters.sort === MAIN_FILTER_BEST_SELLERS && filters.categories.length === 0;
+  const isAllMainFilterActive =
+    filters.categories.length === 0 && !isBestSellersMainFilterActive;
+
   const { data: response, isLoading, isFetching } = useProducts(filters);
   const totalItems = response?.pagination?.totalItems || 0;
 
@@ -363,14 +370,41 @@ export const ProductsPage: React.FC = () => {
         <div className="container mx-auto max-w-7xl px-4 flex items-center gap-4">
           <div className="flex-grow overflow-x-auto no-scrollbar flex items-center gap-2 pr-10">
             <Button
-              variant={filters.categories.length === 0 ? "solid" : "flat"}
-              color={filters.categories.length === 0 ? "primary" : "default"}
+              variant={isAllMainFilterActive ? "solid" : "flat"}
+              color={isAllMainFilterActive ? "primary" : "default"}
               size="sm"
               radius="full"
               className="font-black text-[10px] uppercase tracking-wider px-5 min-w-fit"
-              onClick={() => updateUrl({ ...filters, categories: [], page: 1 })}
+              onClick={() =>
+                updateUrl({
+                  ...filters,
+                  categories: [],
+                  sort: isBestSellersMainFilterActive ? "featured" : filters.sort,
+                  page: 1,
+                })
+              }
             >
               Todo
+            </Button>
+            <Button
+              variant={isBestSellersMainFilterActive ? "solid" : "flat"}
+              color={isBestSellersMainFilterActive ? "primary" : "default"}
+              size="sm"
+              radius="full"
+              className="font-black text-[10px] uppercase tracking-wider px-5 min-w-fit"
+              onClick={() =>
+                updateUrl({
+                  ...filters,
+                  categories: [],
+                  sort:
+                    isBestSellersMainFilterActive
+                      ? "featured"
+                      : MAIN_FILTER_BEST_SELLERS,
+                  page: 1,
+                })
+              }
+            >
+              Más vendidos
             </Button>
             {rootCategories.map((cat) => (
               <Button

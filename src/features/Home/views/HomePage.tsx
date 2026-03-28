@@ -35,30 +35,30 @@ const quickLinks: QuickLink[] = [
   },
   {
     id: 2,
+    label: "Más vendidos",
+    icon: <FaStar />,
+    color: "bg-success",
+    link: "/products?sort=best_sellers",
+  },
+  {
+    id: 3,
     label: "Almacén",
     icon: <FaBoxOpen />,
     color: "bg-primary",
     link: "/products?categories=ALMACÉN",
   },
   {
-    id: 3,
+    id: 4,
     label: "Limpieza",
     icon: <FaSprayCan />,
     color: "bg-secondary",
     link: "/products?categories=LIMPIEZA",
   },
   {
-    id: 4,
+    id: 5,
     label: "Express",
     icon: <FaBolt />,
     color: "bg-warning",
-    link: "/products",
-  },
-  {
-    id: 5,
-    label: "Full",
-    icon: <FaStar />,
-    color: "bg-success",
     link: "/products",
   },
 ];
@@ -292,7 +292,10 @@ export const HomePage: React.FC = () => {
           <h3 className="text-xl font-black text-default-800 tracking-tight">
             Elegidos para vos
           </h3>
-          <Link className="text-xs font-bold text-primary" to="/products">
+          <Link
+            className="text-xs font-bold text-primary"
+            to="/products?sort=best_sellers"
+          >
             Ver más
           </Link>
         </div>

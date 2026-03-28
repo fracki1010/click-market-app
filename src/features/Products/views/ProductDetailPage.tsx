@@ -18,12 +18,18 @@ import {
   FiShield,
   FiCheckCircle,
 } from "react-icons/fi";
+import { FaStar } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { useProduct } from "../hooks/useProduct";
 import { useCart } from "@/features/Cart/hooks/useCart";
 import { useToast } from "@/components/ui/ToastProvider";
 import { formatPrice } from "@/utils/currencyFormat";
+import {
+  getRatingFromTopSellerRank,
+  getReviewCountFromTopSellerRank,
+  getVisualStarsCount,
+} from "../utils/topSellerRating";
 
 const DEFAULT_STOCK_MOCK = 15;
 
@@ -47,6 +53,9 @@ export const ProductDetailPage: React.FC = () => {
 
   const currentStock = (product as any)?.stock ?? DEFAULT_STOCK_MOCK;
   const isOutOfStock = currentStock === 0;
+  const topSellerRating = getRatingFromTopSellerRank(product?.topSellerRank);
+  const reviewCount = getReviewCountFromTopSellerRank(product?.topSellerRank);
+  const visualStars = getVisualStarsCount(topSellerRating);
 
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => {
@@ -142,12 +151,16 @@ export const ProductDetailPage: React.FC = () => {
               </BreadcrumbItem>
             </Breadcrumbs>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-full">
-              <FiStar className="text-indigo-500" size={14} />
+          {topSellerRating !== null && (
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-full">
+                <FiStar className="text-indigo-500" size={14} />
+              </div>
+              <span className="text-xs font-black text-indigo-500">
+                {topSellerRating.toFixed(1)}
+              </span>
             </div>
-            <span className="text-xs font-black text-indigo-500">4.9</span>
-          </div>
+          )}
         </div>
       </div>
 
@@ -230,6 +243,25 @@ export const ProductDetailPage: React.FC = () => {
               <h1 className="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white tracking-tighter leading-[0.9]">
                 {product.name}
               </h1>
+
+              {topSellerRating !== null && (
+                <div className="flex items-center gap-2 pt-1">
+                  <div className="flex items-center gap-1 text-warning">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <FaStar
+                        key={index}
+                        className={index < visualStars ? "opacity-100" : "opacity-30"}
+                        size={13}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xs font-black text-gray-500 dark:text-neutral-400">
+                    {topSellerRating.toFixed(1)}
+                    {reviewCount ? ` (${reviewCount})` : ""}
+                    {product.topSellerRank ? ` · TOP #${product.topSellerRank}` : ""}
+                  </span>
+                </div>
+              )}
 
               <div className="flex items-end gap-4 pt-4">
                 <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-500 dark:from-white dark:to-neutral-500 tracking-tighter">

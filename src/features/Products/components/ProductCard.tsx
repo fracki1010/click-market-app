@@ -8,6 +8,11 @@ import { Button } from "@heroui/button";
 import { Chip } from "@heroui/react";
 import { motion } from "framer-motion";
 import { formatPrice } from "@/utils/currencyFormat";
+import {
+  getRatingFromTopSellerRank,
+  getReviewCountFromTopSellerRank,
+  getVisualStarsCount,
+} from "../utils/topSellerRating";
 
 import { useCart } from "../../Cart/hooks/useCart";
 import { useAuth } from "../../Auth/hooks/useAuth";
@@ -39,6 +44,9 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
   const hasDiscount = product.price > 1000;
   const originalPrice = product.price * 1.2;
+  const topSellerRating = getRatingFromTopSellerRank(product.topSellerRank);
+  const reviewCount = getReviewCountFromTopSellerRank(product.topSellerRank);
+  const visualStars = getVisualStarsCount(topSellerRating);
 
   return (
     <>
@@ -96,14 +104,25 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                 {product.name}
               </h3>
 
-              <div className="flex items-center gap-1.5 mb-2">
-                <div className="flex items-center text-warning">
-                  <FaStar size={10} />
+              {topSellerRating !== null && (
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="flex items-center gap-0.5 text-warning">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <FaStar
+                        key={index}
+                        className={
+                          index < visualStars ? "opacity-100" : "opacity-25"
+                        }
+                        size={10}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[10px] text-default-400 font-bold">
+                    {topSellerRating.toFixed(1)}
+                    {reviewCount ? ` (${reviewCount})` : ""}
+                  </span>
                 </div>
-                <span className="text-[10px] text-default-400 font-bold">
-                  4.9 (45)
-                </span>
-              </div>
+              )}
 
               <div className="flex flex-col gap-0.5">
                 {hasDiscount && (
