@@ -11,6 +11,7 @@ export function toOrderItem(apiItem: any): IOrderItem {
     productId: productId,
     quantity: apiItem.quantity,
     price: apiItem.price,
+    profit: typeof apiItem.profit === "number" ? apiItem.profit : null,
     product: {
       id: productId,
       name: apiItem.name || "Producto sin nombre", // Leemos el snapshot del nombre
@@ -77,5 +78,6 @@ export function toOrder(api: any): IOrder {
     total: api.total || 0,
 
     items: (api.items || []).map(toOrderItem),
+    profitSummary: api.profitSummary,
   };
 }

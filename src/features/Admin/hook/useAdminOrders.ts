@@ -92,9 +92,7 @@ export const useAdminOrderById = (id: string) => {
   return useQuery({
     queryKey: ["admin-order", id],
     queryFn: async () => {
-      const { data } = await apiClient.get(`/orders/${id}`);
-
-      console.log(data);
+      const { data } = await apiClient.get(`/orders/admin/${id}`);
 
       return toOrder(data);
     },

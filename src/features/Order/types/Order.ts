@@ -2,11 +2,20 @@ export interface IOrderItem {
   productId: string;
   quantity: number;
   price: number;
+  profit?: number | null;
   product: {
     id: string;
     name: string;
     imageUrl: string;
   };
+}
+
+export interface IOrderProfitSummary {
+  hasCompleteCosts: boolean;
+  totalSales: number;
+  totalCost: number | null;
+  grossProfit: number | null;
+  marginOverCost: number | null;
 }
 
 export interface IShippingDetails {
@@ -40,6 +49,7 @@ export interface IOrder {
   total: number;
 
   items: IOrderItem[];
+  profitSummary?: IOrderProfitSummary;
 }
 
 // Lo que viene de la API (Backend)
@@ -75,9 +85,12 @@ export interface OrderApi {
     };
     name: string;
     price: number;
+    profit?: number | null;
     quantity: number;
     image?: string;
   }[];
+
+  profitSummary?: IOrderProfitSummary;
 }
 
 // Lo que enviamos para crear la orden

@@ -181,6 +181,7 @@ export const AdminOrderDetailPage: React.FC = () => {
   const statusConfig =
     STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG] ??
     STATUS_CONFIG["Pending"];
+  const profitSummary = order.profitSummary;
 
   return (
     <main className="bg-slate-50 dark:bg-zinc-950 min-h-screen pb-28">
@@ -424,6 +425,17 @@ export const AdminOrderDetailPage: React.FC = () => {
                     <span className="text-xs font-semibold text-slate-400">
                       ${formatPrice(item.price)} c/u
                     </span>
+                    {item.profit !== null && item.profit !== undefined && (
+                      <span
+                        className={`text-xs font-black px-2 py-0.5 rounded-lg ${
+                          item.profit >= 0
+                            ? "text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-900/20"
+                            : "text-red-700 bg-red-50 dark:text-red-300 dark:bg-red-900/20"
+                        }`}
+                      >
+                        Ganancia: ${formatPrice(item.profit)}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -461,9 +473,50 @@ export const AdminOrderDetailPage: React.FC = () => {
                 Subtotal productos
               </span>
               <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">
-                ${order.subtotal ?? order.total - (order.serviceCost ?? 0)}
+                ${formatPrice(order.subtotal ?? order.total - (order.serviceCost ?? 0))}
               </span>
             </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-500 dark:text-zinc-400">
+                Costo de mercadería
+              </span>
+              <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">
+                {profitSummary?.hasCompleteCosts
+                  ? `$${formatPrice(profitSummary.totalCost)}`
+                  : "No disponible"}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-500 dark:text-zinc-400">
+                Ganancia bruta (sin envío)
+              </span>
+              <span
+                className={`text-sm font-black ${
+                  (profitSummary?.grossProfit ?? 0) >= 0
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-red-600 dark:text-red-400"
+                }`}
+              >
+                {profitSummary?.grossProfit !== null &&
+                profitSummary?.grossProfit !== undefined
+                  ? `$${formatPrice(profitSummary.grossProfit)}`
+                  : "No disponible"}
+              </span>
+            </div>
+
+            {profitSummary?.marginOverCost !== null &&
+              profitSummary?.marginOverCost !== undefined && (
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-400 dark:text-zinc-500">
+                  Margen sobre costo
+                </span>
+                <span className="text-xs font-bold text-slate-600 dark:text-zinc-300">
+                  {profitSummary.marginOverCost.toFixed(1)}%
+                </span>
+              </div>
+            )}
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-zinc-400">

@@ -28,6 +28,9 @@ import { AdminOrderDetailPage } from "@/features/Admin/views/AdminOrderDetailPag
 import { AdminProductDetailPage } from "@/features/Admin/views/AdminProductDetailPage";
 import { DeliveryZonesPage } from "@/features/Home/views/DeliveryZonePage";
 import { AboutPage } from "@/features/Home/views/AboutPage";
+import { PrivacyPage } from "@/features/Home/views/PrivacyPage";
+import { TermsPage } from "@/features/Home/views/TermsPage";
+import { ConditionsPage } from "@/features/Home/views/ConditionsPage";
 import { AdminCustomersPage } from "@/features/Admin/views/AdminCustomersPage";
 import { AdminMovementsPage } from "@/features/Admin/views/AdminMovementsPage";
 import { AdminShoppingListPage } from "@/features/Admin/views/AdminShoppingListPage";
@@ -58,6 +61,9 @@ export const AppRouter = () => {
             <Route element={<CartPage />} path="/cart" />
             <Route element={<DeliveryZonesPage />} path="/zonas-de-entrega" />
             <Route element={<AboutPage />} path="/nosotros" />
+            <Route element={<PrivacyPage />} path="/privacidad" />
+            <Route element={<TermsPage />} path="/terminos" />
+            <Route element={<ConditionsPage />} path="/condiciones" />
           </Route>
 
           {/* 3. RUTAS PROTEGIDAS (Solo Clientes Autenticados) */}

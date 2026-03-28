@@ -83,7 +83,8 @@ const banners = [
 ];
 
 export const HomePage: React.FC = () => {
-  const { thresholdConfig, minimumProductsConfig } = useShippingSettings();
+  const { thresholdConfig, minimumProductsConfig, isLoading: isLoadingShipping } =
+    useShippingSettings();
   const { data: topSellers, isLoading } = useTopSellers();
 
   return (
@@ -189,7 +190,9 @@ export const HomePage: React.FC = () => {
                 Pedido por Productos
               </h4>
               <p className="text-[11px] text-default-500 font-medium">
-                {minimumProductsConfig > 0
+                {isLoadingShipping
+                  ? "Cargando mínimo de productos..."
+                  : minimumProductsConfig > 0
                   ? `Pedido mínimo de ${minimumProductsConfig} productos`
                   : "Sin mínimo de productos para comprar"}
               </p>

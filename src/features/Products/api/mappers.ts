@@ -25,6 +25,12 @@ export interface ProductApi {
   idExternal?: string;
 }
 
+const roundToTwoDecimals = (value: unknown): number => {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return 0;
+  return Math.round((numericValue + Number.EPSILON) * 100) / 100;
+};
+
 // Mapeamos a nuestra interfaz
 export function toCategory(api: CategoryApi): ICategory {
   return {
@@ -39,8 +45,8 @@ export function toProduct(api: ProductApi): IProduct {
     id: api._id,
     name: api.name,
     description: api.description,
-    price: api.price,
-    costPrice: api.costPrice,
+    price: roundToTwoDecimals(api.price),
+    costPrice: roundToTwoDecimals(api.costPrice),
     imageUrl: api.image_url,
     categories: api.categories,
     stock: api.stock,
@@ -55,8 +61,8 @@ export function toProductApiCreate(
   return {
     name: payload.name,
     description: payload.description,
-    price: payload.price,
-    costPrice: payload.costPrice,
+    price: roundToTwoDecimals(payload.price),
+    costPrice: roundToTwoDecimals(payload.costPrice),
     categories: payload.categories,
     image_url: payload.image_url,
     stock: payload.stock,
@@ -69,14 +75,18 @@ export function toProductApiUpdate(
   payload: UpdateProductPayload,
 ): Partial<ProductApi> & { categories?: { id: string; name: string }[] } {
   return {
-    ...(payload.name && { name: payload.name }),
-    ...(payload.description && { description: payload.description }),
-    ...(payload.price && { price: payload.price }),
-    ...(payload.costPrice && { costPrice: payload.costPrice }),
-    ...(payload.categories && { categories: payload.categories }),
-    ...(payload.image_url && { image_url: payload.image_url }),
-    ...(payload.stock && { stock: payload.stock }),
-    ...(payload.stock_min && { stock_min: payload.stock_min }),
-    ...(payload.sku && { idExternal: payload.sku }),
+    ...(payload.name !== undefined && { name: payload.name }),
+    ...(payload.description !== undefined && { description: payload.description }),
+    ...(payload.price !== undefined && {
+      price: roundToTwoDecimals(payload.price),
+    }),
+    ...(payload.costPrice !== undefined && {
+      costPrice: roundToTwoDecimals(payload.costPrice),
+    }),
+    ...(payload.categories !== undefined && { categories: payload.categories }),
+    ...(payload.image_url !== undefined && { image_url: payload.image_url }),
+    ...(payload.stock !== undefined && { stock: payload.stock }),
+    ...(payload.stock_min !== undefined && { stock_min: payload.stock_min }),
+    ...(payload.sku !== undefined && { idExternal: payload.sku }),
   };
 }

@@ -154,15 +154,15 @@ export const Footer = () => {
             barrio.
           </p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-primary">
+            <Link to="/privacidad" className="hover:text-primary">
               Privacidad
-            </a>
-            <a href="#" className="hover:text-primary">
+            </Link>
+            <Link to="/terminos" className="hover:text-primary">
               Términos
-            </a>
-            <a href="#" className="hover:text-primary">
-              Devoluciones
-            </a>
+            </Link>
+            <Link to="/condiciones" className="hover:text-primary">
+              Condiciones
+            </Link>
           </div>
         </div>
       </div>

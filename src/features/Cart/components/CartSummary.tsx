@@ -25,6 +25,12 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
   serviceCost,
   total,
 }) => {
+  const subtotalRounded = Math.round((subtotal + Number.EPSILON) * 100) / 100;
+  const subtotalFormatted = new Intl.NumberFormat("es-AR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(subtotalRounded);
+
   const navigate = useNavigate();
   const { items } = useCart();
   const { token } = useAuth();
@@ -105,7 +111,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
         <div className="flex justify-between items-center text-default-600">
           <span className="font-medium font-outfit">Subtotal productos</span>
           <span className="font-bold text-default-800">
-            ${formatPrice(subtotal)}
+            ${subtotalFormatted}
           </span>
         </div>
 

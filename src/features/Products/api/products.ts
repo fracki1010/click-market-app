@@ -10,6 +10,9 @@ import { apiClient } from "../../../services/apiClient";
 
 import { toProduct, toProductApiCreate, toProductApiUpdate } from "./mappers";
 
+const roundToTwoDecimals = (value: number): number =>
+  Math.round((value + Number.EPSILON) * 100) / 100;
+
 export async function getProducts(filters?: {
   categories?: string[];
   price_min?: number;
@@ -107,9 +110,10 @@ export async function getMarkup(): Promise<{ markupPercentage: number }> {
 export async function updateMarkup(
   markupPercentage: number,
 ): Promise<{ markupPercentage: number }> {
+  const normalizedMarkup = roundToTwoDecimals(Number(markupPercentage) || 0);
   const response = await apiClient.put<{ markupPercentage: number }>(
     "/settings/markup",
-    { markupPercentage },
+    { markupPercentage: normalizedMarkup },
   );
   return response.data;
 }
