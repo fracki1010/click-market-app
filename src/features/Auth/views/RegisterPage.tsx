@@ -1,13 +1,14 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Button, Input } from "@heroui/react";
+import { FcGoogle } from "react-icons/fc";
 
 import { useAuth } from "../hooks/useAuth";
 import { LoadingComponent } from "../../../components/layout/LoadingComponent";
 import logoBrand from "../../../assets/Recurso 1.svg";
 
 export const RegisterPage = () => {
-  const { register, loading, error, token, user } = useAuth();
+  const { register, loginWithGoogle, loading, error, token, user } = useAuth();
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
@@ -50,6 +51,11 @@ export const RegisterPage = () => {
 
     setFormError(null);
     await register(username, email, password, name);
+  };
+
+  const handleGoogleRegister = async () => {
+    setFormError(null);
+    await loginWithGoogle();
   };
 
   if (loading) {
@@ -172,6 +178,27 @@ export const RegisterPage = () => {
               radius="full"
             >
               {loading ? "Creando cuenta..." : "Registrarme"}
+            </Button>
+
+            <div className="flex items-center gap-3 pt-2">
+              <span className="h-px flex-1 bg-divider" />
+              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-default-400">
+                o
+              </span>
+              <span className="h-px flex-1 bg-divider" />
+            </div>
+
+            <Button
+              type="button"
+              variant="bordered"
+              size="lg"
+              className="w-full border-divider bg-default-50 font-semibold text-default-700 transition-colors hover:bg-default-100"
+              radius="full"
+              isDisabled={loading}
+              onPress={handleGoogleRegister}
+              startContent={<FcGoogle className="text-xl" />}
+            >
+              Continuar con Google
             </Button>
           </form>
 
