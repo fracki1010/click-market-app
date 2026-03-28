@@ -7,6 +7,7 @@ interface SettingsState {
   shippingCost: number;
   freeShippingThreshold: number;
   minimumProducts: number;
+  blockedCategoryIds: string[];
   whatsappNumber: string;
   lowStockAlert: number;
 }
@@ -20,6 +21,7 @@ const DEFAULT_SETTINGS: SettingsState = {
   shippingCost: 500,
   freeShippingThreshold: 5000,
   minimumProducts: 0,
+  blockedCategoryIds: [],
   whatsappNumber: "+54 9 2622 456789",
   lowStockAlert: 5,
 };

@@ -6,13 +6,31 @@ export interface ShippingSettings {
   minimumProducts: number;
 }
 
+export interface StorefrontSettings {
+  blockedCategoryIds: string[];
+}
+
+export interface StorefrontVisibilityProgress {
+  status: "idle" | "running" | "completed" | "error";
+  total?: number;
+  processed?: number;
+  hiddenUpdated?: number;
+  visibleUpdated?: number;
+  error?: string;
+}
+
 const SHIPPING_PUBLIC_ENDPOINTS = [
-  "/public/settings/storefront",
-  "/public/settings/shipping",
   "/settings/shipping/public",
+  "/public/settings/storefront",
 ];
 
 const SHIPPING_PRIVATE_ENDPOINT = "/settings/shipping";
+const STOREFRONT_PUBLIC_ENDPOINTS = [
+  "/settings/shipping/public",
+  "/public/settings/storefront",
+  "/settings/storefront/public",
+];
+const STOREFRONT_PRIVATE_ENDPOINT = "/settings/storefront";
 
 const normalizeShippingSettings = (payload: any): ShippingSettings => {
   const raw = payload?.value || payload?.data || payload || {};
@@ -50,6 +68,16 @@ const normalizeShippingSettings = (payload: any): ShippingSettings => {
   };
 };
 
+const normalizeStorefrontSettings = (payload: any): StorefrontSettings => {
+  const raw = payload?.value || payload?.data || payload || {};
+
+  const blockedCategoryIds = Array.isArray(raw?.blockedCategoryIds)
+    ? raw.blockedCategoryIds.map((id: unknown) => String(id).trim()).filter(Boolean)
+    : [];
+
+  return { blockedCategoryIds };
+};
+
 export const getShippingSettings = async (): Promise<ShippingSettings> => {
   try {
     // Prioridad: endpoint público (sin token)
@@ -83,3 +111,38 @@ export const updateShippingSettings = async (settings: ShippingSettings) => {
   });
   return data;
 };
+
+export const getStorefrontSettings = async (): Promise<StorefrontSettings> => {
+  try {
+    for (const endpoint of STOREFRONT_PUBLIC_ENDPOINTS) {
+      try {
+        const { data } = await apiClient.get(endpoint);
+        return normalizeStorefrontSettings(data);
+      } catch (_error) {
+        // Seguimos probando los otros endpoints.
+      }
+    }
+
+    const { data } = await apiClient.get(STOREFRONT_PRIVATE_ENDPOINT);
+    return normalizeStorefrontSettings(data);
+  } catch (_error) {
+    return { blockedCategoryIds: [] };
+  }
+};
+
+export const updateStorefrontSettings = async (
+  settings: StorefrontSettings,
+) => {
+  const { data } = await apiClient.put(STOREFRONT_PRIVATE_ENDPOINT, settings);
+  return data;
+};
+
+export const getStorefrontVisibilityProgress =
+  async (): Promise<StorefrontVisibilityProgress> => {
+    try {
+      const { data } = await apiClient.get("/settings/storefront/progress");
+      return data || { status: "idle" };
+    } catch (_error) {
+      return { status: "idle" };
+    }
+  };

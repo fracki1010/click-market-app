@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams, useLocation, useNavigate } from "react-router";
+import { useSelector } from "react-redux";
 import {
   Select,
   SelectItem,
@@ -20,34 +21,55 @@ import { ProductList } from "../components/ProductList";
 import { useProducts } from "../hooks/useProducts";
 import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 import { useCategories } from "../hooks/useCategory";
+import { useStorefrontSettings } from "../../Settings/hooks/useStorefrontSettings";
 import type { IProduct } from "../types/Product";
+import {
+  expandBlockedCategoryIds,
+  filterVisibleCategories,
+  isProductVisible,
+  sanitizeSelectedCategories,
+} from "../utils/categoryVisibility";
+import { RootState } from "../../../store/store";
 
 const ITEMS_PER_PAGE = 12;
-const toSingleCategory = (categories: string[] = []) =>
-  categories.length ? [categories[0]] : [];
+const toSingleCategory = (
+  categories: string[] = [],
+  blockedCategoryNames: string[] = [],
+) =>
+  sanitizeSelectedCategories(
+    categories.length ? [categories[0]] : [],
+    blockedCategoryNames,
+  );
 
 const normalizeCategoryName = (name: string) => name.trim().toLowerCase();
 
 const filterProductsBySelectedCategories = (
   products: IProduct[],
   selectedCategories: string[],
+  blockedCategoryIds: string[] = [],
 ) => {
-  if (!selectedCategories.length) return products;
+  const visibleProducts = products.filter((product) =>
+    isProductVisible(product, blockedCategoryIds),
+  );
+
+  if (!selectedCategories.length) return visibleProducts;
 
   const selectedNormalized = selectedCategories.map(normalizeCategoryName);
 
-  return products.filter((product) =>
-    selectedNormalized.every((selected) =>
-      product.categories.some(
-        (category) => normalizeCategoryName(category.name) === selected,
+  return visibleProducts
+    .filter((product) =>
+      selectedNormalized.every((selected) =>
+        product.categories.some(
+          (category) => normalizeCategoryName(category.name) === selected,
+        ),
       ),
-    ),
-  );
+    );
 };
 
 // --- Versión Desktop con Paginación ---
 const DesktopProducts = ({
   filters,
+  blockedCategoryIds,
   onPageChange,
   isLoading,
   isFetching,
@@ -57,6 +79,7 @@ const DesktopProducts = ({
   const filteredProducts = filterProductsBySelectedCategories(
     products,
     filters.categories || [],
+    blockedCategoryIds,
   );
   const pagination = response?.pagination;
 
@@ -87,7 +110,7 @@ const DesktopProducts = ({
 };
 
 // --- Versión Mobile con Infinite Scroll ---
-const MobileProducts = ({ filters }: any) => {
+const MobileProducts = ({ filters, blockedCategoryIds }: any) => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteProducts(filters);
   const observer = useRef<IntersectionObserver | null>(null);
@@ -108,10 +131,13 @@ const MobileProducts = ({ filters }: any) => {
     [isLoading, hasNextPage, fetchNextPage, isFetchingNextPage],
   );
 
-  const allProducts = data?.pages.flatMap((page) => page.data) || [];
+  const allProducts = (data?.pages.flatMap((page) => page.data) || []).filter(
+    (product) => isProductVisible(product, blockedCategoryIds),
+  );
   const filteredProducts = filterProductsBySelectedCategories(
     allProducts,
     filters.categories || [],
+    blockedCategoryIds,
   );
 
   if (isLoading) {
@@ -152,7 +178,29 @@ export const ProductsPage: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data: categories = [] } = useCategories();
-
+  const { data: storefrontSettings } = useStorefrontSettings();
+  const localBlockedCategoryIds = useSelector(
+    (state: RootState) => state.settings.blockedCategoryIds || [],
+  );
+  const rawBlockedCategoryIds =
+    storefrontSettings?.blockedCategoryIds?.length
+      ? storefrontSettings.blockedCategoryIds
+      : localBlockedCategoryIds;
+  const blockedCategoryIds = useMemo(
+    () => expandBlockedCategoryIds(categories, rawBlockedCategoryIds),
+    [categories, rawBlockedCategoryIds],
+  );
+  const blockedCategoryNames = useMemo(
+    () =>
+      categories
+        .filter((category) => blockedCategoryIds.includes(category.id))
+        .map((category) => category.name),
+    [categories, blockedCategoryIds],
+  );
+  const visibleCategories = useMemo(
+    () => filterVisibleCategories(categories, blockedCategoryIds),
+    [categories, blockedCategoryIds],
+  );
 
   // Detección de mobile
   useEffect(() => {
@@ -163,7 +211,10 @@ export const ProductsPage: React.FC = () => {
   }, []);
 
   const [filters, setFilters] = useState<FilterState>({
-    categories: toSingleCategory(searchParams.getAll("categories")),
+    categories: toSingleCategory(
+      searchParams.getAll("categories"),
+      blockedCategoryNames,
+    ),
     price_min: searchParams.get("price_min")
       ? Number(searchParams.get("price_min"))
       : undefined,
@@ -181,7 +232,10 @@ export const ProductsPage: React.FC = () => {
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
-      categories: toSingleCategory(searchParams.getAll("categories")),
+      categories: toSingleCategory(
+        searchParams.getAll("categories"),
+        blockedCategoryNames,
+      ),
       price_min: searchParams.get("price_min")
         ? Number(searchParams.get("price_min"))
         : undefined,
@@ -193,7 +247,7 @@ export const ProductsPage: React.FC = () => {
       search: searchParams.get("search") || "",
     }));
     setSearchTerm(searchParams.get("search") || "");
-  }, [searchParams]);
+  }, [searchParams, blockedCategoryNames]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -229,7 +283,7 @@ export const ProductsPage: React.FC = () => {
 
   const updateUrl = (newFilters: FilterState) => {
     const params = new URLSearchParams();
-    toSingleCategory(newFilters.categories).forEach((cat) =>
+    toSingleCategory(newFilters.categories, blockedCategoryNames).forEach((cat) =>
       params.append("categories", cat),
     );
     if (newFilters.price_min !== undefined)
@@ -253,7 +307,7 @@ export const ProductsPage: React.FC = () => {
   const totalItems = response?.pagination?.totalItems || 0;
 
   // Solo mostrar categorías raíz en la barra superior para mayor limpieza
-  const rootCategories = categories.filter((c) => !c.parent);
+  const rootCategories = visibleCategories.filter((c) => !c.parent);
 
   return (
     <main className="flex-grow bg-background transition-colors duration-500 min-h-screen">
@@ -357,6 +411,7 @@ export const ProductsPage: React.FC = () => {
               }
             >
               <SelectItem key="featured">Relevancia</SelectItem>
+              <SelectItem key="best_sellers">Más vendidos</SelectItem>
               <SelectItem key="price_asc">Menor $</SelectItem>
               <SelectItem key="price_desc">Mayor $</SelectItem>
               <SelectItem key="newest">Nuevos</SelectItem>
@@ -369,9 +424,13 @@ export const ProductsPage: React.FC = () => {
         {/* 3. Rejilla de Productos Principal */}
         <div className="relative">
           {isMobile ? (
-            <MobileProducts filters={filters} />
+            <MobileProducts
+              blockedCategoryIds={blockedCategoryIds}
+              filters={filters}
+            />
           ) : (
             <DesktopProducts
+              blockedCategoryIds={blockedCategoryIds}
               filters={filters}
               isFetching={isFetching}
               isLoading={isLoading}

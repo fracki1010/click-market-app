@@ -5,6 +5,10 @@ import {
   Input,
   Button,
   Switch,
+  Autocomplete,
+  AutocompleteItem,
+  Chip,
+  Progress,
   Card,
   CardBody,
   Select,
@@ -24,21 +28,34 @@ import {
   Save,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { useAuth } from "../../Auth/hooks/useAuth";
 import { RootState } from "../../../store/store";
 // Asegúrate de que la ruta a updateSettings sea correcta en tu proyecto
 import { updateSettings } from "../redux/settingsSlice";
 import { useTheme } from "./../hooks/useTheme";
-import { getShippingSettings, updateShippingSettings } from "../api/settings";
+import {
+  getShippingSettings,
+  getStorefrontSettings,
+  updateShippingSettings,
+  updateStorefrontSettings,
+} from "../api/settings";
 import { useToast } from "@/components/ui/ToastProvider";
+import { useCategories } from "../../Products/hooks/useCategory";
+import { useStorefrontVisibilityProgress } from "../hooks/useStorefrontVisibilityProgress";
 
 export const Setting: React.FC = () => {
   const [currentTheme, setCurrentTheme] = useTheme();
   const { logoutUser } = useAuth();
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
 
   const { addToast } = useToast();
+  const { data: categories = [] } = useCategories();
+  const [forceProgressPolling, setForceProgressPolling] = useState(false);
+  const { data: storefrontVisibilityProgress } =
+    useStorefrontVisibilityProgress(forceProgressPolling);
 
   // 1. Obtenemos los settings actuales de Redux
   const settings = useSelector((state: RootState) => state.settings);
@@ -46,29 +63,35 @@ export const Setting: React.FC = () => {
   // 2. Estado local para manejar los inputs antes de guardar
   const [formData, setFormData] = useState(settings);
   const [isSaving, setIsSaving] = useState(false);
+  const [categoryQuery, setCategoryQuery] = useState("");
 
   // Sincronizar con el backend al montar
   useEffect(() => {
     const fetchBackendSettings = async () => {
       try {
-        const backendShipping = await getShippingSettings();
+        const [backendShipping, storefrontSettings] = await Promise.all([
+          getShippingSettings(),
+          getStorefrontSettings(),
+        ]);
         const resolvedServiceCost =
           backendShipping?.serviceCost ??
           (backendShipping as any)?.shippingPrice;
-        // Solo actualizamos si el backend devolvió valores válidos para evitar pisar los defaults con undefined
-        if (backendShipping && typeof resolvedServiceCost === "number") {
-          setFormData((prev) => ({
-            ...prev,
-            shippingCost: resolvedServiceCost,
-            freeShippingThreshold:
-              backendShipping.largePurchaseThreshold ??
-              prev.freeShippingThreshold,
-            minimumProducts:
-              typeof backendShipping.minimumProducts === "number"
-                ? backendShipping.minimumProducts
-                : prev.minimumProducts,
-          }));
-        }
+        setFormData((prev) => ({
+          ...prev,
+          blockedCategoryIds: storefrontSettings.blockedCategoryIds,
+          ...(backendShipping && typeof resolvedServiceCost === "number"
+            ? {
+                shippingCost: resolvedServiceCost,
+                freeShippingThreshold:
+                  backendShipping.largePurchaseThreshold ??
+                  prev.freeShippingThreshold,
+                minimumProducts:
+                  typeof backendShipping.minimumProducts === "number"
+                    ? backendShipping.minimumProducts
+                    : prev.minimumProducts,
+              }
+            : {}),
+        }));
       } catch (error) {
         console.error("Error fetching shipping settings:", error);
       }
@@ -99,6 +122,7 @@ export const Setting: React.FC = () => {
       const shippingCost = Number(formData.shippingCost);
       const freeShippingThreshold = Number(formData.freeShippingThreshold);
       const minimumProducts = Number(formData.minimumProducts);
+      let storefrontSaved = true;
 
       if (Number.isNaN(minimumProducts) || minimumProducts < 0) {
         addToast("El mínimo de productos debe ser 0 o mayor", "error");
@@ -112,6 +136,24 @@ export const Setting: React.FC = () => {
         largePurchaseThreshold: freeShippingThreshold,
         minimumProducts: Math.floor(minimumProducts),
       });
+      try {
+        await updateStorefrontSettings({
+          blockedCategoryIds: formData.blockedCategoryIds || [],
+        });
+        setForceProgressPolling(true);
+        queryClient.setQueryData(["storefront-visibility-progress"], {
+          status: "running",
+          total: 0,
+          processed: 0,
+          hiddenUpdated: 0,
+          visibleUpdated: 0,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["storefront-visibility-progress"],
+        });
+      } catch (_error) {
+        storefrontSaved = false;
+      }
 
       // Guardar en Redux
       dispatch(
@@ -121,10 +163,19 @@ export const Setting: React.FC = () => {
           freeShippingThreshold,
           minimumProducts: Math.floor(minimumProducts),
           lowStockAlert: Number(formData.lowStockAlert),
+          blockedCategoryIds: formData.blockedCategoryIds || [],
         }),
       );
 
-      addToast("Configuración guardada correctamente", "success");
+      if (storefrontSaved) {
+        queryClient.invalidateQueries({ queryKey: ["storefront-settings"] });
+        addToast("Configuración guardada correctamente", "success");
+      } else {
+        addToast(
+          "Guardado parcial: categorías ocultas no se pudieron sincronizar en servidor.",
+          "info",
+        );
+      }
     } catch (error) {
       console.error("Error saving settings:", error);
       addToast("Error al guardar en el servidor", "error");
@@ -138,6 +189,48 @@ export const Setting: React.FC = () => {
       setCurrentTheme(key as "light" | "dark" | "system");
     }
   };
+
+  const handleToggleBlockedCategory = (categoryId: string, checked: boolean) => {
+    setFormData((prev) => {
+      const current = prev.blockedCategoryIds || [];
+      const next = checked
+        ? Array.from(new Set([...current, categoryId]))
+        : current.filter((id) => id !== categoryId);
+
+      return { ...prev, blockedCategoryIds: next };
+    });
+  };
+
+  const selectedBlockedCategories = categories.filter((category) =>
+    (formData.blockedCategoryIds || []).includes(category.id),
+  );
+  const storefrontProgressPercent =
+    storefrontVisibilityProgress?.total && storefrontVisibilityProgress.total > 0
+      ? Math.min(
+          100,
+          Math.round(
+            ((storefrontVisibilityProgress.processed || 0) /
+              storefrontVisibilityProgress.total) *
+              100,
+          ),
+        )
+      : 0;
+
+  useEffect(() => {
+    if (!forceProgressPolling) return;
+    if (!storefrontVisibilityProgress) return;
+
+    if (
+      storefrontVisibilityProgress.status === "completed" ||
+      storefrontVisibilityProgress.status === "error"
+    ) {
+      const timeout = window.setTimeout(() => {
+        setForceProgressPolling(false);
+      }, 1800);
+
+      return () => window.clearTimeout(timeout);
+    }
+  }, [forceProgressPolling, storefrontVisibilityProgress]);
 
   return (
     <main className="min-h-screen p-4 md:p-8 bg-slate-50 dark:bg-zinc-950 transition-colors pb-24">
@@ -231,6 +324,123 @@ export const Setting: React.FC = () => {
                       }
                     />
                   </div>
+                </CardBody>
+              </Card>
+
+              <Card className="shadow-sm border border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                <CardBody className="gap-6 p-6">
+                  <h3 className="text-lg font-bold flex items-center gap-2 text-slate-800 dark:text-white">
+                    <Store className="text-violet-500" /> Categorías Ocultas
+                  </h3>
+                  <p className="text-sm text-slate-500">
+                    Busca una categoría y agrégala a la lista de bloqueadas para ocultarla de la tienda.
+                  </p>
+
+                  <Autocomplete
+                    inputValue={categoryQuery}
+                    label="Agregar categoría a ocultas"
+                    placeholder="Escribe para buscar..."
+                    variant="bordered"
+                    onInputChange={setCategoryQuery}
+                    onSelectionChange={(key) => {
+                      if (!key) return;
+                      handleToggleBlockedCategory(String(key), true);
+                      setCategoryQuery("");
+                    }}
+                  >
+                    {categories
+                      .filter(
+                        (category) =>
+                          !(formData.blockedCategoryIds || []).includes(
+                            category.id,
+                          ),
+                      )
+                      .map((category) => (
+                        <AutocompleteItem key={category.id}>
+                          {category.name}
+                        </AutocompleteItem>
+                      ))}
+                  </Autocomplete>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {selectedBlockedCategories.map((category) => (
+                      <div
+                        key={category.id}
+                        className="rounded-2xl border border-violet-200 dark:border-violet-900 bg-violet-50/70 dark:bg-violet-950/30 p-3 flex items-center justify-between gap-3"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Chip
+                            color="secondary"
+                            size="sm"
+                            variant="flat"
+                          >
+                            Oculta
+                          </Chip>
+                          <span className="font-semibold text-sm text-slate-700 dark:text-slate-200 truncate">
+                            {category.name}
+                          </span>
+                        </div>
+                        <Button
+                          color="danger"
+                          size="sm"
+                          variant="light"
+                          onPress={() =>
+                            handleToggleBlockedCategory(category.id, false)
+                          }
+                        >
+                          Quitar
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="text-xs text-slate-500">
+                    {selectedBlockedCategories.length === 0
+                      ? "No hay categorías ocultas."
+                      : `${selectedBlockedCategories.length} categoría(s) oculta(s).`}
+                  </div>
+
+                  {storefrontVisibilityProgress &&
+                    storefrontVisibilityProgress.status !== "idle" && (
+                      <div className="rounded-xl border border-slate-200 dark:border-zinc-800 p-3 bg-slate-50 dark:bg-zinc-900/50 space-y-2">
+                        <div className="flex items-center justify-between text-xs font-semibold">
+                          <span>
+                            {storefrontVisibilityProgress.status === "running"
+                              ? "Ocultando productos..."
+                              : storefrontVisibilityProgress.status === "completed"
+                                ? "Ocultación completada"
+                                : "Error al ocultar productos"}
+                          </span>
+                          <span>
+                            {(storefrontVisibilityProgress.processed || 0).toLocaleString()}{" "}
+                            /{" "}
+                            {(storefrontVisibilityProgress.total || 0).toLocaleString()}
+                          </span>
+                        </div>
+                        <Progress
+                          color={
+                            storefrontVisibilityProgress.status === "error"
+                              ? "danger"
+                              : storefrontVisibilityProgress.status === "completed"
+                                ? "success"
+                                : "secondary"
+                          }
+                          size="sm"
+                          value={
+                            storefrontVisibilityProgress.status === "error"
+                              ? 100
+                              : storefrontProgressPercent
+                          }
+                        />
+                        <div className="text-[11px] text-slate-500">
+                          Productos ocultados:{" "}
+                          {(storefrontVisibilityProgress.hiddenUpdated || 0).toLocaleString()}
+                          {" · "}
+                          Rehabilitados:{" "}
+                          {(storefrontVisibilityProgress.visibleUpdated || 0).toLocaleString()}
+                        </div>
+                      </div>
+                    )}
                 </CardBody>
               </Card>
             </div>

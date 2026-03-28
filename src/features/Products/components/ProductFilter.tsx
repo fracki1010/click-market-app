@@ -2,10 +2,18 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Checkbox, Slider, Button, Divider, Skeleton } from "@heroui/react";
 import { FiFilter, FiX, FiChevronRight } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
 import { formatPrice } from "@/utils/currencyFormat";
 
 import { useCategories } from "../../Products/hooks/useCategory";
+import { useStorefrontSettings } from "../../Settings/hooks/useStorefrontSettings";
 import { ICategory } from "../../Products/types/Product";
+import {
+  expandBlockedCategoryIds,
+  filterVisibleCategories,
+  sanitizeSelectedCategories,
+} from "../../Products/utils/categoryVisibility";
+import { RootState } from "../../../store/store";
 
 // --- Tipos ---
 export interface FilterState {
@@ -153,15 +161,50 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   onApply,
 }) => {
   const { data: categories = [], isLoading } = useCategories();
-  const [localFilters, setLocalFilters] = useState<FilterState>(currentFilters);
+  const { data: storefrontSettings } = useStorefrontSettings();
+  const localBlockedCategoryIds = useSelector(
+    (state: RootState) => state.settings.blockedCategoryIds || [],
+  );
+  const rawBlockedCategoryIds =
+    storefrontSettings?.blockedCategoryIds?.length
+      ? storefrontSettings.blockedCategoryIds
+      : localBlockedCategoryIds;
+  const blockedCategoryIds = useMemo(
+    () => expandBlockedCategoryIds(categories, rawBlockedCategoryIds),
+    [categories, rawBlockedCategoryIds],
+  );
+  const blockedCategoryNames = useMemo(
+    () =>
+      categories
+        .filter((category) => blockedCategoryIds.includes(category.id))
+        .map((category) => category.name),
+    [categories, blockedCategoryIds],
+  );
+  const visibleCategories = useMemo(
+    () => filterVisibleCategories(categories, blockedCategoryIds),
+    [categories, blockedCategoryIds],
+  );
+  const [localFilters, setLocalFilters] = useState<FilterState>({
+    ...currentFilters,
+    categories: sanitizeSelectedCategories(
+      currentFilters.categories,
+      blockedCategoryNames,
+    ),
+  });
 
   useEffect(() => {
-    setLocalFilters(currentFilters);
-  }, [currentFilters]);
+    setLocalFilters({
+      ...currentFilters,
+      categories: sanitizeSelectedCategories(
+        currentFilters.categories,
+        blockedCategoryNames,
+      ),
+    });
+  }, [currentFilters, blockedCategoryNames]);
 
   const categoryTree = useMemo(
-    () => buildCategoryTree(categories),
-    [categories],
+    () => buildCategoryTree(visibleCategories),
+    [visibleCategories],
   );
 
   const handleCategoryToggle = (name: string, checked: boolean) => {

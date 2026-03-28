@@ -58,6 +58,16 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               src={product.imageUrl}
             />
             <div className="absolute top-2 left-2 flex flex-col gap-1">
+              {product.topSellerRank && (
+                <Chip
+                  className="font-bold text-[9px] h-5 shadow-sm"
+                  color="warning"
+                  size="sm"
+                  variant="solid"
+                >
+                  TOP #{product.topSellerRank}
+                </Chip>
+              )}
               <Chip
                 className="font-bold text-[9px] h-5 shadow-sm"
                 color="primary"

@@ -46,6 +46,10 @@ export async function getProducts(filters?: {
         params.append("sort_by", "created_at");
         params.append("order", "desc");
         break;
+      case "best_sellers":
+        params.append("sort_by", "ranking_mas_vendidos");
+        params.append("order", "asc");
+        break;
       case "name_asc": // Ejemplo extra
         params.append("sort_by", "name");
         params.append("order", "asc");

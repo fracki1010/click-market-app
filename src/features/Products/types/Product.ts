@@ -38,8 +38,20 @@ export interface IProduct {
   imageUrl?: string;
   categories: ICategory[];
   stock: number;
+  stockLabel?: string | null;
   stock_min: number;
   sku?: string;
+  listPrice?: number | null;
+  offer?: string | null;
+  weight?: string | null;
+  unit?: string | null;
+  mainCategory?: string | null;
+  subcategories?: string[];
+  isTopSeller?: boolean;
+  topSellerRank?: number | null;
+  productUrl?: string;
+  sourceDate?: string;
+  isHidden?: boolean;
 }
 
 export type NewProductPayload = {
