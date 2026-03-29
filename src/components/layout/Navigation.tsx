@@ -4,14 +4,17 @@ import { Badge } from "@heroui/react";
 import {
   FaHouse,
   FaBagShopping,
+  FaTableCells,
   FaCartShopping,
   FaUser,
 } from "react-icons/fa6";
 
 import { useCart } from "@/features/Cart/hooks/useCart";
+import { warmupRouteOnIntent } from "@/routes/routeWarmup";
 
 const navItems = [
   { to: "/home", label: "Inicio", icon: <FaHouse /> },
+  { to: "/categories", label: "Categorías", icon: <FaTableCells /> },
   { to: "/products", label: "Productos", icon: <FaBagShopping /> },
   { to: "/cart", label: "Carrito", icon: <FaCartShopping />, badge: true },
   { to: "/profile", label: "Perfil", icon: <FaUser /> },
@@ -22,12 +25,14 @@ export const Navigation = () => {
   const cartCount = items.length;
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-xl border-t border-divider flex justify-around items-center px-4 py-3 z-50 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.1)] transition-colors">
+    <nav className="pb-safe fixed bottom-0 left-0 right-0 z-50 flex h-[var(--app-bottom-nav-height)] items-center justify-around border-t border-divider bg-background/90 px-2 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl transition-colors md:hidden">
       {navItems.map((item) => (
         <NavLink
           key={item.to}
-          className="relative flex flex-col items-center gap-1.5 focus:outline-none"
+          className="relative flex min-w-0 flex-1 flex-col items-center gap-1 focus:outline-none"
           to={item.to}
+          onMouseEnter={() => warmupRouteOnIntent(item.to)}
+          onTouchStart={() => warmupRouteOnIntent(item.to)}
         >
           {({ isActive }) => (
             <>
@@ -42,11 +47,11 @@ export const Navigation = () => {
               >
                 {item.badge && cartCount > 0 ? (
                   <Badge
+                    className="border-2 border-background"
                     color="danger"
                     content={cartCount}
                     shape="circle"
                     size="sm"
-                    className="border-2 border-background"
                   >
                     {item.icon}
                   </Badge>

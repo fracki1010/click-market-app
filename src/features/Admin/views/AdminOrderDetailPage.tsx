@@ -34,6 +34,7 @@ import {
   useUpdateAdminOrderStatus,
   useOrderInvoice,
 } from "../hook/useAdminOrders";
+
 import { IOrderItem } from "@/features/Order/types/Order";
 import { formatPrice } from "@/utils/currencyFormat";
 
@@ -84,7 +85,6 @@ const STATUS_CONFIG = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const formatDate = (d: string) =>
   new Date(d).toLocaleDateString("es-AR", {
-    weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -167,8 +167,8 @@ export const AdminOrderDetailPage: React.FC = () => {
           </p>
           <Button
             color="primary"
-            variant="flat"
             radius="lg"
+            variant="flat"
             onPress={() => navigate("/admin/orders")}
           >
             Volver a órdenes
@@ -190,9 +190,9 @@ export const AdminOrderDetailPage: React.FC = () => {
         <div className="container mx-auto max-w-2xl px-4 pt-5 pb-6">
           <Button
             isIconOnly
+            className="mb-4 bg-slate-100 dark:bg-zinc-800"
             radius="full"
             variant="flat"
-            className="mb-4 bg-slate-100 dark:bg-zinc-800"
             onPress={() => navigate("/admin/orders")}
           >
             <FaArrowLeft className="text-sm" />
@@ -212,9 +212,9 @@ export const AdminOrderDetailPage: React.FC = () => {
             </div>
             <Chip
               className={`font-black text-sm px-3 py-1 ${statusConfig.bg} ${statusConfig.text} shrink-0 mt-1`}
+              color={statusConfig.color}
               startContent={statusConfig.icon}
               variant="flat"
-              color={statusConfig.color}
             >
               {statusConfig.label}
             </Chip>
@@ -223,9 +223,9 @@ export const AdminOrderDetailPage: React.FC = () => {
           <div className="mt-6">
             <Button
               className="bg-emerald-600 text-white font-black w-full sm:w-auto"
+              isLoading={isDownloading}
               radius="lg"
               startContent={<FaFilePdf />}
-              isLoading={isDownloading}
               onPress={() => downloadInvoice(order.id)}
             >
               Descargar Factura PDF
@@ -237,10 +237,10 @@ export const AdminOrderDetailPage: React.FC = () => {
       <div className="container mx-auto max-w-2xl px-4 py-5 space-y-4">
         {/* ── Datos del Cliente ── */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
           className="bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800 p-5"
+          initial={{ opacity: 0, y: 12 }}
+          transition={{ delay: 0.05 }}
         >
           <div className="flex items-center gap-2 mb-4">
             <FaUser className="text-indigo-500" />
@@ -263,11 +263,11 @@ export const AdminOrderDetailPage: React.FC = () => {
                   </p>
                   <Button
                     isIconOnly
-                    size="sm"
-                    variant="flat"
+                    className="h-6 w-6 min-w-0"
                     color="primary"
                     radius="full"
-                    className="h-6 w-6 min-w-0"
+                    size="sm"
+                    variant="flat"
                     onPress={() =>
                       (window.location.href = `tel:${order.customerPhone}`)
                     }
@@ -285,10 +285,10 @@ export const AdminOrderDetailPage: React.FC = () => {
 
         {/* ── Cambio de Estado (acción principal admin) ── */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
           className="bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800 p-5"
+          initial={{ opacity: 0, y: 12 }}
+          transition={{ delay: 0.1 }}
         >
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">
             Cambiar Estado del Pedido
@@ -316,14 +316,14 @@ export const AdminOrderDetailPage: React.FC = () => {
             <Dropdown placement="bottom-end">
               <DropdownTrigger>
                 <Button
+                  className="font-black shrink-0"
                   color={statusConfig.color}
-                  isLoading={isUpdating}
-                  radius="lg"
-                  variant="flat"
                   endContent={
                     !isUpdating && <FaChevronDown className="text-xs" />
                   }
-                  className="font-black shrink-0"
+                  isLoading={isUpdating}
+                  radius="lg"
+                  variant="flat"
                 >
                   Cambiar
                 </Button>
@@ -375,10 +375,10 @@ export const AdminOrderDetailPage: React.FC = () => {
 
         {/* ── Productos ── */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.13 }}
           className="bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800 overflow-hidden"
+          initial={{ opacity: 0, y: 12 }}
+          transition={{ delay: 0.13 }}
         >
           <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-slate-50 dark:border-zinc-800">
             <div className="flex items-center gap-2">
@@ -402,9 +402,9 @@ export const AdminOrderDetailPage: React.FC = () => {
                 <div className="w-14 h-14 shrink-0 rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700">
                   {item.product.imageUrl ? (
                     <img
-                      src={item.product.imageUrl}
                       alt={item.product.name}
                       className="w-full h-full object-cover"
+                      src={item.product.imageUrl}
                     />
                   ) : (
                     <div className="flex items-center justify-center w-full h-full text-slate-300">
@@ -455,10 +455,10 @@ export const AdminOrderDetailPage: React.FC = () => {
 
         {/* ── Resumen de precios ── */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.16 }}
           className="bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800 p-5"
+          initial={{ opacity: 0, y: 12 }}
+          transition={{ delay: 0.16 }}
         >
           <div className="flex items-center gap-2 mb-4">
             <FaReceipt className="text-emerald-500" />
@@ -473,7 +473,10 @@ export const AdminOrderDetailPage: React.FC = () => {
                 Subtotal productos
               </span>
               <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">
-                ${formatPrice(order.subtotal ?? order.total - (order.serviceCost ?? 0))}
+                $
+                {formatPrice(
+                  order.subtotal ?? order.total - (order.serviceCost ?? 0),
+                )}
               </span>
             </div>
 
@@ -508,15 +511,15 @@ export const AdminOrderDetailPage: React.FC = () => {
 
             {profitSummary?.marginOverCost !== null &&
               profitSummary?.marginOverCost !== undefined && (
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 dark:text-zinc-500">
-                  Margen sobre costo
-                </span>
-                <span className="text-xs font-bold text-slate-600 dark:text-zinc-300">
-                  {profitSummary.marginOverCost.toFixed(1)}%
-                </span>
-              </div>
-            )}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-400 dark:text-zinc-500">
+                    Margen sobre costo
+                  </span>
+                  <span className="text-xs font-bold text-slate-600 dark:text-zinc-300">
+                    {profitSummary.marginOverCost.toFixed(1)}%
+                  </span>
+                </div>
+              )}
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-zinc-400">
@@ -553,10 +556,10 @@ export const AdminOrderDetailPage: React.FC = () => {
                 Método de pago
               </div>
               <Chip
+                className="text-xs font-bold"
                 color="default"
                 size="sm"
                 variant="flat"
-                className="text-xs font-bold"
               >
                 {paymentLabel(order.payment.method)}
               </Chip>
@@ -566,10 +569,10 @@ export const AdminOrderDetailPage: React.FC = () => {
 
         {/* ── Datos de envío / dirección ── */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.19 }}
           className="bg-white dark:bg-zinc-900 rounded-3xl shadow-sm border border-slate-100 dark:border-zinc-800 p-5"
+          initial={{ opacity: 0, y: 12 }}
+          transition={{ delay: 0.19 }}
         >
           <div className="flex items-center gap-2 mb-4">
             <FaLocationDot className="text-blue-500" />
@@ -625,11 +628,11 @@ export const AdminOrderDetailPage: React.FC = () => {
 
         {/* ── Volver ── */}
         <Button
-          variant="flat"
+          className="w-full"
           color="default"
           radius="lg"
-          className="w-full"
           startContent={<FaArrowLeft className="text-xs" />}
+          variant="flat"
           onPress={() => navigate("/admin/orders")}
         >
           Volver a Control de Entregas

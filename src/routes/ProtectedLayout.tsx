@@ -18,14 +18,24 @@ export const ProtectedLayout = () => {
   }
 
   const isAdminRoute = location.pathname.startsWith("/admin");
+  const shouldHideUserNavigation =
+    location.pathname === "/checkout" ||
+    location.pathname.startsWith("/checkout/");
+  const shouldShowNavigation = isAdminRoute || !shouldHideUserNavigation;
+  const shouldReserveBottomNavSpace = shouldShowNavigation;
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex min-h-screen-safe flex-col">
       <Header />
       {/* Show admin bottom nav on admin routes, user nav otherwise */}
-      {isAdminRoute ? <AdminNavigation /> : <Navigation />}
+      {shouldShowNavigation &&
+        (isAdminRoute ? <AdminNavigation /> : <Navigation />)}
 
-      <main className="flex-1 p-4 bg-background pb-20 md:pb-4 transition-colors">
+      <main
+        className={`flex-1 bg-background p-4 transition-colors md:pb-4 ${
+          shouldReserveBottomNavSpace ? "pb-app-nav" : "pb-4"
+        }`}
+      >
         <Outlet />
       </main>
 

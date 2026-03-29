@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-
-import { FaCircleCheck} from "react-icons/fa6";
+import { FaCircleCheck } from "react-icons/fa6";
 
 import logoImage from "@/assets/logo-3.png";
 
@@ -9,6 +8,7 @@ const REDIRECT_SECONDS = 7;
 const PARTICLES = Array.from({ length: 14 }, (_, idx) => {
   const angle = (Math.PI * 2 * idx) / 14;
   const distance = 95 + (idx % 3) * 20;
+
   return {
     id: idx,
     x: Math.cos(angle) * distance,
@@ -34,6 +34,7 @@ export const OrderSuccessPage: React.FC = () => {
 
   const redirectPath = useMemo(() => {
     if (!id) return "/my-orders";
+
     return `/my-orders/${id}?success=1`;
   }, [id]);
 
@@ -109,63 +110,63 @@ export const OrderSuccessPage: React.FC = () => {
         />
         <div
           className="pointer-events-none absolute inset-3 rounded-[2.2rem] border border-primary/25"
-          style={{ animation: "cmWavePulse 3.4s ease-in-out infinite", animationDelay: "700ms" }}
+          style={{
+            animation: "cmWavePulse 3.4s ease-in-out infinite",
+            animationDelay: "700ms",
+          }}
         />
 
         <div className="relative z-10 flex flex-col items-center w-full">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success-50 text-success mb-5">
-          <FaCircleCheck className="text-2xl" />
-        </div>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success-50 text-success mb-5">
+            <FaCircleCheck className="text-2xl" />
+          </div>
 
-        <p className="text-xs font-black uppercase tracking-widest text-success">
-          Compra completada
-        </p>
-        <h1 className="text-3xl md:text-4xl font-black text-default-800 mt-2">
-          Pedido confirmado
-        </h1>
-        <p className="text-default-500 mt-3">
-          Estamos preparando tu compra.
-        </p>
+          <p className="text-xs font-black uppercase tracking-widest text-success">
+            Compra completada
+          </p>
+          <h1 className="text-3xl md:text-4xl font-black text-default-800 mt-2">
+            Pedido confirmado
+          </h1>
+          <p className="text-default-500 mt-3">Estamos preparando tu compra.</p>
 
-        <div className="my-7 relative h-72 w-full flex items-center justify-center overflow-hidden">
-          <div
-            className={`absolute w-60 h-60 rounded-full border-2 border-success/25 ${
-              stage === "happy" || stage === "burst" ? "animate-ping" : ""
-            }`}
-          />
-          <div
-            className={`absolute w-52 h-52 rounded-full border border-warning/30 ${
-              stage === "burst" ? "animate-pulse" : ""
-            }`}
-          />
-
-          {PARTICLES.map((particle) => (
-            <span
-              key={particle.id}
-              className={`absolute left-1/2 top-1/2 w-2.5 h-2.5 rounded-full ${particle.colorClass} transition-all duration-700`}
-              style={{
-                opacity: isBurstActive ? 1 : 0,
-                transform: isBurstActive
-                  ? `translate(${particle.x}px, ${particle.y}px) scale(1)`
-                  : "translate(0px, 0px) scale(0.1)",
-                transitionDelay: `${particle.delayMs}ms`,
-              }}
+          <div className="my-7 relative h-72 w-full flex items-center justify-center overflow-hidden">
+            <div
+              className={`absolute w-60 h-60 rounded-full border-2 border-success/25 ${
+                stage === "happy" || stage === "burst" ? "animate-ping" : ""
+              }`}
             />
-          ))}
+            <div
+              className={`absolute w-52 h-52 rounded-full border border-warning/30 ${
+                stage === "burst" ? "animate-pulse" : ""
+              }`}
+            />
 
-          <img
-            src={logoImage}
-            alt="Click Market"
-            className={`mx-auto w-52 h-52 object-contain animate__animated ${logoAnimationClass}`}
-          />
+            {PARTICLES.map((particle) => (
+              <span
+                key={particle.id}
+                className={`absolute left-1/2 top-1/2 w-2.5 h-2.5 rounded-full ${particle.colorClass} transition-all duration-700`}
+                style={{
+                  opacity: isBurstActive ? 1 : 0,
+                  transform: isBurstActive
+                    ? `translate(${particle.x}px, ${particle.y}px) scale(1)`
+                    : "translate(0px, 0px) scale(0.1)",
+                  transitionDelay: `${particle.delayMs}ms`,
+                }}
+              />
+            ))}
 
-          {(stage === "happy" || stage === "burst") && (
-            <div className="absolute top-3/4 left-1/2 -translate-x-1/2 translate-y-6 px-3 py-1 rounded-full bg-success-50 border border-success/20 text-success text-xs font-black animate__animated animate__fadeInUp">
-              Compra hecha!
-            </div>
-          )}
-        </div>
+            <img
+              alt="Click Market"
+              className={`mx-auto w-52 h-52 object-contain animate__animated ${logoAnimationClass}`}
+              src={logoImage}
+            />
 
+            {(stage === "happy" || stage === "burst") && (
+              <div className="absolute top-3/4 left-1/2 -translate-x-1/2 translate-y-6 px-3 py-1 rounded-full bg-success-50 border border-success/20 text-success text-xs font-black animate__animated animate__fadeInUp">
+                Compra hecha!
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </main>

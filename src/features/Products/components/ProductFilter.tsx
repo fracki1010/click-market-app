@@ -3,7 +3,6 @@ import { Checkbox, Slider, Button, Divider, Skeleton } from "@heroui/react";
 import { FiFilter, FiX, FiChevronRight } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
-import { formatPrice } from "@/utils/currencyFormat";
 
 import { useCategories } from "../../Products/hooks/useCategory";
 import { useStorefrontSettings } from "../../Settings/hooks/useStorefrontSettings";
@@ -14,6 +13,8 @@ import {
   sanitizeSelectedCategories,
 } from "../../Products/utils/categoryVisibility";
 import { RootState } from "../../../store/store";
+
+import { formatPrice } from "@/utils/currencyFormat";
 
 // --- Tipos ---
 export interface FilterState {
@@ -42,6 +43,7 @@ function buildCategoryTree(categories: ICategory[]): ICategory[] {
 
   categories.forEach((cat) => {
     const node = map.get(cat.id);
+
     if (node) {
       if (cat.parent && map.has(cat.parent)) {
         map.get(cat.parent)!.children!.push(node);
@@ -61,6 +63,7 @@ function buildCategoryTree(categories: ICategory[]): ICategory[] {
   };
 
   sortNodes(roots);
+
   return roots;
 }
 
@@ -85,6 +88,7 @@ const CategoryItem = ({
       const childSelected = category.children!.some((c) =>
         selectedValues.includes(c.name),
       );
+
       if (childSelected) setIsOpen(true);
     }
   }, [selectedValues]);
@@ -135,10 +139,10 @@ const CategoryItem = ({
       <AnimatePresence>
         {hasChildren && isOpen && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden border-l-2 border-divider ml-4.5 mt-1 pb-1"
+            exit={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0 }}
           >
             {category.children!.map((child) => (
               <CategoryItem
@@ -165,10 +169,9 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   const localBlockedCategoryIds = useSelector(
     (state: RootState) => state.settings.blockedCategoryIds || [],
   );
-  const rawBlockedCategoryIds =
-    storefrontSettings?.blockedCategoryIds?.length
-      ? storefrontSettings.blockedCategoryIds
-      : localBlockedCategoryIds;
+  const rawBlockedCategoryIds = storefrontSettings?.blockedCategoryIds?.length
+    ? storefrontSettings.blockedCategoryIds
+    : localBlockedCategoryIds;
   const blockedCategoryIds = useMemo(
     () => expandBlockedCategoryIds(categories, rawBlockedCategoryIds),
     [categories, rawBlockedCategoryIds],
@@ -210,6 +213,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   const handleCategoryToggle = (name: string, checked: boolean) => {
     setLocalFilters((prev) => {
       const newCats = checked ? [name] : [];
+
       return { ...prev, categories: newCats };
     });
   };
@@ -222,6 +226,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
       sort: localFilters.sort,
       page: 1,
     };
+
     setLocalFilters(cleared);
     onApply(cleared);
   };
@@ -250,13 +255,13 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         </div>
         {activeCount > 0 && (
           <Button
-            variant="flat"
-            color="danger"
-            size="sm"
-            radius="full"
             className="h-7 px-3 min-w-unit-0 font-bold text-[10px]"
-            onClick={handleClear}
+            color="danger"
+            radius="full"
+            size="sm"
             startContent={<FiX size={12} />}
+            variant="flat"
+            onClick={handleClear}
           >
             Limpiar ({activeCount})
           </Button>
@@ -268,7 +273,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         <section>
           <h4 className="text-[11px] font-black text-default-500 uppercase tracking-widest mb-4 flex items-center gap-2">
             Categorías
-            <span className="w-1 h-1 bg-primary rounded-full"></span>
+            <span className="w-1 h-1 bg-primary rounded-full" />
           </h4>
 
           {isLoading ? (
@@ -298,28 +303,28 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
           <div className="flex justify-between items-center mb-6">
             <h4 className="text-[11px] font-black text-default-500 uppercase tracking-widest flex items-center gap-2">
               Rango de Precio
-              <span className="w-1 h-1 bg-primary rounded-full"></span>
+              <span className="w-1 h-1 bg-primary rounded-full" />
             </h4>
           </div>
 
           <div className="px-2">
             <Slider
               aria-label="Precio"
-              color="primary"
-              size="sm"
-              step={500}
-              minValue={0}
-              maxValue={100000}
-              value={[
-                localFilters.price_min || 0,
-                localFilters.price_max || 100000,
-              ]}
               classNames={{
                 track: "bg-default-100 h-1.5",
                 filler: "bg-primary",
                 thumb:
                   "bg-white border-2 border-primary shadow-md w-4 h-4 after:bg-primary",
               }}
+              color="primary"
+              maxValue={100000}
+              minValue={0}
+              size="sm"
+              step={500}
+              value={[
+                localFilters.price_min || 0,
+                localFilters.price_max || 100000,
+              ]}
               onChange={(val) =>
                 Array.isArray(val) &&
                 setLocalFilters((p) => ({

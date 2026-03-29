@@ -1,7 +1,6 @@
 import type { ICartItem } from "../types/Cart";
 
 import React, { useEffect } from "react";
-import { formatPrice } from "@/utils/currencyFormat";
 import { Link, useNavigate } from "react-router";
 import {
   FaBasketShopping,
@@ -17,6 +16,8 @@ import { CartSummary } from "../components/CartSummary";
 import { useCart } from "../hooks/useCart";
 import { useShippingSettings } from "../../Settings/hooks/useShippingSettings";
 import { useAuth } from "../../Auth/hooks/useAuth";
+
+import { formatPrice } from "@/utils/currencyFormat";
 
 export const CartPage: React.FC = () => {
   const navigate = useNavigate();
@@ -46,16 +47,16 @@ export const CartPage: React.FC = () => {
   const minimumReached = isMinimumProductsMet(totalProductUnits);
 
   return (
-    <main className="flex-grow bg-background transition-colors min-h-screen pb-20">
+    <main className="min-h-screen-safe flex-grow bg-background pb-24 transition-colors lg:pb-10">
       {/* Hero Header */}
-      <div className="bg-content1 border-b border-divider pt-12 pb-8 mb-8">
+      <div className="mb-6 border-b border-divider bg-content1 pb-6 pt-8 md:mb-8 md:pb-8 md:pt-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <motion.div
-                initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center gap-2 text-success font-bold mb-2 uppercase tracking-widest text-xs"
+                initial={{ opacity: 0, x: -20 }}
               >
                 <FaStore /> Click Market
               </motion.div>
@@ -101,9 +102,9 @@ export const CartPage: React.FC = () => {
               </div>
             ) : (
               <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="bg-content1 rounded-[2.5rem] shadow-sm border border-divider p-16 text-center"
+                initial={{ opacity: 0, scale: 0.9 }}
               >
                 <div className="relative w-32 h-32 mx-auto mb-8">
                   <div className="absolute inset-0 bg-success-100 rounded-full animate-ping opacity-25" />
@@ -168,10 +169,10 @@ export const CartPage: React.FC = () => {
       <AnimatePresence>
         {items.length > 0 && (
           <motion.div
-            initial={{ y: 100 }}
             animate={{ y: 0 }}
-            exit={{ y: 100 }}
             className="lg:hidden fixed bottom-0 left-0 right-0 bg-content1/80 backdrop-blur-xl border-t border-divider p-4 z-50 flex items-center justify-between gap-4 pb-safe"
+            exit={{ y: 100 }}
+            initial={{ y: 100 }}
           >
             <div className="flex flex-col">
               <span className="text-[10px] font-black uppercase text-default-500 leading-none">
@@ -187,8 +188,8 @@ export const CartPage: React.FC = () => {
                   ? "bg-primary text-primary-foreground shadow-primary/20"
                   : "bg-default-200 text-default-500 shadow-none"
               }`}
-              isDisabled={!minimumReached}
               endContent={<FaArrowRight />}
+              isDisabled={!minimumReached}
               radius="full"
               onClick={() => {
                 if (items.length === 0 || !minimumReached) return;
@@ -196,6 +197,7 @@ export const CartPage: React.FC = () => {
                   navigate("/login", {
                     state: { from: { pathname: "/checkout" } },
                   });
+
                   return;
                 }
                 navigate("/checkout");

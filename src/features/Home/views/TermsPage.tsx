@@ -1,6 +1,10 @@
 import React from "react";
 import { Card, CardBody, Chip, Divider } from "@heroui/react";
-import { FaFileContract, FaScaleBalanced, FaCartShopping } from "react-icons/fa6";
+import {
+  FaFileContract,
+  FaScaleBalanced,
+  FaCartShopping,
+} from "react-icons/fa6";
 
 export const TermsPage: React.FC = () => {
   return (

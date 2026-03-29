@@ -72,9 +72,9 @@ export const RegisterPage = () => {
           <div className="mb-8 flex flex-col items-center text-center">
             <div className="mb-6 rounded-3xl bg-default-50 p-4 ring-1 ring-divider">
               <img
-                src={logoBrand}
                 alt="Click Market"
                 className="h-14 w-auto object-contain"
+                src={logoBrand}
               />
             </div>
             <h1 className="text-3xl font-bold tracking-tight text-default-900">
@@ -85,81 +85,81 @@ export const RegisterPage = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
             <div className="grid gap-5 sm:grid-cols-2">
               <Input
+                isRequired
+                classNames={{
+                  inputWrapper:
+                    "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
+                  label: "text-default-600 font-medium",
+                }}
                 label="Nombre completo"
                 placeholder="Tu nombre"
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
-                isRequired
                 variant="faded"
+                onChange={(e) => setName(e.target.value)}
+              />
+              <Input
+                isRequired
                 classNames={{
                   inputWrapper:
                     "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
                   label: "text-default-600 font-medium",
                 }}
-              />
-              <Input
                 label="Usuario"
                 placeholder="@usuario"
                 type="text"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                isRequired
                 variant="faded"
-                classNames={{
-                  inputWrapper:
-                    "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
-                  label: "text-default-600 font-medium",
-                }}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
 
             <Input
-              label="Correo electrónico"
-              placeholder="tuemail@ejemplo.com"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               isRequired
-              variant="faded"
               classNames={{
                 inputWrapper:
                   "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
                 label: "text-default-600 font-medium",
               }}
+              label="Correo electrónico"
+              placeholder="tuemail@ejemplo.com"
+              type="email"
+              value={email}
+              variant="faded"
+              onChange={(e) => setEmail(e.target.value)}
             />
 
             <div className="grid gap-5 sm:grid-cols-2">
               <Input
+                isRequired
+                classNames={{
+                  inputWrapper:
+                    "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
+                  label: "text-default-600 font-medium",
+                }}
                 label="Contraseña"
                 placeholder="Mínimo 6 caracteres"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                isRequired
                 variant="faded"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Input
+                isRequired
                 classNames={{
                   inputWrapper:
                     "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
                   label: "text-default-600 font-medium",
                 }}
-              />
-              <Input
                 label="Confirmar contraseña"
                 placeholder="Repetí tu contraseña"
                 type="password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                isRequired
                 variant="faded"
-                classNames={{
-                  inputWrapper:
-                    "bg-default-50 border-divider shadow-none hover:bg-default-100 transition-colors",
-                  label: "text-default-600 font-medium",
-                }}
+                onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
 
@@ -170,12 +170,12 @@ export const RegisterPage = () => {
             )}
 
             <Button
-              color="primary"
-              type="submit"
-              size="lg"
               className="mt-1 w-full font-semibold shadow-md transition-all hover:shadow-lg"
+              color="primary"
               isLoading={loading}
               radius="full"
+              size="lg"
+              type="submit"
             >
               {loading ? "Creando cuenta..." : "Registrarme"}
             </Button>
@@ -189,14 +189,14 @@ export const RegisterPage = () => {
             </div>
 
             <Button
+              className="w-full border-divider bg-default-50 font-semibold text-default-700 transition-colors hover:bg-default-100"
+              isDisabled={loading}
+              radius="full"
+              size="lg"
+              startContent={<FcGoogle className="text-xl" />}
               type="button"
               variant="bordered"
-              size="lg"
-              className="w-full border-divider bg-default-50 font-semibold text-default-700 transition-colors hover:bg-default-100"
-              radius="full"
-              isDisabled={loading}
               onPress={handleGoogleRegister}
-              startContent={<FcGoogle className="text-xl" />}
             >
               Continuar con Google
             </Button>
@@ -204,7 +204,10 @@ export const RegisterPage = () => {
 
           <p className="mt-7 text-center text-sm text-default-600">
             ¿Ya tenés cuenta?{" "}
-            <Link className="font-semibold text-primary hover:underline" to="/login">
+            <Link
+              className="font-semibold text-primary hover:underline"
+              to="/login"
+            >
               Iniciá sesión
             </Link>
           </p>

@@ -1,12 +1,41 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --app-header-height: 64px;
+    --app-bottom-nav-height: 74px;
+  }
+
   html {
     scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100dvh;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
   }
 }
 
 @layer utilities {
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .pb-app-nav {
+    padding-bottom: calc(
+      var(--app-bottom-nav-height) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  .min-h-screen-safe {
+    min-height: 100dvh;
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }

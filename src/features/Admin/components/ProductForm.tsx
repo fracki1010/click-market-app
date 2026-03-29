@@ -230,10 +230,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
         {/* MOSTRAR GANANCIA CALCULADA */}
         <form.Subscribe
-          selector={(state) => [state.values.price, state.values.costPrice]}
-          children={([price, cost]) => {
-            const p = Number(price);
-            const c = Number(cost);
+          children={(state) => {
+            const p = Number(state.values.price);
+            const c = Number(state.values.costPrice);
             const profit = (isNaN(p) ? 0 : p) - (isNaN(c) ? 0 : c);
             const profitPercent = c > 0 ? (profit / c) * 100 : 0;
             const isLoss = profit < 0;

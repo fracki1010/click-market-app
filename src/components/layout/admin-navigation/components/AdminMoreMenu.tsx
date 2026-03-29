@@ -1,3 +1,5 @@
+import type { AdminNavItem } from "../hooks/useAdminNavigationItems";
+
 import { useState } from "react";
 import { Link } from "react-router";
 import {
@@ -10,8 +12,6 @@ import {
 import { motion } from "framer-motion";
 import { FaEllipsis } from "react-icons/fa6";
 
-import type { AdminNavItem } from "../hooks/useAdminNavigationItems";
-
 interface AdminMoreMenuProps {
   items: AdminNavItem[];
   isActive: boolean;
@@ -21,12 +21,7 @@ export const AdminMoreMenu = ({ items, isActive }: AdminMoreMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Popover
-      isOpen={isOpen}
-      onOpenChange={setIsOpen}
-      placement="top"
-      showArrow
-    >
+    <Popover showArrow isOpen={isOpen} placement="top" onOpenChange={setIsOpen}>
       <PopoverTrigger>
         <button className="relative flex min-w-14 flex-col items-center gap-1 group focus:outline-none">
           <motion.span
@@ -69,9 +64,9 @@ export const AdminMoreMenu = ({ items, isActive }: AdminMoreMenuProps) => {
                 as={Link}
                 className="justify-start font-semibold"
                 color="default"
-                onPress={() => setIsOpen(false)}
                 to={item.to}
                 variant="light"
+                onPress={() => setIsOpen(false)}
               >
                 <span className="mr-2 text-base">{item.icon}</span>
                 {item.label}

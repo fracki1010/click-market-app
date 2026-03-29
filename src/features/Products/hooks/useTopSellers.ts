@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { apiClient } from "../../../services/apiClient";
 import { toProduct, type ProductApi } from "../api/mappers";
 
@@ -24,6 +25,7 @@ export const useTopSellers = () => {
     queryFn: async () => {
       try {
         const { data } = await apiClient.get("/stats/products/top-sellers");
+
         return data;
       } catch {
         const { data } = await apiClient.get<{
@@ -38,12 +40,18 @@ export const useTopSellers = () => {
 
         return (data?.data || [])
           .map(toProduct)
-          .filter((product) => product.isTopSeller || product.topSellerRank !== null)
-          .sort((a, b) => (a.topSellerRank ?? 999999) - (b.topSellerRank ?? 999999))
+          .filter(
+            (product) => product.isTopSeller || product.topSellerRank !== null,
+          )
+          .sort(
+            (a, b) => (a.topSellerRank ?? 999999) - (b.topSellerRank ?? 999999),
+          )
           .slice(0, 10)
           .map((product) => ({
             _id: product.id,
-            totalSold: product.topSellerRank ? Math.max(1, 3655 - product.topSellerRank) : 0,
+            totalSold: product.topSellerRank
+              ? Math.max(1, 3655 - product.topSellerRank)
+              : 0,
             revenue: 0,
             name: product.name,
             image: product.imageUrl || null,
@@ -60,6 +68,7 @@ export const useTopCategorySellers = () => {
     queryKey: ["top-category-sellers"],
     queryFn: async () => {
       const { data } = await apiClient.get("/stats/categories/top-sellers");
+
       return data;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes

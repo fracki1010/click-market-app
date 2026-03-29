@@ -1,5 +1,6 @@
 import React from "react";
 import { FaBoxOpen } from "react-icons/fa6";
+
 import { formatPrice } from "@/utils/currencyFormat";
 
 interface OrderItemRowProps {
@@ -23,9 +24,9 @@ export const OrderItemRow: React.FC<OrderItemRowProps> = ({ item }) => {
         <div className="relative w-14 h-14 shrink-0 rounded-xl overflow-hidden bg-default-50 border border-divider">
           {item.product.imageUrl ? (
             <img
-              src={item.product.imageUrl}
               alt={item.product.name}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              src={item.product.imageUrl}
             />
           ) : (
             <div className="flex items-center justify-center w-full h-full text-default-300">

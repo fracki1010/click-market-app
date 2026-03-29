@@ -5,10 +5,12 @@ import { Badge, Input, Button } from "@heroui/react";
 import { useState } from "react";
 
 import { useAuth } from "../../features/Auth/hooks/useAuth";
-import { UserMenu } from "./UserMenu";
-import { useCart } from "@/features/Cart/hooks/useCart";
-
 import Logo from "../../assets/Recurso 1.svg";
+
+import { UserMenu } from "./UserMenu";
+
+import { useCart } from "@/features/Cart/hooks/useCart";
+import { warmupRouteOnIntent } from "@/routes/routeWarmup";
 
 export const Header = () => {
   const { user } = useAuth();
@@ -21,17 +23,20 @@ export const Header = () => {
     const trimmedSearch = searchValue.trim();
 
     if (trimmedSearch) {
+      warmupRouteOnIntent("/products");
       navigate(`/products?search=${encodeURIComponent(trimmedSearch)}`);
+
       return;
     }
 
+    warmupRouteOnIntent("/products");
     navigate("/products", { state: { focusSearch: true } });
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-xl border-b border-divider/50 shadow-sm transition-all duration-300">
+    <header className="pt-safe sticky top-0 z-50 w-full border-b border-divider/50 bg-background/95 shadow-sm backdrop-blur-xl transition-all duration-300 supports-[backdrop-filter]:bg-background/80">
       {/* Top row: Logo and Actions */}
-      <div className="container mx-auto px-4 lg:px-6 h-16 flex items-center justify-between gap-4">
+      <div className="container mx-auto flex h-[calc(var(--app-header-height)-env(safe-area-inset-top,0px))] items-center justify-between gap-3 px-3 sm:px-4 lg:px-6">
         {/* Mobile Menu Toggle (Simplified for now) */}
         {/* <Button
           isIconOnly
@@ -45,15 +50,17 @@ export const Header = () => {
         <Link
           className="flex items-center gap-2 text-primary font-black text-xl lg:text-2xl tracking-tight shrink-0"
           to="/"
+          onMouseEnter={() => warmupRouteOnIntent("/home")}
+          onTouchStart={() => warmupRouteOnIntent("/home")}
         >
           {/* <div className="bg-gradient-to-br from-primary-500 to-primary-600 p-0 m-0 rounded-xl shadow-primary-200 dark:shadow-none shadow-lg"> */}
           <img
-            src={Logo}
             alt="Logo"
-            className="h-10 w-auto object-contain shrink-0"
+            className="h-8 w-auto shrink-0 object-contain sm:h-9"
+            src={Logo}
           />
           {/* </div> */}
-          <span className="">Click Market</span>
+          <span className="hidden sm:inline">Click Market</span>
         </Link>
 
         {/* Desktop Search */}
@@ -85,13 +92,20 @@ export const Header = () => {
               isIconOnly
               className="text-default-600"
               variant="light"
+              onMouseEnter={() => warmupRouteOnIntent("/products")}
               onPress={() => handleSearch()}
+              onTouchStart={() => warmupRouteOnIntent("/products")}
             >
               <FiSearch size={22} />
             </Button>
           </div>
 
-          <Link className="hidden md:block" to="/cart">
+          <Link
+            className="hidden md:block"
+            to="/cart"
+            onMouseEnter={() => warmupRouteOnIntent("/cart")}
+            onTouchStart={() => warmupRouteOnIntent("/cart")}
+          >
             <Badge
               color="danger"
               content={items.length === 0 ? false : items.length}
@@ -108,7 +122,11 @@ export const Header = () => {
             {user ? (
               <UserMenu />
             ) : (
-              <Link to="/login">
+              <Link
+                to="/login"
+                onMouseEnter={() => warmupRouteOnIntent("/login")}
+                onTouchStart={() => warmupRouteOnIntent("/login")}
+              >
                 <Button
                   className="hidden sm:flex font-semibold"
                   color="primary"

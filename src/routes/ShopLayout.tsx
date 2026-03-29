@@ -6,18 +6,23 @@ import { Footer } from "../components/layout/Footer";
 
 export const ShopLayout = () => {
   const location = useLocation();
-  const showMobileFooter = [
-    "/home",
-    "/nosotros",
-    "/zonas-de-entrega",
-  ].includes(location.pathname);
+  const shouldHideMobileNavigation =
+    location.pathname === "/cart" || location.pathname.startsWith("/products/");
+  const shouldReserveBottomNavSpace = !shouldHideMobileNavigation;
+  const showMobileFooter = ["/home", "/nosotros", "/zonas-de-entrega"].includes(
+    location.pathname,
+  );
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex min-h-screen-safe flex-col">
       <Header />
-      <Navigation />
+      {!shouldHideMobileNavigation && <Navigation />}
 
-      <main className="flex-1 p-4 bg-background pb-20 md:pb-4 transition-colors">
+      <main
+        className={`flex-1 bg-background px-0 py-3 transition-colors md:p-4 md:pb-4 ${
+          shouldReserveBottomNavSpace ? "pb-app-nav" : "pb-4"
+        }`}
+      >
         <Outlet />
       </main>
 

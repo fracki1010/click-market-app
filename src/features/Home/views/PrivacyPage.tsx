@@ -31,8 +31,8 @@ export const PrivacyPage: React.FC = () => {
 
             <p className="text-default-600 leading-relaxed">
               En Click Market usamos tus datos solo para operar tu cuenta,
-              procesar pedidos y brindarte una mejor experiencia. Nunca
-              vendemos tu informacion personal a terceros.
+              procesar pedidos y brindarte una mejor experiencia. Nunca vendemos
+              tu informacion personal a terceros.
             </p>
 
             <Divider />
@@ -42,8 +42,8 @@ export const PrivacyPage: React.FC = () => {
                 <FaUserCheck className="text-primary" /> Que datos recopilamos
               </h2>
               <p className="text-default-600">
-                Podemos solicitar nombre, telefono, correo, direccion de
-                entrega e historial de pedidos para gestionar compras y soporte.
+                Podemos solicitar nombre, telefono, correo, direccion de entrega
+                e historial de pedidos para gestionar compras y soporte.
               </p>
             </div>
 

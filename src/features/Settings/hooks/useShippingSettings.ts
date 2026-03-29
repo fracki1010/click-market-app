@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { getShippingSettings } from "../api/settings";
 
 /**
@@ -50,6 +51,7 @@ export const useShippingSettings = () => {
     }
 
     const missing = minimumProductsConfig - productUnits;
+
     if (missing > 0) {
       return `Pedido mínimo: ${minimumProductsConfig} productos. Te faltan ${missing}.`;
     }

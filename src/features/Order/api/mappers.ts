@@ -41,13 +41,16 @@ export function toOrder(api: any): IOrder {
     shipping: {
       address: (() => {
         const val = api.shipping?.address;
+
         if (typeof val === "string") return val;
         if (typeof val === "object" && val !== null)
           return val.address || val.barrio || "";
+
         return "";
       })(),
       neighborhood: (() => {
         const val = api.shipping?.neighborhood || api.shipping?.barrio;
+
         if (typeof val === "string") return val;
         if (typeof val === "object" && val !== null)
           return val.neighborhood || val.barrio || val.address || "";
@@ -55,6 +58,7 @@ export function toOrder(api: any): IOrder {
         if (typeof api.shipping === "object" && api.shipping !== null) {
           return api.shipping.neighborhood || api.shipping.barrio || "";
         }
+
         return "";
       })(),
       deliveryNotes:

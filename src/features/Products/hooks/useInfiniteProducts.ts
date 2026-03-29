@@ -1,6 +1,8 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { productService } from "../services/productService";
 import type { PaginatedProducts } from "../types/Product";
+
+import { useInfiniteQuery } from "@tanstack/react-query";
+
+import { productService } from "../services/productService";
 
 export function useInfiniteProducts(filters: any) {
   // Excluimos 'page' de los filtros para la queryKey de infinite scroll
@@ -13,6 +15,7 @@ export function useInfiniteProducts(filters: any) {
       productService.getAll({ ...otherFilters, page: pageParam as number }),
     getNextPageParam: (lastPage) => {
       const { currentPage, totalPages } = lastPage.pagination;
+
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },
     initialPageParam: 1,

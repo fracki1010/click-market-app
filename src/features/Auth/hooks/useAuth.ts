@@ -88,7 +88,10 @@ export const useAuth = () => {
       console.error("Error en login con Google:", err);
 
       if (err?.code === "auth/popup-closed-by-user") {
-        dispatch(loginFailure("Cerraste la ventana antes de completar el login"));
+        dispatch(
+          loginFailure("Cerraste la ventana antes de completar el login"),
+        );
+
         return;
       }
 
@@ -96,6 +99,7 @@ export const useAuth = () => {
         err?.response?.data?.message ||
         err?.message ||
         "No se pudo iniciar sesión con Google";
+
       dispatch(loginFailure(message));
     }
   };
@@ -132,9 +136,8 @@ export const useAuth = () => {
       console.error(err);
 
       const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Error al registrarse";
+        err?.response?.data?.message || err?.message || "Error al registrarse";
+
       dispatch(loginFailure(message));
       dispatch(setErrorRegister(err.message || message));
     }

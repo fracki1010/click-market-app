@@ -7,13 +7,16 @@ import { toOrder } from "./mappers";
 export async function createOrder(
   payload: CreateOrderPayload,
 ): Promise<IOrder> {
-  const response = await apiClient.post<{
-    msg?: string;
-    orderNumber?: string;
-    order?: OrderApi;
-  } & Partial<OrderApi>>("/orders", payload);
+  const response = await apiClient.post<
+    {
+      msg?: string;
+      orderNumber?: string;
+      order?: OrderApi;
+    } & Partial<OrderApi>
+  >("/orders", payload);
 
   const rawOrder = response.data?.order || response.data;
+
   return toOrder(rawOrder);
 }
 

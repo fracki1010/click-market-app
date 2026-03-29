@@ -94,8 +94,8 @@ export const ProfilePage = () => {
     if (to) {
       return (
         <Card
-          as={Link}
           isPressable
+          as={Link}
           className="border-none shadow-sm hover:shadow-md transition-all bg-content1"
           to={to}
         >
@@ -141,9 +141,7 @@ export const ProfilePage = () => {
         <h1 className="text-2xl font-black text-default-900 text-center">
           {user.name}
         </h1>
-        <p className="text-sm text-default-500 text-center">
-          {user.email}
-        </p>
+        <p className="text-sm text-default-500 text-center">{user.email}</p>
         <p className="text-sm text-default-500 text-center mb-2 flex items-center gap-2">
           <FaPhone className="text-default-400" size={12} />
           {user.phone || "Sin número de teléfono"}

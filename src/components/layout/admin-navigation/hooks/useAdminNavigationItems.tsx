@@ -37,7 +37,8 @@ export const useAdminNavigationItems = () => {
   const location = useLocation();
 
   const isSecondaryActive = useMemo(
-    () => secondaryNavItems.some((item) => location.pathname.startsWith(item.to)),
+    () =>
+      secondaryNavItems.some((item) => location.pathname.startsWith(item.to)),
     [location.pathname],
   );
 

@@ -7,7 +7,7 @@ export const AdminNavigation = () => {
     useAdminNavigationItems();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-lg border-t border-divider flex justify-between items-center px-4 py-3 z-50 pb-safe shadow-[0_-8px_30px_rgb(0,0,0,0.04)] transition-colors">
+    <nav className="pb-safe fixed bottom-0 left-0 right-0 z-50 flex h-[var(--app-bottom-nav-height)] items-center justify-between border-t border-divider bg-background/90 px-4 shadow-[0_-8px_30px_rgb(0,0,0,0.04)] backdrop-blur-lg transition-colors md:hidden">
       {primaryNavItems.map((item) => (
         <AdminNavLink key={item.to} item={item} />
       ))}

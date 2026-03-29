@@ -23,7 +23,7 @@ import {
 } from "react-icons/fa6";
 import { Link } from "react-router";
 import { motion } from "framer-motion";
-import { formatPrice } from "@/utils/currencyFormat";
+import { Image } from "@heroui/react";
 
 import { useProducts } from "../../Products/hooks/useProducts";
 import { useAdminOrders } from "../hook/useAdminOrders";
@@ -32,7 +32,8 @@ import {
   useTopCategorySellers,
 } from "../../Products/hooks/useTopSellers";
 import { LowStockTable } from "../components/LowStockTable";
-import { Image } from "@heroui/react";
+
+import { formatPrice } from "@/utils/currencyFormat";
 
 const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
@@ -152,9 +153,9 @@ export const AdminDashboard = () => {
     <div className="container mx-auto px-4 py-6 max-w-7xl">
       {/* ===== HEADER ===== */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6"
+        initial={{ opacity: 0, y: -10 }}
       >
         <div>
           <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold mb-1 uppercase tracking-widest text-xs">
@@ -174,9 +175,9 @@ export const AdminDashboard = () => {
             as={Link}
             color="secondary"
             endContent={<FaArrowRight />}
+            size="sm"
             to="/admin/orders"
             variant="flat"
-            size="sm"
           >
             Ver Órdenes
           </Button>
@@ -184,9 +185,9 @@ export const AdminDashboard = () => {
             as={Link}
             color="default"
             endContent={<FaUsers />}
+            size="sm"
             to="/admin/customers"
             variant="flat"
-            size="sm"
           >
             Clientes
           </Button>
@@ -194,9 +195,9 @@ export const AdminDashboard = () => {
             as={Link}
             color="warning"
             endContent={<FaArrowRight />}
+            size="sm"
             to="/admin/movements"
             variant="flat"
-            size="sm"
           >
             Trazabilidad
           </Button>
@@ -204,9 +205,9 @@ export const AdminDashboard = () => {
             as={Link}
             color="primary"
             endContent={<FaArrowRight />}
+            size="sm"
             to="/admin/inventory"
             variant="flat"
-            size="sm"
           >
             Inventario
           </Button>
@@ -216,45 +217,45 @@ export const AdminDashboard = () => {
         <div className="flex sm:hidden gap-2 w-full">
           <Button
             as={Link}
+            className="flex-1 text-xs"
             color="secondary"
             endContent={<FaArrowRight />}
+            size="sm"
             to="/admin/orders"
             variant="flat"
-            size="sm"
-            className="flex-1 text-xs"
           >
             Órdenes
           </Button>
           <Button
             as={Link}
+            className="flex-1 text-xs"
             color="default"
             endContent={<FaUsers />}
+            size="sm"
             to="/admin/customers"
             variant="flat"
-            size="sm"
-            className="flex-1 text-xs"
           >
             Clientes
           </Button>
           <Button
             as={Link}
+            className="flex-1 text-xs"
             color="warning"
             endContent={<FaArrowRight />}
+            size="sm"
             to="/admin/movements"
             variant="flat"
-            size="sm"
-            className="flex-1 text-xs"
           >
             Trazas
           </Button>
           <Button
             as={Link}
+            className="flex-1 text-xs"
             color="primary"
             endContent={<FaArrowRight />}
+            size="sm"
             to="/admin/inventory"
             variant="flat"
-            size="sm"
-            className="flex-1 text-xs"
           >
             Inventario
           </Button>
@@ -266,8 +267,8 @@ export const AdminDashboard = () => {
         {KPIS.map((kpi, idx) => (
           <motion.div
             key={idx}
-            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 20 }}
             transition={{ delay: idx * 0.07 }}
           >
             <Card className="shadow-sm border border-slate-100 dark:border-zinc-800 hover:shadow-md transition-shadow">
@@ -315,8 +316,8 @@ export const AdminDashboard = () => {
                       margin={{ left: 0, right: 20, top: 4, bottom: 4 }}
                     >
                       <CartesianGrid horizontal={false} strokeDasharray="3 3" />
-                      <XAxis type="number" tick={{ fontSize: 10 }} />
-                      <YAxis dataKey="name" hide type="category" />
+                      <XAxis tick={{ fontSize: 10 }} type="number" />
+                      <YAxis hide dataKey="name" type="category" />
                       <Tooltip
                         contentStyle={{
                           borderRadius: "16px",
@@ -326,6 +327,7 @@ export const AdminDashboard = () => {
                           fontSize: "12px",
                           padding: "8px 12px",
                         }}
+                        cursor={{ fill: "rgba(99, 102, 241, 0.05)" }}
                         itemStyle={{
                           color: "#fff",
                           fontWeight: "bold",
@@ -336,7 +338,6 @@ export const AdminDashboard = () => {
                           marginBottom: "4px",
                           textTransform: "uppercase",
                         }}
-                        cursor={{ fill: "rgba(99, 102, 241, 0.05)" }}
                       />
                       <Bar
                         barSize={18}
@@ -423,10 +424,6 @@ export const AdminDashboard = () => {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: any) => [
-                      `$${formatPrice(value)}`,
-                      "Ventas",
-                    ]}
                     contentStyle={{
                       borderRadius: "16px",
                       backgroundColor: "#1e1e2e",
@@ -435,6 +432,10 @@ export const AdminDashboard = () => {
                       fontSize: "12px",
                       padding: "8px 12px",
                     }}
+                    formatter={(value: any) => [
+                      `$${formatPrice(value)}`,
+                      "Ventas",
+                    ]}
                     itemStyle={{
                       color: "#fff",
                       fontWeight: "bold",

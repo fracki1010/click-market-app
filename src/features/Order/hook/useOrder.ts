@@ -58,6 +58,7 @@ export const useCreateOrder = () => {
       console.error("Error creating order:", error);
       const backendMsg =
         error?.response?.data?.msg || "No se pudo procesar el pedido";
+
       addToast(backendMsg, "error");
     },
   });

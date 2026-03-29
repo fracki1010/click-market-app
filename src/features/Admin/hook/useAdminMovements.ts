@@ -1,9 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
-import {
-  getAdminMovements,
-  type MovementFilters,
-} from "../api/movements";
+import { getAdminMovements, type MovementFilters } from "../api/movements";
 
 export const useAdminMovements = (filters: MovementFilters = {}) => {
   return useQuery({

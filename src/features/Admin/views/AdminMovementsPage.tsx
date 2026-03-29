@@ -14,6 +14,7 @@ import { FaArrowsRotate, FaClockRotateLeft } from "react-icons/fa6";
 
 import { useAdminMovements } from "../hook/useAdminMovements";
 import { exportAdminMovementsCsv } from "../api/movements";
+
 import { useToast } from "@/components/ui/ToastProvider";
 
 const STATUS_OPTIONS = [
@@ -24,7 +25,10 @@ const STATUS_OPTIONS = [
   { key: "error", label: "Error" },
 ];
 
-const STATUS_COLOR: Record<string, "success" | "primary" | "warning" | "danger"> = {
+const STATUS_COLOR: Record<
+  string,
+  "success" | "primary" | "warning" | "danger"
+> = {
   success: "success",
   info: "primary",
   warning: "warning",
@@ -35,6 +39,7 @@ const toDateInputValue = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
+
   return `${year}-${month}-${day}`;
 };
 
@@ -45,6 +50,7 @@ const buildQuickRanges = () => {
   const today = toDateInputValue(now);
 
   const sevenDaysAgo = new Date(now);
+
   sevenDaysAgo.setDate(now.getDate() - 6);
 
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -92,9 +98,8 @@ export const AdminMovementsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [activeQuickRange, setActiveQuickRange] = useState<QuickRangeKey | null>(
-    "all",
-  );
+  const [activeQuickRange, setActiveQuickRange] =
+    useState<QuickRangeKey | null>("all");
   const quickRanges = useMemo(() => buildQuickRanges(), []);
 
   const filters = useMemo(
@@ -108,7 +113,15 @@ export const AdminMovementsPage: React.FC = () => {
       startDate: startDate || undefined,
       endDate: endDate || undefined,
     }),
-    [page, eventFilter, moduleFilter, statusFilter, actorEmail, startDate, endDate],
+    [
+      page,
+      eventFilter,
+      moduleFilter,
+      statusFilter,
+      actorEmail,
+      startDate,
+      endDate,
+    ],
   );
 
   const { data, isLoading, refetch, isFetching } = useAdminMovements(filters);
@@ -127,6 +140,7 @@ export const AdminMovementsPage: React.FC = () => {
 
   const applyQuickRange = (rangeKey: QuickRangeKey) => {
     const range = quickRanges[rangeKey];
+
     setPage(1);
     setStartDate(range.startDate);
     setEndDate(range.endDate);
@@ -169,29 +183,29 @@ export const AdminMovementsPage: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <Button
-            variant="flat"
-            color="default"
-            onPress={onResetFilters}
             className="font-semibold"
+            color="default"
+            variant="flat"
+            onPress={onResetFilters}
           >
             Limpiar filtros
           </Button>
           <Button
-            variant="flat"
-            color="primary"
-            startContent={<FaArrowsRotate />}
-            onPress={() => refetch()}
-            isLoading={isFetching}
             className="font-semibold"
+            color="primary"
+            isLoading={isFetching}
+            startContent={<FaArrowsRotate />}
+            variant="flat"
+            onPress={() => refetch()}
           >
             Actualizar
           </Button>
           <Button
-            variant="flat"
-            color="success"
-            onPress={onExportCsv}
-            isLoading={isExporting}
             className="font-semibold"
+            color="success"
+            isLoading={isExporting}
+            variant="flat"
+            onPress={onExportCsv}
           >
             Exportar CSV
           </Button>
@@ -204,10 +218,10 @@ export const AdminMovementsPage: React.FC = () => {
             {(Object.keys(quickRanges) as QuickRangeKey[]).map((key) => (
               <Button
                 key={key}
+                className="font-semibold"
+                color={activeQuickRange === key ? "primary" : "default"}
                 size="sm"
                 variant={activeQuickRange === key ? "solid" : "flat"}
-                color={activeQuickRange === key ? "primary" : "default"}
-                className="font-semibold"
                 onPress={() => applyQuickRange(key)}
               >
                 {quickRanges[key].label}
@@ -246,6 +260,7 @@ export const AdminMovementsPage: React.FC = () => {
             selectedKeys={[statusFilter || "all"]}
             onSelectionChange={(keys) => {
               const selected = Array.from(keys)[0]?.toString() || "";
+
               setPage(1);
               setStatusFilter(selected === "all" ? "" : selected);
             }}
@@ -255,8 +270,8 @@ export const AdminMovementsPage: React.FC = () => {
             ))}
           </Select>
           <Input
-            type="date"
             label="Desde"
+            type="date"
             value={startDate}
             onChange={(e) => {
               setPage(1);
@@ -265,8 +280,8 @@ export const AdminMovementsPage: React.FC = () => {
             }}
           />
           <Input
-            type="date"
             label="Hasta"
+            type="date"
             value={endDate}
             onChange={(e) => {
               setPage(1);
@@ -283,32 +298,51 @@ export const AdminMovementsPage: React.FC = () => {
             <table className="w-full min-w-[920px]">
               <thead>
                 <tr className="border-b border-divider bg-default-50">
-                  <th className="text-left text-xs uppercase text-default-500 px-4 py-3">Fecha</th>
-                  <th className="text-left text-xs uppercase text-default-500 px-4 py-3">Evento</th>
-                  <th className="text-left text-xs uppercase text-default-500 px-4 py-3">Estado</th>
-                  <th className="text-left text-xs uppercase text-default-500 px-4 py-3">Usuario</th>
-                  <th className="text-left text-xs uppercase text-default-500 px-4 py-3">Entidad</th>
-                  <th className="text-left text-xs uppercase text-default-500 px-4 py-3">Ruta</th>
+                  <th className="text-left text-xs uppercase text-default-500 px-4 py-3">
+                    Fecha
+                  </th>
+                  <th className="text-left text-xs uppercase text-default-500 px-4 py-3">
+                    Evento
+                  </th>
+                  <th className="text-left text-xs uppercase text-default-500 px-4 py-3">
+                    Estado
+                  </th>
+                  <th className="text-left text-xs uppercase text-default-500 px-4 py-3">
+                    Usuario
+                  </th>
+                  <th className="text-left text-xs uppercase text-default-500 px-4 py-3">
+                    Entidad
+                  </th>
+                  <th className="text-left text-xs uppercase text-default-500 px-4 py-3">
+                    Ruta
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center">
+                    <td className="py-12 text-center" colSpan={6}>
                       <div className="inline-flex items-center gap-2 text-default-500">
-                        <Spinner size="sm" color="primary" /> Cargando movimientos...
+                        <Spinner color="primary" size="sm" /> Cargando
+                        movimientos...
                       </div>
                     </td>
                   </tr>
                 ) : items.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-default-400">
+                    <td
+                      className="py-12 text-center text-default-400"
+                      colSpan={6}
+                    >
                       No hay movimientos para los filtros seleccionados.
                     </td>
                   </tr>
                 ) : (
                   items.map((movement) => (
-                    <tr key={movement._id} className="border-b border-divider/60">
+                    <tr
+                      key={movement._id}
+                      className="border-b border-divider/60"
+                    >
                       <td className="px-4 py-3 text-sm text-default-600 whitespace-nowrap">
                         {new Date(movement.createdAt).toLocaleString()}
                       </td>
@@ -316,14 +350,16 @@ export const AdminMovementsPage: React.FC = () => {
                         <p className="text-sm font-semibold text-default-800">
                           {movement.event}
                         </p>
-                        <p className="text-xs text-default-500">{movement.message || "-"}</p>
+                        <p className="text-xs text-default-500">
+                          {movement.message || "-"}
+                        </p>
                       </td>
                       <td className="px-4 py-3">
                         <Chip
+                          className="font-semibold uppercase"
+                          color={STATUS_COLOR[movement.status] || "primary"}
                           size="sm"
                           variant="flat"
-                          color={STATUS_COLOR[movement.status] || "primary"}
-                          className="font-semibold uppercase"
                         >
                           {movement.status}
                         </Chip>
@@ -337,10 +373,14 @@ export const AdminMovementsPage: React.FC = () => {
                         </p>
                       </td>
                       <td className="px-4 py-3 text-sm text-default-700">
-                        {movement.entity?.type ? `${movement.entity.type}:${movement.entity.id}` : "-"}
+                        {movement.entity?.type
+                          ? `${movement.entity.type}:${movement.entity.id}`
+                          : "-"}
                       </td>
                       <td className="px-4 py-3 text-xs text-default-500">
-                        <span className="font-semibold">{movement.request?.method}</span>{" "}
+                        <span className="font-semibold">
+                          {movement.request?.method}
+                        </span>{" "}
                         {movement.request?.path}
                       </td>
                     </tr>
@@ -352,7 +392,8 @@ export const AdminMovementsPage: React.FC = () => {
 
           <div className="flex items-center justify-between px-4 py-3">
             <p className="text-xs text-default-500">
-              Total: <span className="font-semibold">{data?.total || 0}</span> movimientos
+              Total: <span className="font-semibold">{data?.total || 0}</span>{" "}
+              movimientos
             </p>
             <Pagination
               isCompact

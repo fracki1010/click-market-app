@@ -28,10 +28,10 @@ export const AboutPage: React.FC = () => {
 
   return (
     <motion.div
-      initial="hidden"
       animate="visible"
-      variants={containerVariants}
       className="max-w-4xl mx-auto px-4 py-8 md:py-12 space-y-16"
+      initial="hidden"
+      variants={containerVariants}
     >
       {/* Hero Section */}
       <section className="text-center space-y-6">
@@ -46,8 +46,8 @@ export const AboutPage: React.FC = () => {
         </motion.div>
 
         <motion.p
-          variants={itemVariants}
           className="text-lg text-default-600 leading-relaxed max-w-2xl mx-auto"
+          variants={itemVariants}
         >
           Nacimos con la idea de simplificar el día a día de nuestros vecinos.
           Queremos que pases menos tiempo en la góndola y más tiempo disfrutando
@@ -84,7 +84,8 @@ export const AboutPage: React.FC = () => {
                 Rapidez Real
               </h3>
               <p className="text-sm text-default-500">
-                Entendemos el valor de tu tiempo. En tan solo 48 horas, podras disfrutar de tu pedido.
+                Entendemos el valor de tu tiempo. En tan solo 48 horas, podras
+                disfrutar de tu pedido.
               </p>
             </CardBody>
           </Card>
@@ -111,9 +112,9 @@ export const AboutPage: React.FC = () => {
         <div className="flex flex-col md:flex-row">
           <div className="md:w-1/2 h-64 md:h-auto relative">
             <img
-              src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800"
               alt="Almacen local"
               className="w-full h-full object-cover"
+              src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800"
             />
             <div className="absolute inset-0 bg-primary/10 mix-blend-multiply" />
           </div>
@@ -140,7 +141,7 @@ export const AboutPage: React.FC = () => {
 
       {/* CTA Section */}
       <section className="text-center pt-8">
-        <motion.div variants={itemVariants} className="space-y-8">
+        <motion.div className="space-y-8" variants={itemVariants}>
           <div className="flex justify-center gap-12 text-default-300">
             <FaStore size={40} />
             <FaStore size={40} />
@@ -152,18 +153,18 @@ export const AboutPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               as={Link}
-              to="/products"
               className="bg-primary text-white font-bold h-12 px-8 shadow-lg shadow-primary/20"
-              radius="full"
               endContent={<FaArrowRight />}
+              radius="full"
+              to="/products"
             >
               Ir a la tienda
             </Button>
             <Button
-              className="bg-content1 text-primary border-2 border-divider font-bold h-12 px-8"
-              radius="full"
-              href="https://wa.me/2622517447?text=Hola%20buenas,%20tenia%20una%20duda"
               as="a"
+              className="bg-content1 text-primary border-2 border-divider font-bold h-12 px-8"
+              href="https://wa.me/2622517447?text=Hola%20buenas,%20tenia%20una%20duda"
+              radius="full"
               target="_blank"
             >
               Contactanos

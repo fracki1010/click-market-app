@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+
 import { apiClient } from "../../../services/apiClient";
 import { Address, CreateAddressPayload } from "../types/Address";
 
@@ -11,6 +12,7 @@ export const useAddresses = () => {
     setLoading(true);
     try {
       const response = await apiClient.get("/auth/addresses");
+
       setAddresses(response.data);
       setError(null);
     } catch (err: any) {
@@ -25,8 +27,10 @@ export const useAddresses = () => {
     setLoading(true);
     try {
       const response = await apiClient.post("/auth/addresses", payload);
+
       setAddresses((prev) => [...prev, response.data.address]);
       setError(null);
+
       return response.data;
     } catch (err: any) {
       console.error("Error adding address:", err);

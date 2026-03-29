@@ -52,6 +52,7 @@ export const getRatingFromTopSellerRank = (
 
 export const getVisualStarsCount = (rating: number | null): number => {
   if (rating === null) return 0;
+
   return clamp(Math.round(rating), 1, 5);
 };
 

@@ -34,13 +34,13 @@ import {
 } from "react-icons/fa6";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
-import { formatPrice } from "@/utils/currencyFormat";
 
 import {
   useAdminOrders,
   useUpdateAdminOrderStatus,
 } from "../hook/useAdminOrders";
 
+import { formatPrice } from "@/utils/currencyFormat";
 import { IOrder } from "@/features/Order/types/Order";
 
 const STATUS_MAP = {
@@ -79,7 +79,7 @@ const OrderCard: React.FC<{
     STATUS_MAP["Pending"];
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+    <motion.div animate={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 8 }}>
       <Card className="shadow-sm border border-slate-100 dark:border-zinc-800">
         <CardBody className="p-4">
           {/* Row 1: Order number + status */}
@@ -151,10 +151,10 @@ const OrderCard: React.FC<{
                 <Button
                   className="font-bold"
                   color={config.color}
+                  endContent={<FaChevronDown className="text-xs" />}
                   isLoading={isUpdating}
                   size="sm"
                   variant="flat"
-                  endContent={<FaChevronDown className="text-xs" />}
                 >
                   Estado
                 </Button>
@@ -206,12 +206,12 @@ const OrderCard: React.FC<{
           {/* Botón Ver Detalle */}
           <div className="mt-3 pt-3 border-t border-slate-100 dark:border-zinc-800">
             <Button
-              onPress={() => navigate(`/admin/orders/${order.id}`)}
               className="w-full font-black"
               color="primary"
+              endContent={<FaArrowRight className="text-xs" />}
               size="sm"
               variant="flat"
-              endContent={<FaArrowRight className="text-xs" />}
+              onPress={() => navigate(`/admin/orders/${order.id}`)}
             >
               Ver detalle completo
             </Button>
@@ -284,6 +284,7 @@ export const AdminOrdersPage: React.FC = () => {
   const setToday = () => {
     const todayDate = new Date();
     const yesterdayDate = new Date();
+
     yesterdayDate.setDate(todayDate.getDate() - 1);
 
     const today = todayDate.toISOString().split("T")[0];
@@ -302,6 +303,7 @@ export const AdminOrdersPage: React.FC = () => {
     const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
       .toISOString()
       .split("T")[0];
+
     setStartDate(firstDay);
     setEndDate(lastDay);
     setPage(1);
@@ -317,9 +319,9 @@ export const AdminOrdersPage: React.FC = () => {
     <div className="flex flex-col gap-5 max-w-6xl mx-auto pb-10">
       {/* ── Header ── */}
       <motion.div
-        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col gap-4 bg-white dark:bg-zinc-900 p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-zinc-800"
+        initial={{ opacity: 0, y: -8 }}
       >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -343,10 +345,10 @@ export const AdminOrdersPage: React.FC = () => {
 
         <div className="flex justify-start">
           <Button
-            size="sm"
             color="secondary"
-            variant="flat"
+            size="sm"
             startContent={<FaBasketShopping />}
+            variant="flat"
             onPress={() => navigate("/admin/shopping-list")}
           >
             Ir a Lista de Compras
@@ -356,46 +358,46 @@ export const AdminOrdersPage: React.FC = () => {
         {/* Date Filters Container */}
         <div className="flex flex-wrap items-end gap-3 pt-3 border-t border-slate-100 dark:border-zinc-800">
           <Input
-            type="date"
+            className="w-full sm:w-40"
             label="Desde"
+            size="sm"
+            type="date"
             value={startDate}
+            variant="faded"
             onChange={(e) => {
               setStartDate(e.target.value);
               setPage(1);
             }}
-            size="sm"
-            className="w-full sm:w-40"
-            variant="faded"
           />
           <Input
-            type="date"
+            className="w-full sm:w-40"
             label="Hasta"
+            size="sm"
+            type="date"
             value={endDate}
+            variant="faded"
             onChange={(e) => {
               setEndDate(e.target.value);
               setPage(1);
             }}
-            size="sm"
-            className="w-full sm:w-40"
-            variant="faded"
           />
 
           <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-            <Button size="sm" variant="flat" color="primary" onPress={setToday}>
+            <Button color="primary" size="sm" variant="flat" onPress={setToday}>
               Hoy
             </Button>
             <Button
+              color="secondary"
               size="sm"
               variant="flat"
-              color="secondary"
               onPress={setThisMonth}
             >
               Mes
             </Button>
             <Button
+              color="danger"
               size="sm"
               variant="light"
-              color="danger"
               onPress={clearDates}
             >
               Limpiar
@@ -415,9 +417,9 @@ export const AdminOrdersPage: React.FC = () => {
             <OrderCard
               key={order.id}
               isUpdating={isUpdating}
+              navigate={navigate}
               order={order}
               onStatusChange={handleStatusChange}
-              navigate={navigate}
             />
           ))
         )}
@@ -440,8 +442,8 @@ export const AdminOrdersPage: React.FC = () => {
       {/* ── DESKTOP: Table ── */}
       <div className="hidden md:block bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-slate-100 dark:border-zinc-800 overflow-x-auto">
         <Table
-          aria-label="Tabla de gestión de entregas"
           removeWrapper
+          aria-label="Tabla de gestión de entregas"
           bottomContent={
             desktopTotalPages > 1 ? (
               <div className="flex w-full justify-center p-4 border-t border-slate-100 dark:border-zinc-800">
@@ -619,11 +621,11 @@ export const AdminOrdersPage: React.FC = () => {
                   {/* Detalle link */}
                   <TableCell>
                     <Button
-                      onPress={() => navigate(`/admin/orders/${order.id}`)}
+                      isIconOnly
                       color="primary"
                       size="sm"
                       variant="light"
-                      isIconOnly
+                      onPress={() => navigate(`/admin/orders/${order.id}`)}
                     >
                       <FaArrowRight className="text-sm" />
                     </Button>

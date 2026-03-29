@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardBody, Button, Chip } from "@heroui/react";
 import { FaLocationDot, FaTrash, FaStar } from "react-icons/fa6";
+
 import { Address } from "../types/Address";
 
 interface AddressCardProps {

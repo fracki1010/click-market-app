@@ -89,6 +89,7 @@ export const exportAdminMovementsCsv = async (
 
   const fileURL = window.URL.createObjectURL(new Blob([response.data]));
   const link = document.createElement("a");
+
   link.href = fileURL;
   link.setAttribute(
     "download",

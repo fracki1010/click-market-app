@@ -13,16 +13,18 @@ import {
   FaArrowRight,
   FaBox,
   FaClock,
+  FaIdCard,
   FaMagnifyingGlass,
   FaPhone,
   FaUsers,
   FaDatabase,
   FaCloudArrowUp,
 } from "react-icons/fa6";
-import { useNavigate } from "react-router";
+import { useNavigate, type NavigateFunction } from "react-router";
 
 import { useAdminAllOrders } from "../hook/useAdminOrders";
 import { useAdminCustomers } from "../hook/useAdminCustomers";
+
 import { formatPrice } from "@/utils/currencyFormat";
 import { IOrder } from "@/features/Order/types/Order";
 
@@ -53,11 +55,35 @@ const formatHour = (date: string) =>
     minute: "2-digit",
   });
 
+const goToCustomerDetail = (
+  navigate: NavigateFunction,
+  customer: CustomerOrderGroup,
+) => {
+  const customerId = encodeURIComponent(
+    customer.userId || customer.customerEmail || "sin-id",
+  );
+  const params = new URLSearchParams();
+
+  if (customer.customerEmail) params.set("email", customer.customerEmail);
+  if (customer.customerName) params.set("name", customer.customerName);
+  if (customer.customerPhone) params.set("phone", customer.customerPhone);
+  if (customer.source) params.set("source", customer.source);
+
+  const queryString = params.toString();
+
+  navigate(
+    `/admin/customers/${customerId}${queryString ? `?${queryString}` : ""}`,
+  );
+};
+
 export const AdminCustomersPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
-  const { data: orders = [], isLoading: ordersLoading, isError: ordersError } =
-    useAdminAllOrders();
+  const {
+    data: orders = [],
+    isLoading: ordersLoading,
+    isError: ordersError,
+  } = useAdminAllOrders();
   const {
     data: customersData,
     isLoading: customersLoading,
@@ -92,7 +118,10 @@ export const AdminCustomersPage: React.FC = () => {
       existing.orders.push(order);
       existing.ordersCount += 1;
       existing.totalSpent += order.total;
-      existing.totalItems += order.items.reduce((acc, item) => acc + item.quantity, 0);
+      existing.totalItems += order.items.reduce(
+        (acc, item) => acc + item.quantity,
+        0,
+      );
       if (
         !existing.lastOrderDate ||
         new Date(order.orderDate).getTime() >
@@ -129,13 +158,15 @@ export const AdminCustomersPage: React.FC = () => {
         existing.customerEmail = customer.email;
       }
       if (
-        (!existing.customerPhone || existing.customerPhone === "Sin teléfono") &&
+        (!existing.customerPhone ||
+          existing.customerPhone === "Sin teléfono") &&
         customer.phone
       ) {
         existing.customerPhone = customer.phone;
       }
       if (
-        (!existing.customerName || existing.customerName === "Cliente sin nombre") &&
+        (!existing.customerName ||
+          existing.customerName === "Cliente sin nombre") &&
         customer.name
       ) {
         existing.customerName = customer.name;
@@ -148,7 +179,8 @@ export const AdminCustomersPage: React.FC = () => {
       .map((customer) => ({
         ...customer,
         orders: customer.orders.sort(
-          (a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime(),
+          (a, b) =>
+            new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime(),
         ),
       }))
       .sort(
@@ -160,6 +192,7 @@ export const AdminCustomersPage: React.FC = () => {
 
   const filteredCustomers = useMemo(() => {
     const value = search.trim().toLowerCase();
+
     if (!value) return customers;
 
     return customers.filter((customer) => {
@@ -176,12 +209,17 @@ export const AdminCustomersPage: React.FC = () => {
   }, [customers, search]);
 
   const totalRevenue = useMemo(
-    () => filteredCustomers.reduce((sum, customer) => sum + customer.totalSpent, 0),
+    () =>
+      filteredCustomers.reduce((sum, customer) => sum + customer.totalSpent, 0),
     [filteredCustomers],
   );
 
   const totalOrders = useMemo(
-    () => filteredCustomers.reduce((sum, customer) => sum + customer.ordersCount, 0),
+    () =>
+      filteredCustomers.reduce(
+        (sum, customer) => sum + customer.ordersCount,
+        0,
+      ),
     [filteredCustomers],
   );
 
@@ -191,7 +229,11 @@ export const AdminCustomersPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex h-[80vh] justify-center items-center">
-        <Spinner color="primary" label="Cargando historial de clientes..." size="lg" />
+        <Spinner
+          color="primary"
+          label="Cargando historial de clientes..."
+          size="lg"
+        />
       </div>
     );
   }
@@ -278,42 +320,15 @@ export const AdminCustomersPage: React.FC = () => {
           </CardBody>
         </Card>
       ) : (
-        <Accordion variant="splitted" itemClasses={{ base: "border border-slate-100 dark:border-zinc-800 shadow-sm" }}>
+        <Accordion
+          itemClasses={{
+            base: "border border-slate-100 dark:border-zinc-800 shadow-sm",
+          }}
+          variant="splitted"
+        >
           {filteredCustomers.map((customer) => (
             <AccordionItem
               key={customer.userId}
-              title={
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-bold text-slate-800 dark:text-white">
-                    {customer.customerName}
-                  </span>
-                  {customer.customerEmail && (
-                    <Chip size="sm" variant="flat" color="default">
-                      {customer.customerEmail}
-                    </Chip>
-                  )}
-                  <Chip size="sm" variant="flat" color="default">
-                    {customer.ordersCount} pedidos
-                  </Chip>
-                  <Chip size="sm" variant="flat" color="success">
-                    ${formatPrice(customer.totalSpent)}
-                  </Chip>
-                  <Chip
-                    size="sm"
-                    variant="flat"
-                    color={customer.source === "google" ? "primary" : "secondary"}
-                    startContent={
-                      customer.source === "google" ? (
-                        <FaCloudArrowUp />
-                      ) : (
-                        <FaDatabase />
-                      )
-                    }
-                  >
-                    {customer.source}
-                  </Chip>
-                </div>
-              }
               subtitle={
                 <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
                   <span className="inline-flex items-center gap-1">
@@ -321,7 +336,8 @@ export const AdminCustomersPage: React.FC = () => {
                   </span>
                   {customer.lastOrderDate && (
                     <span className="inline-flex items-center gap-1">
-                      <FaClock /> Última compra {formatDate(customer.lastOrderDate)}{" "}
+                      <FaClock /> Última compra{" "}
+                      {formatDate(customer.lastOrderDate)}{" "}
                       {formatHour(customer.lastOrderDate)}
                     </span>
                   )}
@@ -330,8 +346,53 @@ export const AdminCustomersPage: React.FC = () => {
                   </span>
                 </div>
               }
+              title={
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-bold text-slate-800 dark:text-white">
+                    {customer.customerName}
+                  </span>
+                  {customer.customerEmail && (
+                    <Chip color="default" size="sm" variant="flat">
+                      {customer.customerEmail}
+                    </Chip>
+                  )}
+                  <Chip color="default" size="sm" variant="flat">
+                    {customer.ordersCount} pedidos
+                  </Chip>
+                  <Chip color="success" size="sm" variant="flat">
+                    ${formatPrice(customer.totalSpent)}
+                  </Chip>
+                  <Chip
+                    color={
+                      customer.source === "google" ? "primary" : "secondary"
+                    }
+                    size="sm"
+                    startContent={
+                      customer.source === "google" ? (
+                        <FaCloudArrowUp />
+                      ) : (
+                        <FaDatabase />
+                      )
+                    }
+                    variant="flat"
+                  >
+                    {customer.source}
+                  </Chip>
+                </div>
+              }
             >
               <div className="flex flex-col gap-3 pb-1">
+                <div className="flex justify-end">
+                  <Button
+                    color="secondary"
+                    endContent={<FaIdCard className="text-xs" />}
+                    size="sm"
+                    variant="flat"
+                    onPress={() => goToCustomerDetail(navigate, customer)}
+                  >
+                    Ver perfil del cliente
+                  </Button>
+                </div>
                 {customer.orders.length === 0 && (
                   <Card className="border border-slate-100 dark:border-zinc-800 shadow-none">
                     <CardBody className="p-4 text-sm text-slate-500">
@@ -340,7 +401,10 @@ export const AdminCustomersPage: React.FC = () => {
                   </Card>
                 )}
                 {customer.orders.map((order) => (
-                  <Card key={order.id} className="border border-slate-100 dark:border-zinc-800 shadow-none">
+                  <Card
+                    key={order.id}
+                    className="border border-slate-100 dark:border-zinc-800 shadow-none"
+                  >
                     <CardBody className="p-4 flex flex-col gap-3">
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                         <div>
@@ -348,7 +412,8 @@ export const AdminCustomersPage: React.FC = () => {
                             Pedido {order.orderNumber}
                           </p>
                           <p className="text-xs text-slate-500">
-                            {formatDate(order.orderDate)} {formatHour(order.orderDate)} · {order.status}
+                            {formatDate(order.orderDate)}{" "}
+                            {formatHour(order.orderDate)} · {order.status}
                           </p>
                         </div>
                         <div className="text-sm font-bold text-primary">
@@ -374,10 +439,10 @@ export const AdminCustomersPage: React.FC = () => {
 
                       <div className="flex justify-end">
                         <Button
-                          size="sm"
                           color="primary"
-                          variant="flat"
                           endContent={<FaArrowRight className="text-xs" />}
+                          size="sm"
+                          variant="flat"
                           onPress={() => navigate(`/admin/orders/${order.id}`)}
                         >
                           Ver detalle del pedido

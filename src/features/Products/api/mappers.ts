@@ -43,20 +43,26 @@ export interface ProductApi {
 
 const roundToTwoDecimals = (value: unknown): number => {
   const numericValue = Number(value);
+
   if (!Number.isFinite(numericValue)) return 0;
+
   return Math.round((numericValue + Number.EPSILON) * 100) / 100;
 };
 
-const normalizeStock = (stock: unknown): { stock: number; stockLabel: string | null } => {
+const normalizeStock = (
+  stock: unknown,
+): { stock: number; stockLabel: string | null } => {
   if (typeof stock === "number" && Number.isFinite(stock)) {
     return { stock: stock >= 0 ? stock : 0, stockLabel: null };
   }
 
   if (typeof stock === "string") {
     const parsed = Number(stock);
+
     if (Number.isFinite(parsed)) {
       return { stock: parsed >= 0 ? parsed : 0, stockLabel: stock };
     }
+
     // Si llega "Disponible" mantenemos el producto comprable sin falsear stock bajo.
     return { stock: 999, stockLabel: stock };
   }
@@ -75,6 +81,7 @@ const mapCategories = (api: ProductApi): ICategory[] => {
   ].filter((value): value is string => Boolean(value && value.trim()));
 
   const uniqueNames = Array.from(new Set(allNames));
+
   return uniqueNames.map((name) => ({
     id: name,
     name,
@@ -99,7 +106,9 @@ export function toProduct(api: ProductApi): IProduct {
     api.description ||
     `Producto importado: ${name}${api.unidad ? ` (${api.unidad})` : ""}`;
   const price = roundToTwoDecimals(api.price ?? api.precio);
-  const costPrice = roundToTwoDecimals(api.costPrice ?? api.price ?? api.precio);
+  const costPrice = roundToTwoDecimals(
+    api.costPrice ?? api.price ?? api.precio,
+  );
 
   return {
     id: String(api._id || api.id || api.sku || api.idExternal || ""),
@@ -127,7 +136,8 @@ export function toProduct(api: ProductApi): IProduct {
     subcategories: api.subcategorias || [],
     isTopSeller: Boolean(api.es_mas_vendido),
     topSellerRank:
-      api.ranking_mas_vendidos === null || api.ranking_mas_vendidos === undefined
+      api.ranking_mas_vendidos === null ||
+      api.ranking_mas_vendidos === undefined
         ? null
         : Number(api.ranking_mas_vendidos),
     productUrl: api.url_producto,
@@ -157,7 +167,9 @@ export function toProductApiUpdate(
 ): Partial<ProductApi> & { categories?: { id: string; name: string }[] } {
   return {
     ...(payload.name !== undefined && { name: payload.name }),
-    ...(payload.description !== undefined && { description: payload.description }),
+    ...(payload.description !== undefined && {
+      description: payload.description,
+    }),
     ...(payload.price !== undefined && {
       price: roundToTwoDecimals(payload.price),
     }),

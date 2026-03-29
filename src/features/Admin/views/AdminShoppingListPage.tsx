@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa6";
 
 import { useAdminAllOrders } from "../hook/useAdminOrders";
+
 import { formatPrice } from "@/utils/currencyFormat";
 
 const SHOPPING_RELEVANT_STATUSES = new Set(["Pending", "Processing"]);
@@ -43,7 +44,8 @@ export const AdminShoppingListPage: React.FC = () => {
 
     for (const order of activeOrders) {
       for (const item of order.items) {
-        const productId = item.productId || item.product?.id || item.product?.name;
+        const productId =
+          item.productId || item.product?.id || item.product?.name;
         const productName = item.product?.name || "Producto sin nombre";
 
         if (!productId) continue;
@@ -59,6 +61,7 @@ export const AdminShoppingListPage: React.FC = () => {
         }
 
         const current = grouped.get(productId);
+
         if (!current) continue;
 
         const quantity = Number(item.quantity || 0);
@@ -82,7 +85,10 @@ export const AdminShoppingListPage: React.FC = () => {
       activeOrdersCount: activeOrders.length,
       uniqueProductsCount: items.length,
       totalUnits: items.reduce((sum, item) => sum + item.totalQuantity, 0),
-      totalEstimatedCost: items.reduce((sum, item) => sum + item.estimatedCost, 0),
+      totalEstimatedCost: items.reduce(
+        (sum, item) => sum + item.estimatedCost,
+        0,
+      ),
     };
   }, [allOrders]);
 
@@ -91,6 +97,7 @@ export const AdminShoppingListPage: React.FC = () => {
 
     const escapeCsv = (value: string | number) => {
       const raw = String(value ?? "");
+
       return `"${raw.replace(/"/g, '""')}"`;
     };
 
@@ -116,7 +123,12 @@ export const AdminShoppingListPage: React.FC = () => {
         item.estimatedCost,
       ]),
       ["", "", "", ""],
-      ["TOTAL", shoppingSummary.totalUnits, "", shoppingSummary.totalEstimatedCost],
+      [
+        "TOTAL",
+        shoppingSummary.totalUnits,
+        "",
+        shoppingSummary.totalEstimatedCost,
+      ],
     ];
 
     const csvContent = rows
@@ -144,6 +156,7 @@ export const AdminShoppingListPage: React.FC = () => {
   const setToday = () => {
     const todayDate = new Date();
     const yesterdayDate = new Date();
+
     yesterdayDate.setDate(todayDate.getDate() - 1);
 
     const today = todayDate.toISOString().split("T")[0];
@@ -174,9 +187,9 @@ export const AdminShoppingListPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-5 max-w-6xl mx-auto pb-10">
       <motion.div
-        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col gap-4 bg-white dark:bg-zinc-900 p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-zinc-800"
+        initial={{ opacity: 0, y: -8 }}
       >
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -190,18 +203,18 @@ export const AdminShoppingListPage: React.FC = () => {
           <div className="flex gap-2">
             <Button
               size="sm"
-              variant="light"
               startContent={<FaArrowLeft />}
+              variant="light"
               onPress={() => navigate("/admin/orders")}
             >
               Volver a Entregas
             </Button>
             <Button
-              size="sm"
               color="primary"
-              variant="flat"
-              startContent={<FaFileArrowDown />}
               isDisabled={isLoading || shoppingSummary.items.length === 0}
+              size="sm"
+              startContent={<FaFileArrowDown />}
+              variant="flat"
               onPress={downloadShoppingListCsv}
             >
               Descargar Excel (CSV)
@@ -211,43 +224,48 @@ export const AdminShoppingListPage: React.FC = () => {
 
         <div className="flex flex-wrap items-end gap-3 pt-3 border-t border-slate-100 dark:border-zinc-800">
           <Input
-            type="date"
-            label="Desde"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            size="sm"
             className="w-full sm:w-40"
+            label="Desde"
+            size="sm"
+            type="date"
+            value={startDate}
             variant="faded"
+            onChange={(e) => setStartDate(e.target.value)}
           />
           <Input
-            type="date"
-            label="Hasta"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            size="sm"
             className="w-full sm:w-40"
+            label="Hasta"
+            size="sm"
+            type="date"
+            value={endDate}
             variant="faded"
+            onChange={(e) => setEndDate(e.target.value)}
           />
           <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
             <Button
-              size="sm"
-              variant="flat"
               color="primary"
+              size="sm"
               startContent={<FaCalendarDay />}
+              variant="flat"
               onPress={setToday}
             >
               Hoy
             </Button>
             <Button
-              size="sm"
-              variant="flat"
               color="secondary"
+              size="sm"
               startContent={<FaCalendarDays />}
+              variant="flat"
               onPress={setThisMonth}
             >
               Mes
             </Button>
-            <Button size="sm" variant="light" color="danger" onPress={clearDates}>
+            <Button
+              color="danger"
+              size="sm"
+              variant="light"
+              onPress={clearDates}
+            >
               Limpiar
             </Button>
           </div>
@@ -255,22 +273,26 @@ export const AdminShoppingListPage: React.FC = () => {
       </motion.div>
 
       <motion.div
-        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white dark:bg-zinc-900 p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-zinc-800"
+        initial={{ opacity: 0, y: -8 }}
       >
         <div className="flex flex-wrap items-center gap-2 mb-4">
-          <Chip color="secondary" variant="flat" className="font-semibold w-fit">
+          <Chip
+            className="font-semibold w-fit"
+            color="secondary"
+            variant="flat"
+          >
             {shoppingSummary.activeOrdersCount} pedidos activos
           </Chip>
-          <Chip color="default" variant="flat" className="font-semibold w-fit">
+          <Chip className="font-semibold w-fit" color="default" variant="flat">
             {shoppingSummary.uniqueProductsCount} productos
           </Chip>
         </div>
 
         {isLoading ? (
           <div className="flex items-center gap-3 text-slate-500 text-sm">
-            <Spinner size="sm" color="secondary" />
+            <Spinner color="secondary" size="sm" />
             Calculando productos a comprar...
           </div>
         ) : shoppingSummary.items.length === 0 ? (

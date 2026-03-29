@@ -19,7 +19,6 @@ import {
   FaEye,
 } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatPrice } from "@/utils/currencyFormat";
 
 import { useProducts } from "../../Products/hooks/useProducts";
 import { useCategories } from "../../Products/hooks/useCategory";
@@ -28,6 +27,8 @@ import { ProductModal } from "../components/ProductModal";
 import { DeleteModal } from "../components/DeleteModal";
 
 import { useAdminInventory } from "./../hook/useAdminInventory";
+
+import { formatPrice } from "@/utils/currencyFormat";
 
 // ─── Mobile Product Card ─────────────────────────────────────────────────────
 type MobileProductCardProps = {
@@ -55,11 +56,11 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
       layout
+      animate={{ opacity: 1, y: 0 }}
       className="cursor-pointer"
+      exit={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, y: 10 }}
       onClick={() => navigate(`/admin/inventory/${product.id}`)}
     >
       <Card className="shadow-sm border border-slate-100 dark:border-zinc-800 active:scale-[0.98] transition-all">
@@ -67,11 +68,11 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
           <div className="flex items-center gap-3">
             <Avatar
               isBordered
-              radius="lg"
-              src={product.imageUrl}
-              fallback={<FaBoxesStacked className="text-slate-400" />}
-              size="md"
               className="shrink-0"
+              fallback={<FaBoxesStacked className="text-slate-400" />}
+              radius="lg"
+              size="md"
+              src={product.imageUrl}
             />
 
             <div className="flex-1 min-w-0">
@@ -100,10 +101,10 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
             <Button
               className="flex-1"
               color="primary"
-              variant="flat"
               size="sm"
-              onPress={() => navigate(`/admin/inventory/${product.id}`)}
               startContent={<FaEye className="text-xs" />}
+              variant="flat"
+              onPress={() => navigate(`/admin/inventory/${product.id}`)}
             >
               Ver
             </Button>
@@ -111,8 +112,8 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
               className="flex-1"
               color="default"
               size="sm"
-              variant="flat"
               startContent={<FaPencil className="text-xs" />}
+              variant="flat"
               onClick={(e: any) => {
                 e.stopPropagation();
                 onEdit(product);
@@ -124,12 +125,12 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({
               className="min-w-0 px-3"
               color="danger"
               size="sm"
+              startContent={<FaTrash className="text-xs" />}
               variant="flat"
               onClick={(e: any) => {
                 e.stopPropagation();
                 onDelete(product.id);
               }}
-              startContent={<FaTrash className="text-xs" />}
             />
           </div>
         </CardBody>
@@ -179,6 +180,7 @@ export const InventoryPage = () => {
 
   const confirmDelete = (product: any) => {
     const productToDelete = products.find((p) => p.id === product);
+
     setDeletingProduct(productToDelete);
   };
 
@@ -209,6 +211,7 @@ export const InventoryPage = () => {
     const selectedCategories = (values.category_ids || [])
       .map((id: string) => {
         const found = categories.find((c) => c.id.toString() === id.toString());
+
         return found ? { id: found.id, name: found.name } : null;
       })
       .filter(Boolean);
@@ -301,9 +304,9 @@ export const InventoryPage = () => {
     <div className="max-w-7xl mx-auto pb-10 px-4 md:px-0">
       {/* ── Header ── */}
       <motion.div
-        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-5 bg-white dark:bg-zinc-900 p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-zinc-800"
+        initial={{ opacity: 0, y: -8 }}
       >
         <div>
           <h1 className="text-xl md:text-3xl font-black text-slate-800 dark:text-white">
@@ -318,22 +321,22 @@ export const InventoryPage = () => {
             </span>
             <div className="flex items-center gap-1">
               <Input
-                type="number"
-                size="sm"
-                variant="flat"
                 className="w-16"
                 classNames={{
                   input: "text-center font-black",
                   inputWrapper: "bg-transparent h-6 min-h-unit-6 px-1",
                 }}
-                value={markupValue}
-                onValueChange={setMarkupValue}
-                onBlur={handleUpdateMarkup}
                 endContent={
                   <span className="text-xs font-black text-indigo-700 dark:text-indigo-300">
                     %
                   </span>
                 }
+                size="sm"
+                type="number"
+                value={markupValue}
+                variant="flat"
+                onBlur={handleUpdateMarkup}
+                onValueChange={setMarkupValue}
               />
             </div>
             {updateMarkupMutation.isPending && (
@@ -345,10 +348,10 @@ export const InventoryPage = () => {
           <AnimatePresence>
             {markupProgress?.status === "running" && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
                 className="mt-4 w-full max-w-md"
+                exit={{ opacity: 0, height: 0 }}
+                initial={{ opacity: 0, height: 0 }}
               >
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase">
@@ -359,13 +362,13 @@ export const InventoryPage = () => {
                   </span>
                 </div>
                 <Progress
-                  size="sm"
-                  radius="sm"
                   classNames={{
                     base: "max-w-md",
                     track: "drop-shadow-md border border-default",
                     indicator: "bg-gradient-to-r from-indigo-500 to-teal-400",
                   }}
+                  radius="sm"
+                  size="sm"
                   value={
                     (markupProgress.processed / markupProgress.total) * 100
                   }
@@ -379,16 +382,16 @@ export const InventoryPage = () => {
           <Input
             className="flex-1 sm:w-64"
             placeholder="Buscar producto..."
+            size="sm"
             startContent={<FaMagnifyingGlass className="text-gray-400" />}
             value={filterText}
             onValueChange={setFilterText}
-            size="sm"
           />
           <Button
             color="primary"
             endContent={<FaPlus />}
-            onPress={openCreateModal}
             size="sm"
+            onPress={openCreateModal}
           >
             Nuevo
           </Button>

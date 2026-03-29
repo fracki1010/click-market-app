@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useIsFetching, useIsMutating } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
+
 import { LoadingComponent } from "./LoadingComponent";
 
 export const GlobalLoader = () => {

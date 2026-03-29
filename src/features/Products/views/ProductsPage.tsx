@@ -1,5 +1,18 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useSearchParams, useLocation, useNavigate } from "react-router";
+import type { IProduct } from "../types/Product";
+
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
+import {
+  useSearchParams,
+  useLocation,
+  useNavigate,
+  useNavigationType,
+} from "react-router";
 import { useSelector } from "react-redux";
 import {
   Select,
@@ -22,7 +35,6 @@ import { useProducts } from "../hooks/useProducts";
 import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 import { useCategories } from "../hooks/useCategory";
 import { useStorefrontSettings } from "../../Settings/hooks/useStorefrontSettings";
-import type { IProduct } from "../types/Product";
 import {
   expandBlockedCategoryIds,
   filterVisibleCategories,
@@ -58,14 +70,13 @@ const filterProductsBySelectedCategories = (
 
   const selectedNormalized = selectedCategories.map(normalizeCategoryName);
 
-  return visibleProducts
-    .filter((product) =>
-      selectedNormalized.every((selected) =>
-        product.categories.some(
-          (category) => normalizeCategoryName(category.name) === selected,
-        ),
+  return visibleProducts.filter((product) =>
+    selectedNormalized.every((selected) =>
+      product.categories.some(
+        (category) => normalizeCategoryName(category.name) === selected,
       ),
-    );
+    ),
+  );
 };
 
 // --- Versión Desktop con Paginación ---
@@ -75,6 +86,8 @@ const DesktopProducts = ({
   onPageChange,
   isLoading,
   isFetching,
+  restoreProductId,
+  onRestoreComplete,
 }: any) => {
   const { data: response } = useProducts(filters);
   const products = response?.data || [];
@@ -90,7 +103,12 @@ const DesktopProducts = ({
       <div
         className={`transition-opacity duration-300 ${isFetching ? "opacity-50" : "opacity-100"}`}
       >
-        <ProductList isLoading={isLoading} products={filteredProducts} />
+        <ProductList
+          isLoading={isLoading}
+          products={filteredProducts}
+          restoreProductId={restoreProductId}
+          onRestoreComplete={onRestoreComplete}
+        />
       </div>
 
       {pagination && pagination.totalPages > 1 && (
@@ -112,7 +130,12 @@ const DesktopProducts = ({
 };
 
 // --- Versión Mobile con Infinite Scroll ---
-const MobileProducts = ({ filters, blockedCategoryIds }: any) => {
+const MobileProducts = ({
+  filters,
+  blockedCategoryIds,
+  restoreProductId,
+  onRestoreComplete,
+}: any) => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteProducts(filters);
   const observer = useRef<IntersectionObserver | null>(null);
@@ -142,6 +165,33 @@ const MobileProducts = ({ filters, blockedCategoryIds }: any) => {
     blockedCategoryIds,
   );
 
+  useEffect(() => {
+    if (!restoreProductId) return;
+    const found = filteredProducts.some(
+      (product) => product.id === restoreProductId,
+    );
+
+    if (found) return;
+    if (!hasNextPage || isFetchingNextPage) return;
+
+    fetchNextPage();
+  }, [
+    restoreProductId,
+    filteredProducts,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  ]);
+
+  useEffect(() => {
+    if (!restoreProductId) return;
+    const found = filteredProducts.some(
+      (product) => product.id === restoreProductId,
+    );
+
+    if (found || !hasNextPage) onRestoreComplete?.();
+  }, [restoreProductId, filteredProducts, hasNextPage, onRestoreComplete]);
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-32">
@@ -155,7 +205,12 @@ const MobileProducts = ({ filters, blockedCategoryIds }: any) => {
 
   return (
     <div className="space-y-6">
-      <ProductList isLoading={false} products={filteredProducts} />
+      <ProductList
+        isLoading={false}
+        products={filteredProducts}
+        restoreProductId={restoreProductId}
+        onRestoreComplete={onRestoreComplete}
+      />
 
       {/* Sentinel para el scroll infinito */}
       <div
@@ -177,17 +232,19 @@ export const ProductsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
+  const productsStartRef = useRef<HTMLDivElement | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [restoreProductId, setRestoreProductId] = useState<string | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data: categories = [] } = useCategories();
   const { data: storefrontSettings } = useStorefrontSettings();
   const localBlockedCategoryIds = useSelector(
     (state: RootState) => state.settings.blockedCategoryIds || [],
   );
-  const rawBlockedCategoryIds =
-    storefrontSettings?.blockedCategoryIds?.length
-      ? storefrontSettings.blockedCategoryIds
-      : localBlockedCategoryIds;
+  const rawBlockedCategoryIds = storefrontSettings?.blockedCategoryIds?.length
+    ? storefrontSettings.blockedCategoryIds
+    : localBlockedCategoryIds;
   const blockedCategoryIds = useMemo(
     () => expandBlockedCategoryIds(categories, rawBlockedCategoryIds),
     [categories, rawBlockedCategoryIds],
@@ -207,8 +264,10 @@ export const ProductsPage: React.FC = () => {
   // Detección de mobile
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+
     checkMobile();
     window.addEventListener("resize", checkMobile);
+
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
@@ -257,11 +316,13 @@ export const ProductsPage: React.FC = () => {
         updateUrl({ ...filters, search: searchTerm, page: 1 });
       }
     }, 500);
+
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
   useEffect(() => {
     const shouldFocusSearch = Boolean((location.state as any)?.focusSearch);
+
     if (!shouldFocusSearch) return;
 
     const timeoutId = window.setTimeout(() => {
@@ -283,10 +344,40 @@ export const ProductsPage: React.FC = () => {
     return () => window.clearTimeout(timeoutId);
   }, [location, navigate]);
 
-  const updateUrl = (newFilters: FilterState) => {
+  useEffect(() => {
+    if (location.pathname !== "/products" || navigationType !== "POP") return;
+
+    const savedReturnTo = sessionStorage.getItem("products:returnTo");
+    const currentPath = `${location.pathname}${location.search}`;
+    const savedProductId = sessionStorage.getItem("products:returnProductId");
+
+    if (!savedProductId) return;
+    if (savedReturnTo && savedReturnTo !== currentPath) return;
+
+    setRestoreProductId(savedProductId);
+  }, [location.pathname, location.search, navigationType]);
+
+  const handleRestoreComplete = useCallback(() => {
+    setRestoreProductId(null);
+    sessionStorage.removeItem("products:returnProductId");
+    sessionStorage.removeItem("products:returnTo");
+  }, []);
+
+  const scrollToProductsStart = () => {
+    productsStartRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  const updateUrl = (
+    newFilters: FilterState,
+    options?: { scrollToProducts?: boolean },
+  ) => {
     const params = new URLSearchParams();
-    toSingleCategory(newFilters.categories, blockedCategoryNames).forEach((cat) =>
-      params.append("categories", cat),
+
+    toSingleCategory(newFilters.categories, blockedCategoryNames).forEach(
+      (cat) => params.append("categories", cat),
     );
     if (newFilters.price_min !== undefined)
       params.set("price_min", String(newFilters.price_min));
@@ -296,17 +387,29 @@ export const ProductsPage: React.FC = () => {
     params.set("page", String(newFilters.page || 1));
     if (newFilters.search) params.set("search", newFilters.search);
     setSearchParams(params);
+
+    if (options?.scrollToProducts) {
+      window.requestAnimationFrame(scrollToProductsStart);
+
+      return;
+    }
+
     if (!isMobile) window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const toggleCategory = (catName: string) => {
     const isSelected = filters.categories.includes(catName);
     const newCats = isSelected ? [] : [catName];
-    updateUrl({ ...filters, categories: newCats, page: 1 });
+
+    updateUrl(
+      { ...filters, categories: newCats, page: 1 },
+      { scrollToProducts: true },
+    );
   };
 
   const isBestSellersMainFilterActive =
-    filters.sort === MAIN_FILTER_BEST_SELLERS && filters.categories.length === 0;
+    filters.sort === MAIN_FILTER_BEST_SELLERS &&
+    filters.categories.length === 0;
   const isAllMainFilterActive =
     filters.categories.length === 0 && !isBestSellersMainFilterActive;
 
@@ -317,35 +420,34 @@ export const ProductsPage: React.FC = () => {
   const rootCategories = visibleCategories.filter((c) => !c.parent);
 
   return (
-    <main className="flex-grow bg-background transition-colors duration-500 min-h-screen">
+    <main className="min-h-screen-safe flex-grow bg-background transition-colors duration-500">
       {/* 1. Header de sección Moderno */}
-      <div className="bg-default-50/50 border-b border-divider pb-3 pt-4 md:pb-8 md:pt-10 px-4">
+      <div className="border-b border-divider bg-default-50/50 px-2 pb-3 pt-4 sm:px-4 md:pb-8 md:pt-10">
         <div className="container mx-auto max-w-7xl">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 md:gap-6">
-            <div className="flex flex-col items-start text-left space-y-1 md:space-y-2">
+          <div className="flex flex-col items-start justify-between gap-3 md:flex-row md:items-end md:gap-6">
+            <div className="flex flex-col items-start space-y-1 text-left md:space-y-2">
               <div className="md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/10 text-primary font-black text-[10px] uppercase tracking-[0.28em] shadow-sm shadow-primary/10">
-                <span className="w-7 h-[2px] bg-gradient-to-r from-primary to-secondary"></span>
+                <span className="w-7 h-[2px] bg-gradient-to-r from-primary to-secondary" />
                 Explora
               </div>
-              <h1 className="text-4xl md:text-5xl font-black text-default-900 tracking-[-0.04em] leading-[0.95]">
-                <span className="block text-5xl">Click</span>
-                <span className="block text-transparent text-6xl pb-1 bg-clip-text bg-gradient-to-r from-primary via-sky-500 to-secondary drop-shadow-[0_8px_24px_rgba(59,130,246,0.18)]">
+              <h1 className="text-2xl font-black leading-[0.95] tracking-[-0.04em] text-default-900 sm:text-4xl md:text-5xl">
+                <span className="block text-3xl sm:text-5xl">Click</span>
+                <span className="block bg-gradient-to-r from-primary via-sky-500 to-secondary bg-clip-text pb-1 text-4xl text-transparent drop-shadow-[0_8px_24px_rgba(59,130,246,0.18)] sm:text-6xl">
                   Catálogo
                 </span>
               </h1>
-            
             </div>
 
-            <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto">
+            <div className="flex w-full items-center gap-2 md:w-auto md:gap-3">
               <div className="grow md:w-80">
                 <Input
-                  id="products-search-input"
                   isClearable
                   classNames={{
                     inputWrapper:
                       "h-10 md:h-12 bg-content1 border-divider shadow-xl shadow-primary/5 rounded-2xl",
                     input: "text-sm font-medium",
                   }}
+                  id="products-search-input"
                   placeholder="Busca por nombre o marca..."
                   radius="none"
                   startContent={<FiSearch className="text-primary" size={18} />}
@@ -355,7 +457,7 @@ export const ProductsPage: React.FC = () => {
               </div>
               <Button
                 isIconOnly
-                className="h-12 w-12 bg-content1 shadow-xl shadow-primary/5 rounded-2xl border-none"
+                className="h-10 w-10 rounded-xl border-none bg-content1 shadow-xl shadow-primary/5 md:h-12 md:w-12 md:rounded-2xl"
                 onClick={onOpen}
               >
                 <FiFilter className="text-default-900" size={20} />
@@ -366,42 +468,49 @@ export const ProductsPage: React.FC = () => {
       </div>
 
       {/* 2. Barra de Filtros Horizontales (Modern Pills) */}
-      <div className="sticky top-[56px] lg:top-[115px] z-30 bg-background/80 backdrop-blur-xl border-b border-divider py-5 md:py-4 mb-6 md:mb-8">
-        <div className="container mx-auto max-w-7xl px-4 flex items-center gap-4">
+      <div className="sticky top-[var(--app-header-height)] z-30 mb-6 border-b border-divider bg-background/80 py-3 backdrop-blur-xl md:mb-8 md:py-4">
+        <div className="container mx-auto flex max-w-7xl items-center gap-3 px-0 sm:px-4 md:gap-4">
           <div className="flex-grow overflow-x-auto no-scrollbar flex items-center gap-2 pr-10">
             <Button
-              variant={isAllMainFilterActive ? "solid" : "flat"}
+              className="ml-2 min-w-fit px-4 text-[10px] font-black uppercase tracking-wider"
               color={isAllMainFilterActive ? "primary" : "default"}
-              size="sm"
               radius="full"
-              className="font-black text-[10px] uppercase tracking-wider px-5 min-w-fit"
+              size="sm"
+              variant={isAllMainFilterActive ? "solid" : "flat"}
               onClick={() =>
-                updateUrl({
-                  ...filters,
-                  categories: [],
-                  sort: isBestSellersMainFilterActive ? "featured" : filters.sort,
-                  page: 1,
-                })
+                updateUrl(
+                  {
+                    ...filters,
+                    categories: [],
+                    sort: isBestSellersMainFilterActive
+                      ? "featured"
+                      : filters.sort,
+                    page: 1,
+                  },
+                  { scrollToProducts: true },
+                )
               }
             >
               Todo
             </Button>
             <Button
-              variant={isBestSellersMainFilterActive ? "solid" : "flat"}
+              className="min-w-fit px-4 text-[10px] font-black uppercase tracking-wider"
               color={isBestSellersMainFilterActive ? "primary" : "default"}
-              size="sm"
               radius="full"
-              className="font-black text-[10px] uppercase tracking-wider px-5 min-w-fit"
+              size="sm"
+              variant={isBestSellersMainFilterActive ? "solid" : "flat"}
               onClick={() =>
-                updateUrl({
-                  ...filters,
-                  categories: [],
-                  sort:
-                    isBestSellersMainFilterActive
+                updateUrl(
+                  {
+                    ...filters,
+                    categories: [],
+                    sort: isBestSellersMainFilterActive
                       ? "featured"
                       : MAIN_FILTER_BEST_SELLERS,
-                  page: 1,
-                })
+                    page: 1,
+                  },
+                  { scrollToProducts: true },
+                )
               }
             >
               Más vendidos
@@ -409,15 +518,15 @@ export const ProductsPage: React.FC = () => {
             {rootCategories.map((cat) => (
               <Button
                 key={cat.id}
-                variant={
-                  filters.categories.includes(cat.name) ? "solid" : "flat"
-                }
+                className="min-w-fit px-4 text-[10px] font-bold uppercase tracking-wider"
                 color={
                   filters.categories.includes(cat.name) ? "primary" : "default"
                 }
-                size="sm"
                 radius="full"
-                className="font-bold text-[10px] uppercase tracking-wider px-5 min-w-fit"
+                size="sm"
+                variant={
+                  filters.categories.includes(cat.name) ? "solid" : "flat"
+                }
                 onClick={() => toggleCategory(cat.name)}
               >
                 {cat.name}
@@ -429,13 +538,13 @@ export const ProductsPage: React.FC = () => {
             <Select
               aria-label="Ordenar"
               className="w-36"
-              selectedKeys={[filters.sort || "featured"]}
-              size="sm"
-              variant="flat"
               classNames={{
                 trigger: "bg-transparent h-8 hover:bg-default-100",
                 value: "text-[10px] font-black uppercase tracking-widest",
               }}
+              selectedKeys={[filters.sort || "featured"]}
+              size="sm"
+              variant="flat"
               onSelectionChange={(k) =>
                 updateUrl({
                   ...filters,
@@ -454,13 +563,18 @@ export const ProductsPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="container mx-auto max-w-7xl px-4 pb-20">
+      <div
+        ref={productsStartRef}
+        className="container mx-auto max-w-7xl px-0 pb-6 sm:px-4 md:pb-20"
+      >
         {/* 3. Rejilla de Productos Principal */}
         <div className="relative">
           {isMobile ? (
             <MobileProducts
               blockedCategoryIds={blockedCategoryIds}
               filters={filters}
+              restoreProductId={restoreProductId}
+              onRestoreComplete={handleRestoreComplete}
             />
           ) : (
             <DesktopProducts
@@ -468,14 +582,16 @@ export const ProductsPage: React.FC = () => {
               filters={filters}
               isFetching={isFetching}
               isLoading={isLoading}
+              restoreProductId={restoreProductId}
               onPageChange={(p: number) => updateUrl({ ...filters, page: p })}
+              onRestoreComplete={handleRestoreComplete}
             />
           )}
 
           {!isLoading && totalItems === 0 && (
             <div className="flex flex-col items-center justify-center py-32">
               <div className="relative mb-6">
-                <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full"></div>
+                <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full" />
                 <div className="relative text-6xl">✨</div>
               </div>
               <h3 className="text-xl font-black text-default-900 tracking-tight">
@@ -507,9 +623,9 @@ export const ProductsPage: React.FC = () => {
       {/* 4. Drawer de Filtros Avanzados */}
       <Drawer
         isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        size="sm"
         placement="right"
+        size="sm"
+        onOpenChange={onOpenChange}
       >
         <DrawerContent className="bg-background">
           {(onClose) => (

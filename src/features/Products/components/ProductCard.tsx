@@ -1,19 +1,20 @@
 import type { IProduct } from "../types/Product";
-import { Link } from "react-router";
-import { useState } from "react";
+
+import { Link, useLocation } from "react-router";
+import { useEffect, useState } from "react";
 // ... (rest of imports)
 import { FaCartPlus, FaStar } from "react-icons/fa6";
 import { AiFillDelete, AiFillEdit } from "react-icons/ai";
+import { FiImage } from "react-icons/fi";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/react";
 import { motion } from "framer-motion";
-import { formatPrice } from "@/utils/currencyFormat";
+
 import {
   getRatingFromTopSellerRank,
   getReviewCountFromTopSellerRank,
   getVisualStarsCount,
 } from "../utils/topSellerRating";
-
 import { useCart } from "../../Cart/hooks/useCart";
 import { useAuth } from "../../Auth/hooks/useAuth";
 import { Modal } from "../../../components/layout/Modal";
@@ -22,18 +23,28 @@ import { useToast } from "../../../components/ui/ToastProvider";
 import { ProductConfirmDelete } from "./ProductConfirmDelete";
 import { ProductEdit } from "./ProductEdit";
 
+import { formatPrice } from "@/utils/currencyFormat";
+
 interface ProductCardProps {
   product: IProduct;
+  disableHoverLift?: boolean;
 }
 
-export const ProductCard = ({ product }: ProductCardProps) => {
+export const ProductCard = ({
+  product,
+  disableHoverLift = false,
+}: ProductCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [hasImageError, setHasImageError] = useState(false);
 
   const { addItem } = useCart();
   const { user } = useAuth();
   const { addToast } = useToast();
+  const location = useLocation();
+  const isAdmin = user?.role?.toLowerCase() === "admin";
 
   const onAdd = async () => {
     setIsAdding(true);
@@ -48,23 +59,53 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const reviewCount = getReviewCountFromTopSellerRank(product.topSellerRank);
   const visualStars = getVisualStarsCount(topSellerRating);
 
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    setHasImageError(false);
+  }, [product.imageUrl]);
+
   return (
     <>
       <motion.div
-        whileHover={{ y: -4 }}
-        className="group bg-content1 rounded-2xl shadow-md overflow-hidden border border-divider flex flex-col h-full transition-all duration-300"
+        className="group bg-content1 shadow-md overflow-hidden border border-divider flex flex-col h-full transition-all duration-300"
+        whileHover={!isMobile && !disableHoverLift ? { y: -4 } : undefined}
       >
         <Link
           className="flex flex-col flex-grow"
           to={`/products/${product.id}`}
+          onClick={() => {
+            sessionStorage.setItem("products:returnProductId", product.id);
+            sessionStorage.setItem(
+              "products:returnTo",
+              `${location.pathname}${location.search}`,
+            );
+          }}
         >
           {/* Image Section */}
           <div className="relative aspect-square overflow-hidden bg-default-50">
-            <img
-              alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              src={product.imageUrl}
-            />
+            {product.imageUrl && !hasImageError ? (
+              <img
+                alt={product.name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                src={product.imageUrl}
+                onError={() => setHasImageError(true)}
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-default-400 bg-gradient-to-br from-default-100 to-default-50">
+                <FiImage size={28} />
+                <span className="mt-2 text-[10px] font-bold uppercase tracking-wider">
+                  Sin imagen
+                </span>
+              </div>
+            )}
             <div className="absolute top-2 left-2 flex flex-col gap-1">
               {product.topSellerRank && (
                 <Chip
@@ -156,7 +197,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               fullWidth
               className="font-black text-[12px] h-10 shadow-lg shadow-primary/20 bg-primary hover:bg-primary-600 text-primary-foreground"
               color="primary"
-              disabled={user?.role === "ADMIN"}
+              disabled={isAdmin}
               isLoading={isAdding}
               radius="full"
               startContent={!isAdding && <FaCartPlus className="text-sm" />}
@@ -165,7 +206,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               {isAdding ? "Agregando..." : "Agregar"}
             </Button>
 
-            {user?.role === "ADMIN" && (
+            {isAdmin && (
               <div className="flex gap-1 shrink-0">
                 <Button
                   isIconOnly

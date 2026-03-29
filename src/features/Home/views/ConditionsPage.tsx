@@ -38,9 +38,9 @@ export const ConditionsPage: React.FC = () => {
                 <FaTruckFast className="text-success" /> Entrega de pedidos
               </h2>
               <p className="text-default-600">
-                Las entregas se realizan en las zonas habilitadas y dentro de
-                la franja horaria elegida, con posibilidad de ajustes por clima
-                o alta demanda.
+                Las entregas se realizan en las zonas habilitadas y dentro de la
+                franja horaria elegida, con posibilidad de ajustes por clima o
+                alta demanda.
               </p>
             </div>
 

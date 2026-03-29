@@ -21,9 +21,10 @@ import {
 import { motion } from "framer-motion";
 
 import { useProduct } from "../../Products/hooks/useProduct";
-import { formatPrice } from "@/utils/currencyFormat";
 import { useAdminInventory } from "../hook/useAdminInventory";
 import { ProductModal } from "../components/ProductModal";
+
+import { formatPrice } from "@/utils/currencyFormat";
 
 export const AdminProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -114,9 +115,9 @@ export const AdminProductDetailPage: React.FC = () => {
               Editar Producto
             </Button>
             <Button
+              isIconOnly
               color="danger"
               variant="flat"
-              isIconOnly
               onPress={async () => {
                 if (confirm("¿Estás seguro de eliminar este producto?")) {
                   await deleteProduct(product.id);
@@ -137,12 +138,12 @@ export const AdminProductDetailPage: React.FC = () => {
             <CardBody className="p-0">
               <div className="aspect-square bg-slate-50 dark:bg-zinc-800 flex items-center justify-center p-8">
                 <img
+                  alt={product.name}
+                  className="w-full h-full object-contain drop-shadow-xl"
                   src={
                     product.imageUrl ||
                     "https://placehold.co/400?text=Sin+Imagen"
                   }
-                  alt={product.name}
-                  className="w-full h-full object-contain drop-shadow-xl"
                 />
               </div>
             </CardBody>
@@ -160,9 +161,9 @@ export const AdminProductDetailPage: React.FC = () => {
                 {product.categories.map((cat) => (
                   <Chip
                     key={cat.id}
+                    className="font-bold"
                     color="secondary"
                     variant="flat"
-                    className="font-bold"
                   >
                     {cat.name}
                   </Chip>
@@ -224,13 +225,13 @@ export const AdminProductDetailPage: React.FC = () => {
 
           {/* CUADRO DE GANANCIA PREMIUM */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className={`p-8 rounded-[2rem] border-2 shadow-2xl ${
               profit >= 0
                 ? "bg-gradient-to-br from-indigo-600 to-indigo-800 border-indigo-400 text-white"
                 : "bg-red-600 border-red-400 text-white"
             }`}
+            initial={{ opacity: 0, y: 20 }}
           >
             <div className="flex justify-between items-center">
               <div>
@@ -273,10 +274,10 @@ export const AdminProductDetailPage: React.FC = () => {
       </div>
 
       <ProductModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
         editingProduct={product}
         isLoading={isUpdating}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
         onSubmit={async (data) => {
           await updateProduct({ id: product.id, ...data });
           setIsEditModalOpen(false);

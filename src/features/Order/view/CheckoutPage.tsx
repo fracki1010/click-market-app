@@ -22,8 +22,6 @@ import {
   FaPhone,
 } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatPrice } from "@/utils/currencyFormat";
-import { LoadingComponent } from "@/components/layout/LoadingComponent";
 
 import { useCreateOrder } from "../hook/useOrder";
 import { useCart } from "../../Cart/hooks/useCart";
@@ -32,8 +30,11 @@ import { AddressCard } from "../../Auth/components/AddressCard";
 import { AddAddressModal } from "../../Auth/components/AddAddressModal";
 import { CreateAddressPayload } from "../../Auth/types/Address";
 import { useShippingSettings } from "../../Settings/hooks/useShippingSettings";
-import { useToast } from "@/components/ui/ToastProvider";
 import { useAuth } from "../../Auth/hooks/useAuth";
+
+import { useToast } from "@/components/ui/ToastProvider";
+import { LoadingComponent } from "@/components/layout/LoadingComponent";
+import { formatPrice } from "@/utils/currencyFormat";
 
 const FIXED_DELIVERY_SLOT = "16:00 - 20:00";
 
@@ -61,7 +62,9 @@ export const CheckoutPage: React.FC = () => {
   const [selectedAddressId, setSelectedAddressId] = useState("");
   const [allowEmptyCartRedirect, setAllowEmptyCartRedirect] = useState(true);
   const [phoneDraft, setPhoneDraft] = useState(
-    user?.phone?.trim().toLowerCase() === "no informado" ? "" : user?.phone || "",
+    user?.phone?.trim().toLowerCase() === "no informado"
+      ? ""
+      : user?.phone || "",
   );
   const [isSavingPhone, setIsSavingPhone] = useState(false);
 
@@ -95,13 +98,19 @@ export const CheckoutPage: React.FC = () => {
   useEffect(() => {
     if (!addresses.length) {
       setSelectedAddressId("");
+
       return;
     }
 
-    const hasSelected = addresses.some((addr) => addr._id === selectedAddressId);
+    const hasSelected = addresses.some(
+      (addr) => addr._id === selectedAddressId,
+    );
+
     if (hasSelected) return;
 
-    const fallbackAddress = addresses.find((addr) => addr.isDefault) || addresses[0];
+    const fallbackAddress =
+      addresses.find((addr) => addr.isDefault) || addresses[0];
+
     setSelectedAddressId(fallbackAddress?._id || "");
   }, [addresses, selectedAddressId]);
 
@@ -126,10 +135,15 @@ export const CheckoutPage: React.FC = () => {
     if (!selectedAddress) return;
     if (!minimumReached) {
       addToast(getMinimumProductsMessage(totalProductUnits), "info");
+
       return;
     }
     if (!hasValidPhone) {
-      addToast("Completa y guarda tu teléfono para confirmar la compra.", "info");
+      addToast(
+        "Completa y guarda tu teléfono para confirmar la compra.",
+        "info",
+      );
+
       return;
     }
 
@@ -158,16 +172,19 @@ export const CheckoutPage: React.FC = () => {
 
     if (!normalizedPhone) {
       addToast("Ingresa un número de teléfono.", "info");
+
       return;
     }
 
     if (!validPhonePattern.test(normalizedPhone)) {
       addToast("Formato de teléfono inválido.", "error");
+
       return;
     }
 
     if (totalDigits < 8) {
       addToast("El teléfono debe tener al menos 8 dígitos.", "info");
+
       return;
     }
 
@@ -188,13 +205,13 @@ export const CheckoutPage: React.FC = () => {
   }
 
   return (
-    <main className="min-h-screen bg-background pb-24 lg:pb-12 transition-colors">
+    <main className="min-h-screen-safe bg-background pb-24 transition-colors lg:pb-12">
       {/* Hero Mini Section */}
-      <div className="bg-content1 border-b border-divider pt-12 pb-8 mb-8">
+      <div className="mb-6 border-b border-divider bg-content1 pb-6 pt-8 md:mb-8 md:pb-8 md:pt-12">
         <div className="container mx-auto px-4">
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: -10 }}
           >
             <h1 className="text-3xl md:text-4xl font-black text-default-800 flex items-center gap-3">
               <FaBagShopping className="text-success" /> Finalizar Pedido
@@ -210,13 +227,13 @@ export const CheckoutPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Columna Izquierda: Steps Form */}
           <div className="lg:col-span-7 space-y-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               {/* Step 1: Dirección */}
               <motion.section
-                initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
                 className="bg-content1 p-6 md:p-8 rounded-[2rem] shadow-sm border border-divider"
+                initial={{ opacity: 0, x: -20 }}
+                transition={{ delay: 0.1 }}
               >
                 <div
                   className={`rounded-2xl p-4 mb-6 border ${
@@ -270,12 +287,12 @@ export const CheckoutPage: React.FC = () => {
                       return (
                         <motion.div
                           key={addr._id}
-                          whileHover={{ scale: 1.01 }}
                           className={`relative cursor-pointer transition-all duration-300 rounded-2xl border-2 ${
                             isSelected
                               ? "border-success bg-success-50 shadow-md shadow-success/10"
                               : "border-transparent hover:border-default-200"
                           }`}
+                          whileHover={{ scale: 1.01 }}
                           onClick={() => {
                             setSelectedAddressId(addr._id);
                             void setDefaultAddress(addr._id);
@@ -302,10 +319,10 @@ export const CheckoutPage: React.FC = () => {
 
               {/* Step 2: Horario */}
               <motion.section
-                initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
                 className="bg-content1 p-6 md:p-8 rounded-[2rem] shadow-sm border border-divider"
+                initial={{ opacity: 0, x: -20 }}
+                transition={{ delay: 0.2 }}
               >
                 <h3 className="flex items-center gap-3 text-xl font-black text-default-800 mb-6">
                   <span className="flex items-center justify-center w-8 h-8 rounded-full bg-warning-100 text-warning text-sm">
@@ -314,8 +331,8 @@ export const CheckoutPage: React.FC = () => {
                   Horario de Entrega
                 </h3>
                 <p className="text-sm text-default-500 mb-4 font-medium -mt-4 ml-11">
-                  Todos nuestros pedidos se entregan al siguiente dia de la compra en la franja fija
-                  establecida.
+                  Todos nuestros pedidos se entregan al siguiente dia de la
+                  compra en la franja fija establecida.
                 </p>
                 <div className="h-14 border-2 border-divider rounded-2xl bg-default-50 px-4 flex items-center justify-between">
                   <span className="font-bold text-default-700">
@@ -329,10 +346,10 @@ export const CheckoutPage: React.FC = () => {
 
               {/* Step 3: Pago */}
               <motion.section
-                initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
                 className="bg-content1 p-6 md:p-8 rounded-[2rem] shadow-sm border border-divider"
+                initial={{ opacity: 0, x: -20 }}
+                transition={{ delay: 0.3 }}
               >
                 <h3 className="flex items-center gap-3 text-xl font-black text-default-800 mb-6">
                   <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary text-sm">
@@ -341,12 +358,12 @@ export const CheckoutPage: React.FC = () => {
                   Método de Pago
                 </h3>
                 <RadioGroup
-                  color="success"
-                  value={paymentMethod}
-                  onValueChange={setPaymentMethod}
                   classNames={{
                     wrapper: "grid grid-cols-1 md:grid-cols-3 gap-4",
                   }}
+                  color="success"
+                  value={paymentMethod}
+                  onValueChange={setPaymentMethod}
                 >
                   {[
                     {
@@ -367,7 +384,6 @@ export const CheckoutPage: React.FC = () => {
                   ].map((method) => (
                     <Radio
                       key={method.value}
-                      value={method.value}
                       className={`max-w-none w-full m-0 border-2 rounded-2xl p-4 transition-all ${
                         paymentMethod === method.value
                           ? "border-success bg-success-50"
@@ -377,6 +393,7 @@ export const CheckoutPage: React.FC = () => {
                         base: "inline-flex m-0 bg-transparent hover:bg-default-50 flex-row-reverse w-full max-w-full items-center justify-between",
                         label: "w-full",
                       }}
+                      value={method.value}
                     >
                       <div className="flex items-center gap-3 font-bold text-default-700">
                         <span className="text-xl text-success">
@@ -391,10 +408,10 @@ export const CheckoutPage: React.FC = () => {
 
               {!hasValidPhone && (
                 <motion.section
-                  initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.35 }}
                   className="bg-content1 p-6 md:p-8 rounded-[2rem] shadow-sm border border-divider"
+                  initial={{ opacity: 0, x: -20 }}
+                  transition={{ delay: 0.35 }}
                 >
                   <h3 className="flex items-center gap-3 text-xl font-black text-default-800 mb-3">
                     <span className="flex items-center justify-center w-8 h-8 rounded-full bg-danger-100 text-danger text-sm">
@@ -410,17 +427,17 @@ export const CheckoutPage: React.FC = () => {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Input
                       className="flex-1"
-                      value={phoneDraft}
-                      onValueChange={setPhoneDraft}
-                      variant="bordered"
                       placeholder="+54 9 11 1234-5678"
                       startContent={<FaPhone className="text-default-400" />}
+                      value={phoneDraft}
+                      variant="bordered"
+                      onValueChange={setPhoneDraft}
                     />
                     <Button
-                      type="button"
                       className="bg-primary text-primary-foreground font-bold"
-                      radius="lg"
                       isLoading={isSavingPhone}
+                      radius="lg"
+                      type="button"
                       onPress={handleSavePhone}
                     >
                       Guardar número
@@ -453,10 +470,10 @@ export const CheckoutPage: React.FC = () => {
           {/* Columna Derecha: Resumen */}
           <div className="lg:col-span-5">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
               className="sticky top-28"
+              initial={{ opacity: 0, y: 20 }}
+              transition={{ delay: 0.4 }}
             >
               <Card className="bg-content1 border border-divider shadow-xl rounded-[2.5rem] overflow-hidden">
                 <CardBody className="p-8">
@@ -510,10 +527,10 @@ export const CheckoutPage: React.FC = () => {
                       </span>
                       {serviceCost === 0 ? (
                         <Chip
+                          className="font-black"
                           color="success"
                           size="sm"
                           variant="flat"
-                          className="font-black"
                         >
                           GRATIS
                         </Chip>
@@ -562,10 +579,10 @@ export const CheckoutPage: React.FC = () => {
       <AnimatePresence>
         {items.length > 0 && (
           <motion.div
-            initial={{ y: 100 }}
             animate={{ y: 0 }}
-            exit={{ y: 100 }}
             className="lg:hidden fixed bottom-0 left-0 right-0 bg-content1/80 backdrop-blur-xl border-t border-divider p-4 z-50 flex items-center justify-between gap-4 pb-safe"
+            exit={{ y: 100 }}
+            initial={{ y: 100 }}
           >
             <div className="flex flex-col">
               <span className="text-[10px] font-black uppercase text-default-500 leading-none">
@@ -581,9 +598,9 @@ export const CheckoutPage: React.FC = () => {
                   ? "bg-default-200 text-default-400"
                   : "bg-primary text-primary-foreground shadow-primary/20"
               }`}
+              endContent={!isPending && <FaArrowRight />}
               isDisabled={!canConfirmOrder}
               isLoading={isPending}
-              endContent={!isPending && <FaArrowRight />}
               radius="full"
               onClick={() => handleSubmit()}
             >

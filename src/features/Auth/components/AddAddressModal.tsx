@@ -18,6 +18,7 @@ import {
   FaNoteSticky,
   FaStar,
 } from "react-icons/fa6";
+
 import { CreateAddressPayload } from "../types/Address";
 
 const addressSchema = z.object({
@@ -48,10 +49,13 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
     allValues: AddressFormValues,
   ) => {
     const result = addressSchema.safeParse({ ...allValues, [field]: value });
+
     if (!result.success) {
       const error = result.error.errors.find((e) => e.path[0] === field);
+
       return error ? error.message : undefined;
     }
+
     return undefined;
   };
 

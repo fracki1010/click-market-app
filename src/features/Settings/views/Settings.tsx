@@ -34,16 +34,18 @@ import { useAuth } from "../../Auth/hooks/useAuth";
 import { RootState } from "../../../store/store";
 // Asegúrate de que la ruta a updateSettings sea correcta en tu proyecto
 import { updateSettings } from "../redux/settingsSlice";
-import { useTheme } from "./../hooks/useTheme";
 import {
   getShippingSettings,
   getStorefrontSettings,
   updateShippingSettings,
   updateStorefrontSettings,
 } from "../api/settings";
-import { useToast } from "@/components/ui/ToastProvider";
 import { useCategories } from "../../Products/hooks/useCategory";
 import { useStorefrontVisibilityProgress } from "../hooks/useStorefrontVisibilityProgress";
+
+import { useTheme } from "./../hooks/useTheme";
+
+import { useToast } from "@/components/ui/ToastProvider";
 
 export const Setting: React.FC = () => {
   const [currentTheme, setCurrentTheme] = useTheme();
@@ -76,6 +78,7 @@ export const Setting: React.FC = () => {
         const resolvedServiceCost =
           backendShipping?.serviceCost ??
           (backendShipping as any)?.shippingPrice;
+
         setFormData((prev) => ({
           ...prev,
           blockedCategoryIds: storefrontSettings.blockedCategoryIds,
@@ -96,6 +99,7 @@ export const Setting: React.FC = () => {
         console.error("Error fetching shipping settings:", error);
       }
     };
+
     fetchBackendSettings();
   }, []);
 
@@ -127,6 +131,7 @@ export const Setting: React.FC = () => {
       if (Number.isNaN(minimumProducts) || minimumProducts < 0) {
         addToast("El mínimo de productos debe ser 0 o mayor", "error");
         setIsSaving(false);
+
         return;
       }
 
@@ -190,7 +195,10 @@ export const Setting: React.FC = () => {
     }
   };
 
-  const handleToggleBlockedCategory = (categoryId: string, checked: boolean) => {
+  const handleToggleBlockedCategory = (
+    categoryId: string,
+    checked: boolean,
+  ) => {
     setFormData((prev) => {
       const current = prev.blockedCategoryIds || [];
       const next = checked
@@ -205,7 +213,8 @@ export const Setting: React.FC = () => {
     (formData.blockedCategoryIds || []).includes(category.id),
   );
   const storefrontProgressPercent =
-    storefrontVisibilityProgress?.total && storefrontVisibilityProgress.total > 0
+    storefrontVisibilityProgress?.total &&
+    storefrontVisibilityProgress.total > 0
       ? Math.min(
           100,
           Math.round(
@@ -269,32 +278,32 @@ export const Setting: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
                       label="Nombre de la Tienda"
-                      variant="bordered"
-                      value={formData.storeName}
-                      onValueChange={(val) => handleChange("storeName", val)}
                       startContent={
-                        <Store size={16} className="text-slate-400" />
+                        <Store className="text-slate-400" size={16} />
                       }
+                      value={formData.storeName}
+                      variant="bordered"
+                      onValueChange={(val) => handleChange("storeName", val)}
                     />
                     <Input
                       label="Email de Contacto"
-                      variant="bordered"
-                      value={formData.storeEmail}
-                      onValueChange={(val) => handleChange("storeEmail", val)}
                       startContent={
-                        <Mail size={16} className="text-slate-400" />
+                        <Mail className="text-slate-400" size={16} />
                       }
+                      value={formData.storeEmail}
+                      variant="bordered"
+                      onValueChange={(val) => handleChange("storeEmail", val)}
                     />
                     <Input
                       label="Número de WhatsApp"
-                      variant="bordered"
                       placeholder="+54 9 123 456789"
+                      startContent={
+                        <MessageCircle className="text-slate-400" size={16} />
+                      }
                       value={formData.whatsappNumber}
+                      variant="bordered"
                       onValueChange={(val) =>
                         handleChange("whatsappNumber", val)
-                      }
-                      startContent={
-                        <MessageCircle size={16} className="text-slate-400" />
                       }
                     />
                   </div>
@@ -333,7 +342,8 @@ export const Setting: React.FC = () => {
                     <Store className="text-violet-500" /> Categorías Ocultas
                   </h3>
                   <p className="text-sm text-slate-500">
-                    Busca una categoría y agrégala a la lista de bloqueadas para ocultarla de la tienda.
+                    Busca una categoría y agrégala a la lista de bloqueadas para
+                    ocultarla de la tienda.
                   </p>
 
                   <Autocomplete
@@ -369,11 +379,7 @@ export const Setting: React.FC = () => {
                         className="rounded-2xl border border-violet-200 dark:border-violet-900 bg-violet-50/70 dark:bg-violet-950/30 p-3 flex items-center justify-between gap-3"
                       >
                         <div className="flex items-center gap-2 min-w-0">
-                          <Chip
-                            color="secondary"
-                            size="sm"
-                            variant="flat"
-                          >
+                          <Chip color="secondary" size="sm" variant="flat">
                             Oculta
                           </Chip>
                           <span className="font-semibold text-sm text-slate-700 dark:text-slate-200 truncate">
@@ -407,21 +413,27 @@ export const Setting: React.FC = () => {
                           <span>
                             {storefrontVisibilityProgress.status === "running"
                               ? "Ocultando productos..."
-                              : storefrontVisibilityProgress.status === "completed"
+                              : storefrontVisibilityProgress.status ===
+                                  "completed"
                                 ? "Ocultación completada"
                                 : "Error al ocultar productos"}
                           </span>
                           <span>
-                            {(storefrontVisibilityProgress.processed || 0).toLocaleString()}{" "}
+                            {(
+                              storefrontVisibilityProgress.processed || 0
+                            ).toLocaleString()}{" "}
                             /{" "}
-                            {(storefrontVisibilityProgress.total || 0).toLocaleString()}
+                            {(
+                              storefrontVisibilityProgress.total || 0
+                            ).toLocaleString()}
                           </span>
                         </div>
                         <Progress
                           color={
                             storefrontVisibilityProgress.status === "error"
                               ? "danger"
-                              : storefrontVisibilityProgress.status === "completed"
+                              : storefrontVisibilityProgress.status ===
+                                  "completed"
                                 ? "success"
                                 : "secondary"
                           }
@@ -434,10 +446,14 @@ export const Setting: React.FC = () => {
                         />
                         <div className="text-[11px] text-slate-500">
                           Productos ocultados:{" "}
-                          {(storefrontVisibilityProgress.hiddenUpdated || 0).toLocaleString()}
+                          {(
+                            storefrontVisibilityProgress.hiddenUpdated || 0
+                          ).toLocaleString()}
                           {" · "}
                           Rehabilitados:{" "}
-                          {(storefrontVisibilityProgress.visibleUpdated || 0).toLocaleString()}
+                          {(
+                            storefrontVisibilityProgress.visibleUpdated || 0
+                          ).toLocaleString()}
                         </div>
                       </div>
                     )}
@@ -466,15 +482,15 @@ export const Setting: React.FC = () => {
                     <Input
                       label="Costo del Servicio Base ($)"
                       type="number"
-                      variant="bordered"
                       value={formData.shippingCost.toString()}
+                      variant="bordered"
                       onValueChange={(val) => handleChange("shippingCost", val)}
                     />
                     <Input
                       label="Monto para Costo del Servicio Gratis ($)"
                       type="number"
-                      variant="bordered"
                       value={formData.freeShippingThreshold.toString()}
+                      variant="bordered"
                       onValueChange={(val) =>
                         handleChange("freeShippingThreshold", val)
                       }
@@ -483,8 +499,8 @@ export const Setting: React.FC = () => {
                       description="0 = sin mínimo de productos para comprar."
                       label="Mínimo de Productos por Pedido"
                       type="number"
-                      variant="bordered"
                       value={formData.minimumProducts.toString()}
+                      variant="bordered"
                       onValueChange={(val) =>
                         handleChange("minimumProducts", val)
                       }
@@ -499,12 +515,12 @@ export const Setting: React.FC = () => {
                     <Bell className="text-red-500" /> Alertas de Inventario
                   </h3>
                   <Input
+                    description="Se mostrará una alerta cuando un producto tenga esta cantidad o menos."
                     label="Alerta de Stock Bajo (Cantidad)"
                     type="number"
-                    variant="bordered"
                     value={formData.lowStockAlert.toString()}
+                    variant="bordered"
                     onValueChange={(val) => handleChange("lowStockAlert", val)}
-                    description="Se mostrará una alerta cuando un producto tenga esta cantidad o menos."
                   />
                 </CardBody>
               </Card>
@@ -530,8 +546,8 @@ export const Setting: React.FC = () => {
                   </h3>
                   <Select
                     label="Selecciona el tema visual"
-                    variant="bordered"
                     selectedKeys={[currentTheme]}
+                    variant="bordered"
                     onChange={(e) => handleThemeChange(e.target.value)}
                   >
                     <SelectItem
@@ -566,28 +582,28 @@ export const Setting: React.FC = () => {
         {/* BOTONERA INFERIOR (Fija en dispositivos móviles o simplemente al final) */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <Button
+            className="w-full sm:w-auto font-medium"
             color="danger"
             startContent={<LogOut size={18} />}
             variant="flat"
             onPress={logoutUser}
-            className="w-full sm:w-auto font-medium"
           >
             Cerrar Sesión
           </Button>
 
           <div className="flex gap-3 w-full sm:w-auto">
             <Button
-              variant="bordered"
               className="w-full sm:w-auto"
+              variant="bordered"
               onPress={() => setFormData(settings)} // Restablecer al estado de Redux
             >
               Deshacer
             </Button>
             <Button
-              color="primary"
               className="w-full sm:w-auto font-bold shadow-lg"
-              startContent={!isSaving && <Save size={18} />}
+              color="primary"
               isLoading={isSaving}
+              startContent={!isSaving && <Save size={18} />}
               onPress={handleSave}
             >
               {isSaving ? "Guardando..." : "Guardar Cambios"}

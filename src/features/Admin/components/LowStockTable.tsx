@@ -60,11 +60,11 @@ export const LowStockTable: React.FC<LowStockTableProps> = ({ products }) => {
               <CardBody className="p-3">
                 <div className="flex items-center gap-3">
                   <Avatar
-                    radius="md"
-                    src={product.imageUrl}
-                    fallback={<FaBoxesStacked className="text-slate-400" />}
-                    size="sm"
                     className="shrink-0"
+                    fallback={<FaBoxesStacked className="text-slate-400" />}
+                    radius="md"
+                    size="sm"
+                    src={product.imageUrl}
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-slate-800 dark:text-white truncate">
@@ -86,12 +86,12 @@ export const LowStockTable: React.FC<LowStockTableProps> = ({ products }) => {
                       </Chip>
                     )}
                     <Button
+                      isIconOnly
                       as={Link}
                       color="primary"
                       size="sm"
                       to="/admin/inventory"
                       variant="light"
-                      isIconOnly
                     >
                       <FaArrowRight className="text-xs" />
                     </Button>

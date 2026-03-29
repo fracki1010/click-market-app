@@ -72,7 +72,9 @@ const normalizeStorefrontSettings = (payload: any): StorefrontSettings => {
   const raw = payload?.value || payload?.data || payload || {};
 
   const blockedCategoryIds = Array.isArray(raw?.blockedCategoryIds)
-    ? raw.blockedCategoryIds.map((id: unknown) => String(id).trim()).filter(Boolean)
+    ? raw.blockedCategoryIds
+        .map((id: unknown) => String(id).trim())
+        .filter(Boolean)
     : [];
 
   return { blockedCategoryIds };
@@ -84,6 +86,7 @@ export const getShippingSettings = async (): Promise<ShippingSettings> => {
     for (const endpoint of SHIPPING_PUBLIC_ENDPOINTS) {
       try {
         const { data } = await apiClient.get(endpoint);
+
         return normalizeShippingSettings(data);
       } catch (_error) {
         // Si no existe o falla, seguimos con el siguiente endpoint público.
@@ -92,11 +95,13 @@ export const getShippingSettings = async (): Promise<ShippingSettings> => {
 
     // Fallback temporal hasta que backend publique el endpoint definitivo.
     const { data } = await apiClient.get(SHIPPING_PRIVATE_ENDPOINT);
+
     return normalizeShippingSettings(data);
   } catch (error) {
     console.warn(
       "No se pudieron cargar los ajustes de envío, usando valores por defecto.",
     );
+
     return {
       serviceCost: 1500,
       largePurchaseThreshold: 20000,
@@ -109,6 +114,7 @@ export const updateShippingSettings = async (settings: ShippingSettings) => {
   const { data } = await apiClient.put("/settings/shipping", {
     ...settings,
   });
+
   return data;
 };
 
@@ -117,6 +123,7 @@ export const getStorefrontSettings = async (): Promise<StorefrontSettings> => {
     for (const endpoint of STOREFRONT_PUBLIC_ENDPOINTS) {
       try {
         const { data } = await apiClient.get(endpoint);
+
         return normalizeStorefrontSettings(data);
       } catch (_error) {
         // Seguimos probando los otros endpoints.
@@ -124,6 +131,7 @@ export const getStorefrontSettings = async (): Promise<StorefrontSettings> => {
     }
 
     const { data } = await apiClient.get(STOREFRONT_PRIVATE_ENDPOINT);
+
     return normalizeStorefrontSettings(data);
   } catch (_error) {
     return { blockedCategoryIds: [] };
@@ -134,6 +142,7 @@ export const updateStorefrontSettings = async (
   settings: StorefrontSettings,
 ) => {
   const { data } = await apiClient.put(STOREFRONT_PRIVATE_ENDPOINT, settings);
+
   return data;
 };
 
@@ -141,6 +150,7 @@ export const getStorefrontVisibilityProgress =
   async (): Promise<StorefrontVisibilityProgress> => {
     try {
       const { data } = await apiClient.get("/settings/storefront/progress");
+
       return data || { status: "idle" };
     } catch (_error) {
       return { status: "idle" };

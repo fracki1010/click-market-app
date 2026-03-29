@@ -20,6 +20,7 @@ export const isCategoryBlocked = (
   blockedCategoryIds: string[] = [],
 ) => {
   const blockedIds = new Set(blockedCategoryIds.map(normalizeId));
+
   return blockedIds.has(normalizeId(category.id));
 };
 
@@ -35,6 +36,7 @@ export const expandBlockedCategoryIds = (
     categories.forEach((category) => {
       const parentId = category.parent ? normalizeId(category.parent) : null;
       const categoryId = normalizeId(category.id);
+
       if (parentId && blocked.has(parentId) && !blocked.has(categoryId)) {
         blocked.add(categoryId);
         changed = true;

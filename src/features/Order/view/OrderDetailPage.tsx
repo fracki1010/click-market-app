@@ -21,12 +21,14 @@ import { motion } from "framer-motion";
 import { useOrderById, useUpdateOrderStatus } from "../hook/useOrder";
 import { useOrderInvoice } from "../../Admin/hook/useAdminOrders";
 import { IOrderItem } from "../types/Order";
+
 import { formatPrice } from "@/utils/currencyFormat";
 import logoImage from "@/assets/logo-3.png";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const getStatusConfig = (status: string) => {
   const s = status.toLowerCase();
+
   switch (s) {
     case "completed":
       return {
@@ -95,7 +97,6 @@ const getStatusConfig = (status: string) => {
 
 const formatDate = (dateString: string) =>
   new Date(dateString).toLocaleDateString("es-AR", {
-    weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -131,20 +132,22 @@ const formatPriceFixed = (value: number, digits = 2) => {
 
 const getDeliveryDisplay = (orderDate: string) => {
   const scheduledDate = new Date(orderDate);
+
   scheduledDate.setDate(scheduledDate.getDate() + 1);
 
   const scheduledStart = new Date(scheduledDate);
+
   scheduledStart.setHours(0, 0, 0, 0);
 
   const todayStart = new Date();
+
   todayStart.setHours(0, 0, 0, 0);
 
   const diffDays = Math.round(
     (scheduledStart.getTime() - todayStart.getTime()) / (1000 * 60 * 60 * 24),
   );
 
-  const relativeLabel =
-    diffDays === 0 ? "hoy" : diffDays === 1 ? "mañana" : "";
+  const relativeLabel = diffDays === 0 ? "hoy" : diffDays === 1 ? "mañana" : "";
 
   const exactDate = new Intl.DateTimeFormat("es-AR", {
     weekday: "long",
@@ -158,12 +161,14 @@ const getDeliveryDisplay = (orderDate: string) => {
 
 const isOrderDelayed = (orderDate: string, status: string) => {
   const normalizedStatus = status.toLowerCase();
+
   if (normalizedStatus === "completed" || normalizedStatus === "cancelled") {
     return false;
   }
 
   const createdAt = new Date(orderDate);
   const deadline = new Date(createdAt);
+
   deadline.setDate(deadline.getDate() + 1);
   deadline.setHours(20, 0, 0, 0);
 
@@ -194,6 +199,7 @@ const StatusTimeline: React.FC<{ currentStep: number }> = ({ currentStep }) => (
     {STEPS.map((step, idx) => {
       const done = currentStep > idx;
       const active = currentStep === idx + 1;
+
       return (
         <div
           key={idx}
@@ -283,10 +289,10 @@ export const OrderDetailPage: React.FC = () => {
           </p>
           <Button
             as={Link}
-            to="/my-orders"
             color="primary"
-            variant="flat"
             radius="lg"
+            to="/my-orders"
+            variant="flat"
           >
             Ver mis pedidos
           </Button>
@@ -297,7 +303,8 @@ export const OrderDetailPage: React.FC = () => {
 
   const statusConfig = getStatusConfig(order.status);
   const isCancelled = order.status.toLowerCase() === "cancelled";
-  const subtotalValue = order.subtotal ?? order.total - (order.serviceCost ?? 0);
+  const subtotalValue =
+    order.subtotal ?? order.total - (order.serviceCost ?? 0);
   const delayed = isOrderDelayed(order.orderDate, order.status);
 
   return (
@@ -308,9 +315,9 @@ export const OrderDetailPage: React.FC = () => {
           {/* Back button */}
           <Button
             isIconOnly
+            className="mb-4 bg-default-100"
             radius="full"
             variant="flat"
-            className="mb-4 bg-default-100"
             onPress={() => navigate("/my-orders")}
           >
             <FaArrowLeft className="text-sm" />
@@ -330,9 +337,9 @@ export const OrderDetailPage: React.FC = () => {
             </div>
             <Chip
               className={`font-black text-sm px-3 py-1 ${statusConfig.bg} ${statusConfig.text} shrink-0 mt-1`}
+              color={statusConfig.color}
               startContent={statusConfig.icon}
               variant="flat"
-              color={statusConfig.color}
             >
               {statusConfig.label}
             </Chip>
@@ -340,10 +347,10 @@ export const OrderDetailPage: React.FC = () => {
           {delayed && (
             <div className="mt-3">
               <Chip
-                color="warning"
-                variant="flat"
                 className="font-bold"
+                color="warning"
                 startContent={<FaTriangleExclamation />}
+                variant="flat"
               >
                 Entrega demorada
               </Chip>
@@ -353,9 +360,9 @@ export const OrderDetailPage: React.FC = () => {
           <div className="mt-6">
             <Button
               className="bg-success text-white font-black w-full sm:w-auto"
+              isLoading={isDownloading}
               radius="lg"
               startContent={<FaFilePdf />}
-              isLoading={isDownloading}
               onPress={() => downloadInvoice(order.id)}
             >
               Descargar Factura PDF
@@ -367,10 +374,10 @@ export const OrderDetailPage: React.FC = () => {
       <div className="container mx-auto max-w-2xl px-4 py-5 space-y-4">
         {showPurchaseSuccess && (
           <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.5 }}
             className="relative overflow-hidden rounded-3xl border border-success/30 bg-gradient-to-br from-success-50 via-content1 to-warning-50 p-5 md:p-6"
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            transition={{ duration: 0.5 }}
           >
             <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-success/10 blur-2xl" />
             <div className="absolute -left-10 -bottom-12 h-36 w-36 rounded-full bg-warning/10 blur-2xl" />
@@ -378,16 +385,16 @@ export const OrderDetailPage: React.FC = () => {
             <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-5">
               <div className="relative w-20 h-20 shrink-0">
                 <motion.div
-                  initial={{ scale: 0.7, opacity: 0, rotate: -120 }}
                   animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                  transition={{ duration: 0.7, type: "spring" }}
                   className="absolute inset-0 rounded-full bg-white shadow-xl shadow-success/20 border border-success/20 flex items-center justify-center"
+                  initial={{ scale: 0.7, opacity: 0, rotate: -120 }}
+                  transition={{ duration: 0.7, type: "spring" }}
                 >
                   <motion.img
-                    src={logoImage}
                     alt="Click Market"
-                    className="w-12 h-12 object-contain"
                     animate={{ rotate: [0, 20, -16, 8, 0] }}
+                    className="w-12 h-12 object-contain"
+                    src={logoImage}
                     transition={{ duration: 1.4, ease: "easeInOut" }}
                   />
                 </motion.div>
@@ -395,19 +402,19 @@ export const OrderDetailPage: React.FC = () => {
                 {[...Array(8)].map((_, i) => (
                   <motion.span
                     key={`spark-${i}`}
-                    initial={{ scale: 0, opacity: 0, x: 0, y: 0 }}
                     animate={{
                       scale: [0, 1, 0.6],
                       opacity: [0, 1, 0],
                       x: Math.cos((i * Math.PI) / 4) * 42,
                       y: Math.sin((i * Math.PI) / 4) * 42,
                     }}
+                    className="absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-success"
+                    initial={{ scale: 0, opacity: 0, x: 0, y: 0 }}
                     transition={{
                       delay: 0.25 + i * 0.04,
                       duration: 0.8,
                       ease: "easeOut",
                     }}
-                    className="absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-success"
                   />
                 ))}
               </div>
@@ -422,7 +429,8 @@ export const OrderDetailPage: React.FC = () => {
                 <p className="text-sm md:text-base text-default-600 mt-2">
                   Tu pedido{" "}
                   <span className="font-bold text-default-800">
-                    {order.orderNumber || `#${order.id.slice(-6).toUpperCase()}`}
+                    {order.orderNumber ||
+                      `#${order.id.slice(-6).toUpperCase()}`}
                   </span>{" "}
                   ya está en preparación. Entrega estimada:{" "}
                   <span className="font-bold text-default-800">
@@ -433,10 +441,10 @@ export const OrderDetailPage: React.FC = () => {
                 <div className="mt-4">
                   <Button
                     className="bg-success text-white font-black"
+                    isLoading={isDownloading}
                     radius="lg"
                     size="sm"
                     startContent={<FaFilePdf />}
-                    isLoading={isDownloading}
                     onPress={() => downloadInvoice(order.id)}
                   >
                     Descargar factura
@@ -450,10 +458,10 @@ export const OrderDetailPage: React.FC = () => {
         {/* ── Timeline de progreso (solo si no cancelado) ── */}
         {!isCancelled && (
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
             className="bg-content1 rounded-3xl shadow-sm border border-divider p-5"
+            initial={{ opacity: 0, y: 12 }}
+            transition={{ delay: 0.05 }}
           >
             <p className="text-[10px] font-black uppercase tracking-widest text-default-400 mb-5">
               Estado del Pedido
@@ -464,10 +472,10 @@ export const OrderDetailPage: React.FC = () => {
 
         {/* ── Productos ── */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
           className="bg-content1 rounded-3xl shadow-sm border border-divider overflow-hidden"
+          initial={{ opacity: 0, y: 12 }}
+          transition={{ delay: 0.1 }}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-divider">
@@ -493,9 +501,9 @@ export const OrderDetailPage: React.FC = () => {
                 <div className="w-14 h-14 shrink-0 rounded-2xl overflow-hidden bg-default-50 border border-divider">
                   {item.product.imageUrl ? (
                     <img
-                      src={item.product.imageUrl}
                       alt={item.product.name}
                       className="w-full h-full object-cover"
+                      src={item.product.imageUrl}
                     />
                   ) : (
                     <div className="flex items-center justify-center w-full h-full text-default-300">
@@ -535,10 +543,10 @@ export const OrderDetailPage: React.FC = () => {
 
         {/* ── Resumen de precios ── */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
           className="bg-content1 rounded-3xl shadow-sm border border-divider p-5"
+          initial={{ opacity: 0, y: 12 }}
+          transition={{ delay: 0.15 }}
         >
           <div className="flex items-center gap-2 mb-4">
             <FaReceipt className="text-success" />
@@ -566,9 +574,7 @@ export const OrderDetailPage: React.FC = () => {
               </div>
               <span
                 className={`text-sm font-bold ${
-                  order.serviceCost === 0
-                    ? "text-success"
-                    : "text-default-700"
+                  order.serviceCost === 0 ? "text-success" : "text-default-700"
                 }`}
               >
                 {order.serviceCost === 0
@@ -596,10 +602,10 @@ export const OrderDetailPage: React.FC = () => {
                 Método de pago
               </div>
               <Chip
+                className="text-xs font-bold"
                 color="default"
                 size="sm"
                 variant="flat"
-                className="text-xs font-bold"
               >
                 {paymentLabel(order.payment.method)}
               </Chip>
@@ -609,10 +615,10 @@ export const OrderDetailPage: React.FC = () => {
 
         {/* ── Datos de envío ── */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
           className="bg-content1 rounded-3xl shadow-sm border border-divider p-5"
+          initial={{ opacity: 0, y: 12 }}
+          transition={{ delay: 0.2 }}
         >
           <div className="flex items-center gap-2 mb-4">
             <FaLocationDot className="text-primary" />
@@ -668,8 +674,8 @@ export const OrderDetailPage: React.FC = () => {
         {/* ── CTA confirmar recepción ── */}
         {order.status === "On Way" && (
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 12 }}
             transition={{ delay: 0.25 }}
           >
             <Button
@@ -689,12 +695,12 @@ export const OrderDetailPage: React.FC = () => {
         {/* ── Volver ── */}
         <Button
           as={Link}
-          to="/my-orders"
-          variant="flat"
+          className="w-full"
           color="default"
           radius="lg"
-          className="w-full"
           startContent={<FaArrowLeft className="text-xs" />}
+          to="/my-orders"
+          variant="flat"
         >
           Volver a mis pedidos
         </Button>

@@ -22,8 +22,10 @@ const buildAdminOrdersUrl = ({
   endDate,
 }: UseAdminOrdersParams) => {
   let url = `/orders/admin/all?page=${page}`;
+
   if (startDate) url += `&startDate=${startDate}`;
   if (endDate) url += `&endDate=${endDate}`;
+
   return url;
 };
 
@@ -69,6 +71,7 @@ export const useAdminAllOrders = ({
 
       if (pages > 1) {
         const requests: Promise<any>[] = [];
+
         for (let page = 2; page <= pages; page += 1) {
           requests.push(
             apiClient.get(buildAdminOrdersUrl({ page, startDate, endDate })),
@@ -76,6 +79,7 @@ export const useAdminAllOrders = ({
         }
 
         const responses = await Promise.all(requests);
+
         for (const response of responses) {
           allRawOrders.push(...(response.data?.orders || []));
         }
@@ -137,6 +141,7 @@ export const useOrderInvoice = () => {
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
+
       link.href = url;
       link.setAttribute(
         "download",

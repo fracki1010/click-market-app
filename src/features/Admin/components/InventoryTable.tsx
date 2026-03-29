@@ -21,6 +21,7 @@ import {
 } from "@heroui/react";
 import { FaPencil, FaTrash } from "react-icons/fa6";
 import { FiEye } from "react-icons/fi";
+
 import { formatPrice } from "@/utils/currencyFormat";
 
 // Definición de tipos para la tabla
@@ -62,9 +63,9 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
             src: info.row.original.imageUrl,
             className: "cursor-pointer",
           }}
+          className="cursor-pointer hover:text-indigo-600 transition-colors"
           description={info.row.original.sku}
           name={info.getValue()}
-          className="cursor-pointer hover:text-indigo-600 transition-colors"
           onClick={() => navigate(`/admin/inventory/${info.row.original.id}`)}
         >
           {info.getValue()}

@@ -1,7 +1,9 @@
+import type { AdminNavItem } from "../hooks/useAdminNavigationItems";
+
 import { NavLink } from "react-router";
 import { motion } from "framer-motion";
 
-import type { AdminNavItem } from "../hooks/useAdminNavigationItems";
+import { warmupRouteOnIntent } from "@/routes/routeWarmup";
 
 interface AdminNavLinkProps {
   item: AdminNavItem;
@@ -11,8 +13,10 @@ export const AdminNavLink = ({ item }: AdminNavLinkProps) => {
   return (
     <NavLink
       className="relative flex min-w-14 flex-col items-center gap-1 group focus:outline-none"
-      to={item.to}
       end={item.to === "/home"}
+      to={item.to}
+      onMouseEnter={() => warmupRouteOnIntent(item.to)}
+      onTouchStart={() => warmupRouteOnIntent(item.to)}
     >
       {({ isActive }) => (
         <>

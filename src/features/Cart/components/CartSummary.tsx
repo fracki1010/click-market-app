@@ -1,5 +1,4 @@
 import React from "react";
-import { formatPrice } from "@/utils/currencyFormat";
 import { Link, useNavigate } from "react-router";
 import { Chip, Button, Progress } from "@heroui/react";
 import {
@@ -11,8 +10,9 @@ import {
 
 import { useCart } from "../hooks/useCart";
 import { useAuth } from "../../Auth/hooks/useAuth";
-
 import { useShippingSettings } from "../../Settings/hooks/useShippingSettings";
+
+import { formatPrice } from "@/utils/currencyFormat";
 
 interface CartSummaryProps {
   subtotal: number;
@@ -48,6 +48,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
       navigate("/login", {
         state: { from: { pathname: "/checkout" } },
       });
+
       return;
     }
     navigate("/checkout");
@@ -74,10 +75,10 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
             {serviceCost === 0 && <FaCircleCheck className="text-success" />}
           </div>
           <Progress
+            className="mb-2"
             color={serviceCost === 0 ? "success" : "warning"}
             size="md"
             value={progressValue}
-            className="mb-2"
           />
           {remainingForFreeShipping > 0 ? (
             <p className="text-xs text-default-500">
@@ -154,8 +155,8 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
               items.length === 0
                 ? ""
                 : !minimumReached
-                ? ""
-                : "bg-primary hover:bg-primary-600 text-white"
+                  ? ""
+                  : "bg-primary hover:bg-primary-600 text-white"
             }`}
           disabled={items.length === 0 || !minimumReached}
           endContent={items.length > 0 ? <FaArrowRight /> : null}

@@ -8,6 +8,7 @@ import {
 } from "react-icons/fi";
 import { FaCcVisa, FaCcMastercard, FaCcPaypal } from "react-icons/fa6";
 import { Link } from "react-router";
+
 import Logo from "../../assets/Recurso 1.svg";
 
 export const Footer = () => {
@@ -21,7 +22,7 @@ export const Footer = () => {
               className="flex items-center gap-2 text-primary font-black text-2xl tracking-tight"
               to="/"
             >
-              <img src={Logo} alt="Logo" className="w-10 h-10" />
+              <img alt="Logo" className="w-10 h-10" src={Logo} />
               <span>Click Market</span>
             </Link>
             <p className="text-sm leading-relaxed max-w-xs">
@@ -30,20 +31,20 @@ export const Footer = () => {
             </p>
             <div className="flex gap-4">
               <a
-                href="#"
                 className="p-2 bg-gray-50 dark:bg-neutral-900 rounded-full hover:text-indigo-600 transition-colors"
+                href="#"
               >
                 <FiInstagram size={18} />
               </a>
               <a
-                href="#"
                 className="p-2 bg-gray-50 dark:bg-neutral-900 rounded-full hover:text-indigo-600 transition-colors"
+                href="#"
               >
                 <FiFacebook size={18} />
               </a>
               <a
-                href="#"
                 className="p-2 bg-gray-50 dark:bg-neutral-900 rounded-full hover:text-indigo-600 transition-colors"
+                href="#"
               >
                 <FiTwitter size={18} />
               </a>
@@ -58,16 +59,16 @@ export const Footer = () => {
             <ul className="space-y-3 text-sm">
               <li>
                 <Link
-                  to="/products"
                   className="hover:text-primary transition-colors"
+                  to="/products"
                 >
                   Todos los productos
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/products?categories=OFERTAS"
                   className="hover:text-primary transition-colors text-secondary font-medium"
+                  to="/products?categories=OFERTAS"
                 >
                   Ofertas del día
                 </Link>
@@ -82,16 +83,16 @@ export const Footer = () => {
               </li> */}
               <li>
                 <Link
-                  to="/zonas-de-entrega"
                   className="hover:text-primary transition-colors"
+                  to="/zonas-de-entrega"
                 >
                   Zonas de entrega
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/nosotros"
                   className="hover:text-primary transition-colors"
+                  to="/nosotros"
                 >
                   Quiénes somos
                 </Link>
@@ -142,7 +143,7 @@ export const Footer = () => {
               <p className="text-xs font-bold text-default-400 mb-2 italic">
                 100% SEGURO
               </p>
-              <div className="h-0.5 w-12 bg-primary rounded-full"></div>
+              <div className="h-0.5 w-12 bg-primary rounded-full" />
             </div>
           </div>
         </div>
@@ -154,13 +155,13 @@ export const Footer = () => {
             barrio.
           </p>
           <div className="flex gap-6">
-            <Link to="/privacidad" className="hover:text-primary">
+            <Link className="hover:text-primary" to="/privacidad">
               Privacidad
             </Link>
-            <Link to="/terminos" className="hover:text-primary">
+            <Link className="hover:text-primary" to="/terminos">
               Términos
             </Link>
-            <Link to="/condiciones" className="hover:text-primary">
+            <Link className="hover:text-primary" to="/condiciones">
               Condiciones
             </Link>
           </div>

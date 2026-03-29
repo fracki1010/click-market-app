@@ -10,12 +10,12 @@ export const LoadingComponent = () => {
           scale: [1, 1.1, 1],
           opacity: [0.8, 1, 0.8],
         }}
+        className="relative"
         transition={{
           duration: 1.5,
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="relative"
       >
         <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150" />
         <img

@@ -17,10 +17,11 @@ import {
   FaTriangleExclamation,
 } from "react-icons/fa6";
 import { motion } from "framer-motion";
-import { formatPrice } from "@/utils/currencyFormat";
 
 import { useMyOrders, useUpdateOrderStatus } from "../hook/useOrder";
 import { OrderItemRow } from "../components/OrderItemRow";
+
+import { formatPrice } from "@/utils/currencyFormat";
 
 const getStatusConfig = (status: string) => {
   const s = status.toLowerCase();
@@ -96,20 +97,22 @@ const formatTime = (dateString: string) => {
 
 const getDeliveryDisplay = (orderDate: string) => {
   const scheduledDate = new Date(orderDate);
+
   scheduledDate.setDate(scheduledDate.getDate() + 1);
 
   const scheduledStart = new Date(scheduledDate);
+
   scheduledStart.setHours(0, 0, 0, 0);
 
   const todayStart = new Date();
+
   todayStart.setHours(0, 0, 0, 0);
 
   const diffDays = Math.round(
     (scheduledStart.getTime() - todayStart.getTime()) / (1000 * 60 * 60 * 24),
   );
 
-  const relativeLabel =
-    diffDays === 0 ? "hoy" : diffDays === 1 ? "mañana" : "";
+  const relativeLabel = diffDays === 0 ? "hoy" : diffDays === 1 ? "mañana" : "";
 
   const exactDate = new Intl.DateTimeFormat("es-AR", {
     weekday: "long",
@@ -123,12 +126,14 @@ const getDeliveryDisplay = (orderDate: string) => {
 
 const isOrderDelayed = (orderDate: string, status: string) => {
   const normalizedStatus = status.toLowerCase();
+
   if (normalizedStatus === "completed" || normalizedStatus === "cancelled") {
     return false;
   }
 
   const createdAt = new Date(orderDate);
   const deadline = new Date(createdAt);
+
   deadline.setDate(deadline.getDate() + 1);
   deadline.setHours(20, 0, 0, 0);
 
@@ -159,8 +164,8 @@ export const OrderPage: React.FC = () => {
             ¡Ups! Algo salió mal
           </p>
           <Button
-            variant="flat"
             color="danger"
+            variant="flat"
             onPress={() => window.location.reload()}
           >
             Reintentar
@@ -177,10 +182,10 @@ export const OrderPage: React.FC = () => {
           <div className="flex items-center gap-6">
             <Button
               isIconOnly
+              className="bg-default-100"
               radius="full"
               variant="flat"
               onPress={() => navigate("/products")}
-              className="bg-default-100"
             >
               <FaArrowLeft />
             </Button>
@@ -200,9 +205,9 @@ export const OrderPage: React.FC = () => {
       <div className="container mx-auto max-w-4xl px-4 py-12">
         {orders.length === 0 ? (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-20 bg-content1 rounded-[3rem] shadow-sm border border-divider p-12"
+            initial={{ opacity: 0, y: 20 }}
           >
             <div className="relative w-32 h-32 mx-auto mb-8">
               <div className="absolute inset-0 bg-default-100 rounded-full scale-110" />
@@ -218,9 +223,9 @@ export const OrderPage: React.FC = () => {
               mismo!
             </p>
             <Button
-              onPress={() => navigate("/products")}
               className="bg-success text-white font-black px-10 h-14 text-lg shadow-xl shadow-success/20"
               radius="full"
+              onPress={() => navigate("/products")}
             >
               Ir al Supermercado
             </Button>
@@ -229,23 +234,24 @@ export const OrderPage: React.FC = () => {
           <div className="space-y-6">
             <Accordion
               className="px-0 gap-6"
-              variant="splitted"
               itemClasses={{
                 base: "group-[.is-splitted]:bg-content1 group-[.is-splitted]:shadow-sm group-[.is-splitted]:rounded-[2rem] border border-divider overflow-hidden",
                 title: "w-full",
                 trigger: "px-4 sm:px-6 py-4",
                 content: "px-4 sm:px-6 pb-5 sm:pb-6 pt-0",
               }}
+              variant="splitted"
             >
               {orders.map((order) => {
                 const statusConfig = getStatusConfig(order.status);
                 const delayed = isOrderDelayed(order.orderDate, order.status);
-                const statusIcon = statusConfig.icon
-                  ? React.cloneElement(
-                      statusConfig.icon as React.ReactElement,
-                      { size: 20 },
-                    )
-                  : <FaReceipt size={20} />;
+                const statusIcon = statusConfig.icon ? (
+                  React.cloneElement(statusConfig.icon as React.ReactElement, {
+                    size: 20,
+                  })
+                ) : (
+                  <FaReceipt size={20} />
+                );
 
                 return (
                   <AccordionItem
@@ -298,9 +304,9 @@ export const OrderPage: React.FC = () => {
                     }
                   >
                     <motion.div
-                      initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="space-y-6 pt-4"
+                      initial={{ opacity: 0 }}
                     >
                       {/* Tracking Card */}
                       <div className="bg-default-50 p-6 rounded-[1.5rem] border border-divider">
@@ -383,12 +389,12 @@ export const OrderPage: React.FC = () => {
                       {/* Actions */}
                       <div className="flex gap-3 pt-4">
                         <Button
-                          onPress={() => navigate(`/my-orders/${order.id}`)}
                           className="flex-1 font-black"
                           color="primary"
-                          radius="lg"
                           endContent={<FaArrowRight />}
+                          radius="lg"
                           variant="flat"
+                          onPress={() => navigate(`/my-orders/${order.id}`)}
                         >
                           Ver detalle completo
                         </Button>

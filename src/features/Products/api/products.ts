@@ -108,6 +108,7 @@ export async function getMarkup(): Promise<{ markupPercentage: number }> {
   const response = await apiClient.get<{ markupPercentage: number }>(
     "/settings/markup",
   );
+
   return response.data;
 }
 
@@ -119,6 +120,7 @@ export async function updateMarkup(
     "/settings/markup",
     { markupPercentage: normalizedMarkup },
   );
+
   return response.data;
 }
 
@@ -128,5 +130,6 @@ export async function getMarkupProgress(): Promise<{
   status: string;
 }> {
   const response = await apiClient.get<any>("/settings/markup/progress");
+
   return response.data;
 }

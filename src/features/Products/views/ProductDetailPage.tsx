@@ -17,19 +17,21 @@ import {
   FiTruck,
   FiShield,
   FiCheckCircle,
+  FiImage,
 } from "react-icons/fi";
 import { FaStar } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { useProduct } from "../hooks/useProduct";
-import { useCart } from "@/features/Cart/hooks/useCart";
-import { useToast } from "@/components/ui/ToastProvider";
-import { formatPrice } from "@/utils/currencyFormat";
 import {
   getRatingFromTopSellerRank,
   getReviewCountFromTopSellerRank,
   getVisualStarsCount,
 } from "../utils/topSellerRating";
+
+import { useCart } from "@/features/Cart/hooks/useCart";
+import { useToast } from "@/components/ui/ToastProvider";
+import { formatPrice } from "@/utils/currencyFormat";
 
 const DEFAULT_STOCK_MOCK = 15;
 
@@ -43,6 +45,7 @@ export const ProductDetailPage: React.FC = () => {
   const { data: product, isLoading, isError } = useProduct(productId);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState("");
+  const [activeImageError, setActiveImageError] = useState(false);
 
   useEffect(() => {
     if (product?.imageUrl) {
@@ -50,6 +53,10 @@ export const ProductDetailPage: React.FC = () => {
     }
     window.scrollTo(0, 0);
   }, [product]);
+
+  useEffect(() => {
+    setActiveImageError(false);
+  }, [activeImage]);
 
   const currentStock = (product as any)?.stock ?? DEFAULT_STOCK_MOCK;
   const isOutOfStock = currentStock === 0;
@@ -60,8 +67,10 @@ export const ProductDetailPage: React.FC = () => {
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => {
       const newVal = prev + delta;
+
       if (newVal < 1) return 1;
       if (newVal > currentStock) return currentStock;
+
       return newVal;
     });
   };
@@ -74,7 +83,7 @@ export const ProductDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-neutral-950 flex flex-col">
+      <div className="min-h-screen-safe flex flex-col bg-background">
         <div className="container mx-auto px-4 py-12 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             <Skeleton className="aspect-square rounded-[3rem]" />
@@ -99,11 +108,11 @@ export const ProductDetailPage: React.FC = () => {
 
   if (isError || !product) {
     return (
-      <div className="min-h-screen bg-white dark:bg-neutral-950 flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen-safe flex flex-col items-center justify-center bg-background p-4">
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className="text-center space-y-6"
+          initial={{ scale: 0.9, opacity: 0 }}
         >
           <div className="text-8xl">🏜️</div>
           <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
@@ -121,9 +130,9 @@ export const ProductDetailPage: React.FC = () => {
   }
 
   return (
-    <main className="min-h-screen bg-white dark:bg-neutral-950 flex flex-col pb-32 lg:pb-12">
+    <main className="min-h-screen-safe flex flex-col bg-background pb-20 md:pb-10">
       {/* Volver y Navegación */}
-      <div className="sticky top-[72px] z-40 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-neutral-900 py-4">
+      <div className="sticky top-[var(--app-header-height)] z-40 border-b border-divider bg-background/90 py-3 backdrop-blur-xl">
         <div className="container mx-auto max-w-7xl px-4 flex items-center justify-between">
           <Button
             className="bg-transparent hover:bg-gray-100 dark:hover:bg-neutral-900 font-bold text-xs uppercase tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -133,16 +142,16 @@ export const ProductDetailPage: React.FC = () => {
             Atrás
           </Button>
           <div className="hidden md:block">
-            <Breadcrumbs size="sm" classNames={{ list: "gap-2" }}>
+            <Breadcrumbs classNames={{ list: "gap-2" }} size="sm">
               <BreadcrumbItem
-                onPress={() => navigate("/home")}
                 className="font-bold text-[10px] uppercase tracking-wider text-gray-400"
+                onPress={() => navigate("/home")}
               >
                 Inicio
               </BreadcrumbItem>
               <BreadcrumbItem
-                onPress={() => navigate("/products")}
                 className="font-bold text-[10px] uppercase tracking-wider text-gray-400"
+                onPress={() => navigate("/products")}
               >
                 Catálogo
               </BreadcrumbItem>
@@ -169,23 +178,37 @@ export const ProductDetailPage: React.FC = () => {
           {/* Lado Izquierdo: Galería Immersiva */}
           <div className="relative group">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="relative aspect-square rounded-[3rem] overflow-hidden bg-gray-50 dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 shadow-2xl shadow-indigo-500/5 flex items-center justify-center p-8 lg:p-12"
+              initial={{ opacity: 0, y: 20 }}
             >
               <AnimatePresence mode="wait">
-                <motion.img
-                  key={activeImage}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.05 }}
-                  transition={{ duration: 0.4, ease: "circOut" }}
-                  alt={product.name}
-                  className="w-full h-full object-contain drop-shadow-2xl"
-                  src={
-                    activeImage || "https://placehold.co/800x800?text=No+Data"
-                  }
-                />
+                {activeImage && !activeImageError ? (
+                  <motion.img
+                    key={activeImage}
+                    alt={product.name}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="w-full h-full object-contain drop-shadow-2xl"
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    src={activeImage}
+                    transition={{ duration: 0.4, ease: "circOut" }}
+                    onError={() => setActiveImageError(true)}
+                  />
+                ) : (
+                  <motion.div
+                    key="product-image-fallback"
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-neutral-500"
+                    exit={{ opacity: 0, scale: 1.02 }}
+                    initial={{ opacity: 0, scale: 0.98 }}
+                  >
+                    <FiImage size={44} />
+                    <span className="mt-3 text-xs font-black uppercase tracking-widest">
+                      Sin imagen
+                    </span>
+                  </motion.div>
+                )}
               </AnimatePresence>
 
               {/* Badges de producto */}
@@ -211,14 +234,24 @@ export const ProductDetailPage: React.FC = () => {
                 (img, i) => (
                   <button
                     key={i}
+                    className={`relative w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all ${activeImage === img ? "border-indigo-600 scale-105 shadow-lg shadow-indigo-600/20" : "border-gray-100 dark:border-neutral-800 opacity-60 hover:opacity-100"}`}
                     onClick={() => setActiveImage(img || "")}
-                    className={`w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all ${activeImage === img ? "border-indigo-600 scale-105 shadow-lg shadow-indigo-600/20" : "border-gray-100 dark:border-neutral-800 opacity-60 hover:opacity-100"}`}
                   >
-                    <img
-                      src={img}
-                      className="w-full h-full object-cover"
-                      alt="prev"
-                    />
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-neutral-900 text-gray-400 dark:text-neutral-500">
+                      <FiImage size={16} />
+                      {img && (
+                        <img
+                          alt="prev"
+                          className="absolute inset-0 w-full h-full object-cover"
+                          src={img}
+                          onError={(e) => {
+                            (
+                              e.currentTarget as HTMLImageElement
+                            ).style.opacity = "0";
+                          }}
+                        />
+                      )}
+                    </div>
                   </button>
                 ),
               )}
@@ -228,13 +261,13 @@ export const ProductDetailPage: React.FC = () => {
           {/* Lado Derecho: Información refinada */}
           <div className="flex flex-col justify-center space-y-8">
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
               className="space-y-4"
+              initial={{ opacity: 0, x: 20 }}
+              transition={{ delay: 0.2 }}
             >
               <div className="flex items-center gap-3">
-                <div className="h-1 w-12 bg-indigo-500 rounded-full"></div>
+                <div className="h-1 w-12 bg-indigo-500 rounded-full" />
                 <span className="text-indigo-600 dark:text-indigo-400 font-black text-[10px] uppercase tracking-[0.4em]">
                   Detalles
                 </span>
@@ -250,7 +283,9 @@ export const ProductDetailPage: React.FC = () => {
                     {Array.from({ length: 5 }).map((_, index) => (
                       <FaStar
                         key={index}
-                        className={index < visualStars ? "opacity-100" : "opacity-30"}
+                        className={
+                          index < visualStars ? "opacity-100" : "opacity-30"
+                        }
                         size={13}
                       />
                     ))}
@@ -258,7 +293,9 @@ export const ProductDetailPage: React.FC = () => {
                   <span className="text-xs font-black text-gray-500 dark:text-neutral-400">
                     {topSellerRating.toFixed(1)}
                     {reviewCount ? ` (${reviewCount})` : ""}
-                    {product.topSellerRank ? ` · TOP #${product.topSellerRank}` : ""}
+                    {product.topSellerRank
+                      ? ` · TOP #${product.topSellerRank}`
+                      : ""}
                   </span>
                 </div>
               )}
@@ -274,10 +311,10 @@ export const ProductDetailPage: React.FC = () => {
             </motion.div>
 
             <motion.p
-              initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
               className="text-gray-500 dark:text-neutral-400 text-lg leading-relaxed font-medium"
+              initial={{ opacity: 0 }}
+              transition={{ delay: 0.3 }}
             >
               {product.description ||
                 "Este producto ha sido cuidadosamente seleccionado por Click Market para garantizar la mejor calidad y satisfacción. Disfruta de un diseño elegante y funcional que se adapta a tu estilo de vida."}
@@ -333,11 +370,11 @@ export const ProductDetailPage: React.FC = () => {
               <div className="flex items-center bg-gray-50 dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 rounded-2xl h-16 p-2">
                 <Button
                   isIconOnly
-                  variant="light"
-                  size="sm"
-                  radius="md"
-                  onClick={() => handleQuantityChange(-1)}
                   isDisabled={quantity <= 1}
+                  radius="md"
+                  size="sm"
+                  variant="light"
+                  onClick={() => handleQuantityChange(-1)}
                 >
                   <FiMinus size={18} />
                 </Button>
@@ -346,11 +383,11 @@ export const ProductDetailPage: React.FC = () => {
                 </span>
                 <Button
                   isIconOnly
-                  variant="light"
-                  size="sm"
-                  radius="md"
-                  onClick={() => handleQuantityChange(1)}
                   isDisabled={quantity >= currentStock}
+                  radius="md"
+                  size="sm"
+                  variant="light"
+                  onClick={() => handleQuantityChange(1)}
                 >
                   <FiPlus size={18} />
                 </Button>
@@ -358,9 +395,9 @@ export const ProductDetailPage: React.FC = () => {
               <Button
                 fullWidth
                 className="bg-indigo-600 hover:bg-indigo-700 text-white h-16 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-indigo-600/30 transition-transform active:scale-95"
+                isDisabled={isOutOfStock}
                 startContent={<FiShoppingBag size={20} />}
                 onPress={handleAddToCart}
-                isDisabled={isOutOfStock}
               >
                 {isOutOfStock ? "Sin Stock" : "Agregar a la bolsa"}
               </Button>
@@ -371,19 +408,19 @@ export const ProductDetailPage: React.FC = () => {
 
       {/* Mobile Sticky Bar */}
       <motion.div
-        initial={{ y: 100 }}
         animate={{ y: 0 }}
         className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-neutral-950/90 backdrop-blur-2xl border-t border-gray-100 dark:border-neutral-900 p-6 z-50 lg:hidden shadow-[0_-20px_40px_rgba(0,0,0,0.05)]"
+        initial={{ y: 100 }}
       >
         <div className="flex items-center gap-4">
           <div className="flex items-center bg-gray-50 dark:bg-neutral-900 rounded-2xl p-1 shrink-0">
             <Button
               isIconOnly
-              variant="light"
-              size="sm"
               className="min-w-unit-10 h-10"
-              onClick={() => handleQuantityChange(-1)}
               isDisabled={quantity <= 1}
+              size="sm"
+              variant="light"
+              onClick={() => handleQuantityChange(-1)}
             >
               <FiMinus />
             </Button>
@@ -392,11 +429,11 @@ export const ProductDetailPage: React.FC = () => {
             </span>
             <Button
               isIconOnly
-              variant="light"
-              size="sm"
               className="min-w-unit-10 h-10"
-              onClick={() => handleQuantityChange(1)}
               isDisabled={quantity >= currentStock}
+              size="sm"
+              variant="light"
+              onClick={() => handleQuantityChange(1)}
             >
               <FiPlus />
             </Button>
@@ -404,9 +441,9 @@ export const ProductDetailPage: React.FC = () => {
           <Button
             fullWidth
             className="bg-indigo-600 text-white h-14 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-600/20"
+            isDisabled={isOutOfStock}
             startContent={<FiShoppingBag />}
             onPress={handleAddToCart}
-            isDisabled={isOutOfStock}
           >
             {isOutOfStock ? "Sin Stock" : "Agregar"}
           </Button>

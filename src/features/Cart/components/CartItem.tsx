@@ -1,12 +1,13 @@
 // src/features/Cart/components/CartItem.tsx
 import React from "react";
-import { formatPrice } from "@/utils/currencyFormat";
 import { motion } from "framer-motion";
 import { FaTrashCan, FaMinus, FaPlus } from "react-icons/fa6";
 import { Button } from "@heroui/react";
 
 import { useCart } from "../hooks/useCart";
 import { useToast } from "../../../components/ui/ToastProvider";
+
+import { formatPrice } from "@/utils/currencyFormat";
 
 interface CartItemData {
   cartId?: string;
@@ -28,6 +29,7 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
   const handleQuantityChange = (delta: number) => {
     const newQuantity = item.quantity + delta;
+
     if (newQuantity < 1) return;
     updateItem(item.productId, newQuantity);
   };
@@ -35,11 +37,11 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.3 }}
       className="group relative flex flex-col sm:flex-row items-center gap-4 py-6 px-4 -mx-4 sm:mx-0 hover:bg-default-50 transition-all rounded-2xl"
+      exit={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, y: 20 }}
+      transition={{ duration: 0.3 }}
     >
       {/* Imagen Section */}
       <div className="relative w-full sm:w-24 h-48 sm:h-24 flex-shrink-0">
