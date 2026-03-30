@@ -295,13 +295,13 @@ export const CheckoutPage: React.FC = () => {
                           whileHover={{ scale: 1.01 }}
                           onClick={() => {
                             setSelectedAddressId(addr._id);
-                            void setDefaultAddress(addr._id);
                           }}
                         >
                           <AddressCard
                             address={addr}
                             isLoading={addressesLoading}
-                            onSetDefault={setDefaultAddress}
+                            showDefaultBadge={false}
+                            showSetDefaultAction={false}
                           />
                           {isSelected && (
                             <div className="absolute -top-2 -right-2">

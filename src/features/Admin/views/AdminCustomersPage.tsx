@@ -81,7 +81,7 @@ export const AdminCustomersPage: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col gap-5 max-w-5xl mx-auto pb-10">
+    <div className="flex flex-col gap-5 max-w-5xl mx-auto pb-[calc(var(--app-bottom-nav-height)+env(safe-area-inset-bottom,0px)+16px)] md:pb-10">
       <Card className="shadow-sm border border-slate-100 dark:border-zinc-800">
         <CardBody className="p-5 md:p-6">
           <div className="flex flex-col gap-4">

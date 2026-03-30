@@ -25,7 +25,7 @@ export const Navigation = () => {
   const cartCount = items.length;
 
   return (
-    <nav className="pb-safe fixed bottom-0 left-0 right-0 z-50 flex h-[var(--app-bottom-nav-height)] items-center justify-around border-t border-divider bg-background/90 px-2 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl transition-colors md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-[calc(var(--app-bottom-nav-height)+env(safe-area-inset-bottom,0px))] items-center justify-around border-t border-divider bg-background/90 px-2 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] backdrop-blur-xl transition-colors md:hidden">
       {navItems.map((item) => (
         <NavLink
           key={item.to}

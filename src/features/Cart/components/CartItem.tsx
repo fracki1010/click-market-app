@@ -20,9 +20,13 @@ interface CartItemData {
 
 interface CartItemProps {
   item: CartItemData;
+  viewMode?: "cards" | "compact";
 }
 
-export const CartItem: React.FC<CartItemProps> = ({ item }) => {
+export const CartItem: React.FC<CartItemProps> = ({
+  item,
+  viewMode = "cards",
+}) => {
   const itemTotal = formatPrice(item.price * item.quantity);
   const { removeItem, updateItem } = useCart();
   const { addToast } = useToast();
@@ -33,6 +37,80 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
     if (newQuantity < 1) return;
     updateItem(item.productId, newQuantity);
   };
+
+  const handleRemove = () => {
+    removeItem(item.productId);
+    addToast(`${item.name} eliminado`, "info");
+  };
+
+  if (viewMode === "compact") {
+    return (
+      <motion.div
+        layout
+        animate={{ opacity: 1, y: 0 }}
+        className="group relative flex items-center gap-3 rounded-2xl border border-divider bg-content1 p-3"
+        exit={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, y: 20 }}
+        transition={{ duration: 0.25 }}
+      >
+        <img
+          alt={item.name}
+          className="h-16 w-16 rounded-xl object-cover"
+          src={item.image_url}
+        />
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-bold text-default-800">
+            {item.name}
+          </p>
+          <p className="text-xs text-default-500">
+            ${formatPrice(item.price)} c/u
+          </p>
+          <p className="text-sm font-extrabold text-success">${itemTotal}</p>
+        </div>
+
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center rounded-xl border border-divider bg-default-100 p-1">
+            <Button
+              isIconOnly
+              className="bg-background text-default-600 shadow-sm disabled:opacity-30"
+              isDisabled={item.quantity <= 1}
+              radius="lg"
+              size="sm"
+              variant="flat"
+              onClick={() => handleQuantityChange(-1)}
+            >
+              <FaMinus size={10} />
+            </Button>
+            <span className="w-8 text-center text-sm font-bold text-default-800">
+              {item.quantity}
+            </span>
+            <Button
+              isIconOnly
+              className="bg-background text-default-600 shadow-sm"
+              radius="lg"
+              size="sm"
+              variant="flat"
+              onClick={() => handleQuantityChange(1)}
+            >
+              <FaPlus size={10} />
+            </Button>
+          </div>
+
+          <Button
+            isIconOnly
+            className="text-default-400 hover:text-danger transition-colors"
+            radius="full"
+            size="sm"
+            variant="light"
+            onClick={handleRemove}
+          >
+            <FaTrashCan size={14} />
+          </Button>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -57,10 +135,7 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
             radius="full"
             size="sm"
             variant="flat"
-            onClick={() => {
-              removeItem(item.productId);
-              addToast(`${item.name} eliminado`, "info");
-            }}
+            onClick={handleRemove}
           >
             <FaTrashCan size={14} />
           </Button>
@@ -128,10 +203,7 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
               className="hidden sm:flex text-default-400 hover:text-danger transition-colors"
               radius="full"
               variant="light"
-              onClick={() => {
-                removeItem(item.productId);
-                addToast(`${item.name} eliminado`, "info");
-              }}
+              onClick={handleRemove}
             >
               <FaTrashCan size={18} />
             </Button>

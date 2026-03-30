@@ -2,7 +2,7 @@ import type { RootState } from "../../../store/store";
 import type { IProduct } from "../../Products/types/Product";
 import type { ICartItem } from "../types/Cart";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { cartStart, cartSuccess, cartFailure } from "../redux/cartSlice";
@@ -16,14 +16,50 @@ import {
 
 // Clave para localStorage
 const GUEST_CART_KEY = "educart_guest_cart";
+const CART_SYNC_DEBOUNCE_MS = 300;
 
 export function useCart() {
   const dispatch = useDispatch();
 
   const { user, token } = useSelector((state: RootState) => state.auth);
-  const { items, total, loading, error } = useSelector(
+  const { items, total, loading, error, cartId } = useSelector(
     (state: RootState) => state.cart,
   );
+  const itemsRef = useRef(items);
+  const pendingQuantitySyncRef = useRef<Record<string, number>>({});
+  const quantitySyncTimersRef = useRef<
+    Record<string, ReturnType<typeof setTimeout>>
+  >({});
+
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  const calculateTotal = (cartItems: ICartItem[]) =>
+    cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  const applyCartState = useCallback(
+    (cartItems: ICartItem[], nextCartId?: string) => {
+      dispatch(
+        cartSuccess({
+          items: cartItems,
+          total: calculateTotal(cartItems),
+          id: nextCartId ?? cartId ?? "0",
+          userId: user ? String(user.id) : "0",
+        }),
+      );
+    },
+    [dispatch, cartId, user],
+  );
+
+  const clearScheduledQuantitySync = useCallback((productId: string) => {
+    const activeTimer = quantitySyncTimersRef.current[productId];
+
+    if (activeTimer) {
+      clearTimeout(activeTimer);
+      delete quantitySyncTimersRef.current[productId];
+    }
+  }, []);
 
   const fetchCart = useCallback(async () => {
     dispatch(cartStart());
@@ -125,27 +161,43 @@ export function useCart() {
     }
   }, [user, token, dispatch]);
 
+  const scheduleQuantitySync = useCallback(
+    (productId: string, quantity: number) => {
+      pendingQuantitySyncRef.current[productId] = quantity;
+      clearScheduledQuantitySync(productId);
+
+      quantitySyncTimersRef.current[productId] = setTimeout(async () => {
+        const nextQuantity = pendingQuantitySyncRef.current[productId];
+
+        delete pendingQuantitySyncRef.current[productId];
+        delete quantitySyncTimersRef.current[productId];
+
+        if (typeof nextQuantity !== "number") return;
+
+        try {
+          await updateItemApi(productId, nextQuantity);
+        } catch (err) {
+          await fetchCart();
+          dispatch(cartFailure("Error al actualizar cantidad"));
+        }
+      }, CART_SYNC_DEBOUNCE_MS);
+    },
+    [clearScheduledQuantitySync, fetchCart, dispatch],
+  );
+
   // Helper para guardar en localStorage (Solo Invitados)
   const saveLocalCart = (newItems: ICartItem[]) => {
     localStorage.setItem(GUEST_CART_KEY, JSON.stringify(newItems));
-    const newTotal = newItems.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0,
-    );
-
-    dispatch(
-      cartSuccess({ items: newItems, total: newTotal, id: "0", userId: "0" }),
-    );
+    applyCartState(newItems, "0");
   };
 
   // AGREGAR ITEM
   const addItem = async (product: IProduct, quantity: number = 1) => {
-    dispatch(cartStart());
-
     // MODO INVITADO
     if (!user) {
-      const existingItem = items.find((i) => i.productId === product.id);
-      let newItems = [...items];
+      const currentItems = itemsRef.current;
+      const existingItem = currentItems.find((i) => i.productId === product.id);
+      let newItems = [...currentItems];
 
       if (existingItem) {
         // Si ya existe, sumamos cantidad
@@ -174,19 +226,39 @@ export function useCart() {
 
     // MODO CLIENTE (API)
     try {
+      const currentItems = itemsRef.current;
+      const existingItem = currentItems.find((i) => i.productId === product.id);
+      let optimisticItems = [...currentItems];
+
+      if (existingItem) {
+        optimisticItems = optimisticItems.map((i) =>
+          i.productId === product.id
+            ? { ...i, quantity: i.quantity + quantity }
+            : i,
+        );
+      } else {
+        optimisticItems.push({
+          cartId: cartId || "0",
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          quantity,
+          image_url: product.imageUrl || "",
+        });
+      }
+
+      applyCartState(optimisticItems);
       await addItemApi(product.id, quantity);
-      await fetchCart();
     } catch (err) {
+      await fetchCart();
       dispatch(cartFailure("Error al agregar producto"));
     }
   };
 
   const updateItem = async (productId: string, quantity: number) => {
-    dispatch(cartStart());
-
     // MODO INVITADO
     if (!user) {
-      const newItems = items.map((i) => {
+      const newItems = itemsRef.current.map((i) => {
         if (i.productId === productId) {
           return { ...i, quantity: quantity };
         }
@@ -201,19 +273,23 @@ export function useCart() {
 
     // MODO CLIENTE
     try {
-      await updateItemApi(productId, quantity);
-      await fetchCart();
+      const currentItems = itemsRef.current;
+      const optimisticItems = currentItems.map((i) =>
+        i.productId === productId ? { ...i, quantity } : i,
+      );
+
+      applyCartState(optimisticItems);
+      scheduleQuantitySync(productId, quantity);
     } catch (err) {
+      await fetchCart();
       dispatch(cartFailure("Error al actualizar cantidad"));
     }
   };
 
   const removeItem = async (productId: string) => {
-    dispatch(cartStart());
-
     // MODO INVITADO
     if (!user) {
-      const newItems = items.filter((i) => i.productId !== productId);
+      const newItems = itemsRef.current.filter((i) => i.productId !== productId);
 
       saveLocalCart(newItems);
 
@@ -222,12 +298,31 @@ export function useCart() {
 
     // MODO CLIENTE
     try {
+      clearScheduledQuantitySync(productId);
+      delete pendingQuantitySyncRef.current[productId];
+
+      const currentItems = itemsRef.current;
+      const optimisticItems = currentItems.filter(
+        (i) => i.productId !== productId,
+      );
+
+      applyCartState(optimisticItems);
       await removeItemApi(productId); // O cartItem.id si fuera necesario
-      await fetchCart();
     } catch (err) {
+      await fetchCart();
       dispatch(cartFailure("Error al eliminar producto"));
     }
   };
+
+  useEffect(() => {
+    return () => {
+      Object.values(quantitySyncTimersRef.current).forEach((timer) => {
+        clearTimeout(timer);
+      });
+      quantitySyncTimersRef.current = {};
+      pendingQuantitySyncRef.current = {};
+    };
+  }, []);
 
   const emptyCart = async () => {
     dispatch(cartStart());

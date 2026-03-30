@@ -3,7 +3,7 @@
 @layer base {
   :root {
     --app-header-height: 64px;
-    --app-bottom-nav-height: 74px;
+    --app-bottom-nav-height: 80px;
   }
 
   html {

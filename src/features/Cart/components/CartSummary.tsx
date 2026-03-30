@@ -58,14 +58,14 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
   const remainingForFreeShipping = thresholdConfig - subtotal;
 
   return (
-    <div className="bg-content1 rounded-3xl shadow-xl p-8 border border-divider flex flex-col gap-6">
-      <h2 className="text-2xl font-black text-default-800 flex items-center gap-2">
+    <div className="flex flex-col gap-6 rounded-3xl border border-divider bg-content1 p-6 shadow-xl sm:p-8">
+      <h2 className="flex items-center gap-2 text-2xl font-black text-default-800">
         <FaBagShopping className="text-primary" /> Resumen
       </h2>
 
       {/* Free Shipping Progress */}
       {subtotal > 0 && (
-        <div className="bg-default-50 p-4 rounded-2xl border border-divider">
+        <div className="rounded-2xl border border-divider bg-default-50 p-4">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-bold text-default-600">
               {serviceCost === 0
@@ -97,7 +97,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
       )}
 
       <div
-        className={`p-4 rounded-2xl border ${
+        className={`rounded-2xl border p-4 ${
           minimumReached
             ? "bg-success-50 border-success-100"
             : "bg-warning-50 border-warning-100"
@@ -108,7 +108,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 rounded-2xl border border-divider bg-default-50/60 p-4">
         <div className="flex justify-between items-center text-default-600">
           <span className="font-medium font-outfit">Subtotal productos</span>
           <span className="font-bold text-default-800">
@@ -136,7 +136,7 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
           )}
         </div>
 
-        <div className="pt-4 border-t-2 border-dashed border-divider flex justify-between items-end">
+        <div className="flex items-end justify-between border-t-2 border-dashed border-divider pt-4">
           <div>
             <span className="text-sm uppercase tracking-widest font-black text-default-400">
               Total a pagar
@@ -150,13 +150,13 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
 
       <div className="flex flex-col gap-4 mt-2">
         <Button
-          className={`h-16 text-xl font-black shadow-lg shadow-primary/20 transition-all active:scale-95
+          className={`h-14 text-lg font-black shadow-lg shadow-primary/20 transition-all active:scale-95
             ${
               items.length === 0
                 ? ""
                 : !minimumReached
                   ? ""
-                  : "bg-primary hover:bg-primary-600 text-white"
+                  : "bg-primary text-white hover:bg-primary-600"
             }`}
           disabled={items.length === 0 || !minimumReached}
           endContent={items.length > 0 ? <FaArrowRight /> : null}

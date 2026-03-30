@@ -41,6 +41,7 @@ import {
   isProductVisible,
   sanitizeSelectedCategories,
 } from "../utils/categoryVisibility";
+import { smartSearchProducts } from "../utils/smartProductSearch";
 import { RootState } from "../../../store/store";
 
 const ITEMS_PER_PAGE = 12;
@@ -84,28 +85,57 @@ const DesktopProducts = ({
   filters,
   blockedCategoryIds,
   onPageChange,
-  isLoading,
-  isFetching,
   restoreProductId,
   onRestoreComplete,
 }: any) => {
-  const { data: response } = useProducts(filters);
-  const products = response?.data || [];
+  const hasSearch = Boolean(filters.search?.trim());
+  const { data: response, isLoading, isFetching } = useProducts(filters, {
+    enabled: !hasSearch,
+  });
+  const { data: smartResponse, isLoading: isSmartLoading } = useProducts(
+    {
+      ...filters,
+      search: undefined,
+      page: 1,
+      limit: 4000,
+    },
+    { enabled: hasSearch },
+  );
+
+  const products = hasSearch ? smartResponse?.data || [] : response?.data || [];
+  const searchedProducts = hasSearch
+    ? smartSearchProducts(products, filters.search || "")
+    : products;
   const filteredProducts = filterProductsBySelectedCategories(
-    products,
+    searchedProducts,
     filters.categories || [],
     blockedCategoryIds,
   );
-  const pagination = response?.pagination;
+
+  const localPagination = {
+    currentPage: Math.min(
+      Math.max(1, Number(filters.page) || 1),
+      Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)),
+    ),
+    totalPages: Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)),
+  };
+  const pagination = hasSearch ? localPagination : response?.pagination;
+
+  const paginatedProducts = hasSearch
+    ? filteredProducts.slice(
+        (localPagination.currentPage - 1) * ITEMS_PER_PAGE,
+        localPagination.currentPage * ITEMS_PER_PAGE,
+      )
+    : filteredProducts;
 
   return (
     <>
       <div
-        className={`transition-opacity duration-300 ${isFetching ? "opacity-50" : "opacity-100"}`}
+        className={`transition-opacity duration-300 ${(!hasSearch && isFetching) ? "opacity-50" : "opacity-100"}`}
       >
         <ProductList
-          isLoading={isLoading}
-          products={filteredProducts}
+          isLoading={hasSearch ? isSmartLoading : isLoading}
+          products={paginatedProducts}
           restoreProductId={restoreProductId}
           onRestoreComplete={onRestoreComplete}
         />
@@ -136,12 +166,28 @@ const MobileProducts = ({
   restoreProductId,
   onRestoreComplete,
 }: any) => {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteProducts(filters);
+  const hasSearch = Boolean(filters.search?.trim());
+  const { data: smartResponse, isLoading: isSmartLoading } = useProducts(
+    {
+      ...filters,
+      search: undefined,
+      page: 1,
+      limit: 4000,
+    },
+    { enabled: hasSearch },
+  );
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteProducts(filters, { enabled: !hasSearch });
   const observer = useRef<IntersectionObserver | null>(null);
 
   const lastElementRef = useCallback(
     (node: HTMLDivElement) => {
+      if (hasSearch) return;
       if (isLoading) return;
       if (observer.current) observer.current.disconnect();
 
@@ -153,19 +199,24 @@ const MobileProducts = ({
 
       if (node) observer.current.observe(node);
     },
-    [isLoading, hasNextPage, fetchNextPage, isFetchingNextPage],
+    [hasSearch, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage],
   );
 
-  const allProducts = (data?.pages.flatMap((page) => page.data) || []).filter(
-    (product) => isProductVisible(product, blockedCategoryIds),
+  const allProducts = hasSearch
+    ? smartSearchProducts(smartResponse?.data || [], filters.search || "")
+    : data?.pages.flatMap((page) => page.data) || [];
+
+  const visibleProducts = allProducts.filter((product) =>
+    isProductVisible(product, blockedCategoryIds),
   );
   const filteredProducts = filterProductsBySelectedCategories(
-    allProducts,
+    visibleProducts,
     filters.categories || [],
     blockedCategoryIds,
   );
 
   useEffect(() => {
+    if (hasSearch) return;
     if (!restoreProductId) return;
     const found = filteredProducts.some(
       (product) => product.id === restoreProductId,
@@ -181,6 +232,7 @@ const MobileProducts = ({
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
+    hasSearch,
   ]);
 
   useEffect(() => {
@@ -189,10 +241,16 @@ const MobileProducts = ({
       (product) => product.id === restoreProductId,
     );
 
-    if (found || !hasNextPage) onRestoreComplete?.();
-  }, [restoreProductId, filteredProducts, hasNextPage, onRestoreComplete]);
+    if (found || hasSearch || !hasNextPage) onRestoreComplete?.();
+  }, [
+    restoreProductId,
+    filteredProducts,
+    hasNextPage,
+    onRestoreComplete,
+    hasSearch,
+  ]);
 
-  if (isLoading) {
+  if (hasSearch ? isSmartLoading : isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <Spinner color="primary" size="lg" />
@@ -217,8 +275,8 @@ const MobileProducts = ({
         ref={lastElementRef}
         className="h-20 flex items-center justify-center"
       >
-        {isFetchingNextPage && <Spinner color="primary" size="md" />}
-        {!hasNextPage && filteredProducts.length > 0 && (
+        {!hasSearch && isFetchingNextPage && <Spinner color="primary" size="md" />}
+        {(hasSearch || !hasNextPage) && filteredProducts.length > 0 && (
           <p className="text-default-400 text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
             Fin del catálogo
           </p>
@@ -288,8 +346,6 @@ export const ProductsPage: React.FC = () => {
     search: searchParams.get("search") || "",
   });
 
-  const [searchTerm, setSearchTerm] = useState(filters.search || "");
-
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
@@ -307,18 +363,15 @@ export const ProductsPage: React.FC = () => {
       page: Number(searchParams.get("page")) || 1,
       search: searchParams.get("search") || "",
     }));
-    setSearchTerm(searchParams.get("search") || "");
   }, [searchParams, blockedCategoryNames]);
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      if (searchTerm !== filters.search) {
-        updateUrl({ ...filters, search: searchTerm, page: 1 });
-      }
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchTerm]);
+  const submitSearch = useCallback(
+    (nextSearch: string) => {
+      if (nextSearch === filters.search) return;
+      updateUrl({ ...filters, search: nextSearch, page: 1 });
+    },
+    [filters],
+  );
 
   useEffect(() => {
     const shouldFocusSearch = Boolean((location.state as any)?.focusSearch);
@@ -413,8 +466,38 @@ export const ProductsPage: React.FC = () => {
   const isAllMainFilterActive =
     filters.categories.length === 0 && !isBestSellersMainFilterActive;
 
-  const { data: response, isLoading, isFetching } = useProducts(filters);
-  const totalItems = response?.pagination?.totalItems || 0;
+  const hasSearch = Boolean(filters.search?.trim());
+  const { data: response, isLoading } = useProducts(filters, {
+    enabled: !hasSearch,
+  });
+  const { data: smartResponse, isLoading: isSmartLoading } = useProducts(
+    {
+      ...filters,
+      search: undefined,
+      page: 1,
+      limit: 4000,
+    },
+    { enabled: hasSearch },
+  );
+  const totalItems = useMemo(() => {
+    if (!hasSearch) return response?.pagination?.totalItems || 0;
+
+    const baseProducts = smartResponse?.data || [];
+    const searchedProducts = smartSearchProducts(baseProducts, filters.search || "");
+
+    return filterProductsBySelectedCategories(
+      searchedProducts,
+      filters.categories || [],
+      blockedCategoryIds,
+    ).length;
+  }, [
+    hasSearch,
+    response?.pagination?.totalItems,
+    smartResponse?.data,
+    filters.search,
+    filters.categories,
+    blockedCategoryIds,
+  ]);
 
   // Solo mostrar categorías raíz en la barra superior para mayor limpieza
   const rootCategories = visibleCategories.filter((c) => !c.parent);
@@ -441,6 +524,7 @@ export const ProductsPage: React.FC = () => {
             <div className="flex w-full items-center gap-2 md:w-auto md:gap-3">
               <div className="grow md:w-80">
                 <Input
+                  key={`products-search-${filters.search || "empty"}`}
                   isClearable
                   classNames={{
                     inputWrapper:
@@ -451,8 +535,16 @@ export const ProductsPage: React.FC = () => {
                   placeholder="Busca por nombre o marca..."
                   radius="none"
                   startContent={<FiSearch className="text-primary" size={18} />}
-                  value={searchTerm}
-                  onValueChange={setSearchTerm}
+                  defaultValue={filters.search || ""}
+                  onClear={() => {
+                    submitSearch("");
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter") return;
+                    const input = event.currentTarget as HTMLInputElement;
+
+                    submitSearch(input.value.trim());
+                  }}
                 />
               </div>
               <Button
@@ -580,15 +672,14 @@ export const ProductsPage: React.FC = () => {
             <DesktopProducts
               blockedCategoryIds={blockedCategoryIds}
               filters={filters}
-              isFetching={isFetching}
-              isLoading={isLoading}
               restoreProductId={restoreProductId}
               onPageChange={(p: number) => updateUrl({ ...filters, page: p })}
               onRestoreComplete={handleRestoreComplete}
             />
           )}
 
-          {!isLoading && totalItems === 0 && (
+          {!(hasSearch ? isSmartLoading : isLoading) &&
+            totalItems === 0 && (
             <div className="flex flex-col items-center justify-center py-32">
               <div className="relative mb-6">
                 <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full" />

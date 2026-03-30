@@ -7,8 +7,10 @@ import { Address } from "../types/Address";
 interface AddressCardProps {
   address: Address;
   onDelete?: (id: string) => void;
-  onSetDefault: (id: string) => void;
+  onSetDefault?: (id: string) => void;
   isLoading?: boolean;
+  showDefaultBadge?: boolean;
+  showSetDefaultAction?: boolean;
 }
 
 export const AddressCard: React.FC<AddressCardProps> = ({
@@ -16,16 +18,20 @@ export const AddressCard: React.FC<AddressCardProps> = ({
   onDelete,
   onSetDefault,
   isLoading,
+  showDefaultBadge = true,
+  showSetDefaultAction = true,
 }) => {
+  const shouldHighlightAsDefault = showDefaultBadge && address.isDefault;
+
   return (
     <Card
       isHoverable
-      className={`shadow-sm border ${address.isDefault ? "border-warning-400 bg-warning-50/20" : "border-divider"}`}
+      className={`shadow-sm border ${shouldHighlightAsDefault ? "border-warning-400 bg-warning-50/20" : "border-divider"}`}
     >
       <CardBody className="flex flex-row items-center justify-between p-4">
         <div className="flex items-center gap-3">
           <div
-            className={`p-2 rounded-full ${address.isDefault ? "bg-warning-100 text-warning-600" : "bg-primary/10 text-primary"}`}
+            className={`p-2 rounded-full ${shouldHighlightAsDefault ? "bg-warning-100 text-warning-600" : "bg-primary/10 text-primary"}`}
           >
             <FaLocationDot size={20} />
           </div>
@@ -34,7 +40,7 @@ export const AddressCard: React.FC<AddressCardProps> = ({
               <span className="font-semibold text-gray-900 dark:text-white">
                 {address.address}
               </span>
-              {address.isDefault && (
+              {shouldHighlightAsDefault && (
                 <Chip
                   color="warning"
                   size="sm"
@@ -57,7 +63,7 @@ export const AddressCard: React.FC<AddressCardProps> = ({
         </div>
 
         <div className="flex gap-1">
-          {!address.isDefault && (
+          {showSetDefaultAction && !address.isDefault && onSetDefault && (
             <Button
               isIconOnly
               color="warning"

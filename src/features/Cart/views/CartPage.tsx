@@ -51,7 +51,7 @@ export const CartPage: React.FC = () => {
       {/* Hero Header */}
       <div className="mb-6 border-b border-divider bg-content1 pb-6 pt-8 md:mb-8 md:pb-8 md:pt-12">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
               <motion.div
                 animate={{ opacity: 1, x: 0 }}
@@ -66,20 +66,22 @@ export const CartPage: React.FC = () => {
               </h1>
             </div>
 
-            {items.length > 0 && (
-              <div className="text-right">
-                <p className="text-default-500 font-medium">
+            <div className="flex flex-col gap-3 md:items-end">
+              {items.length > 0 && (
+                <p className="text-sm font-medium text-default-500 md:text-right">
                   Revisa tus productos antes de finalizar el pedido.
                 </p>
+              )}
+              {items.length > 0 && (
                 <p
-                  className={`text-sm font-semibold ${
+                  className={`text-xs font-semibold ${
                     minimumReached ? "text-success" : "text-warning"
                   }`}
                 >
                   {getMinimumProductsMessage(totalProductUnits)}
                 </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -89,12 +91,16 @@ export const CartPage: React.FC = () => {
           {/* Columna Izquierda: Lista de Productos */}
           <div className="lg:w-[65%]">
             {items.length > 0 ? (
-              <div className="bg-content1 rounded-[2.5rem] shadow-sm border border-divider overflow-hidden">
+              <div className="overflow-hidden rounded-[2.5rem] border border-divider bg-content1 shadow-sm">
                 <div className="p-2 sm:p-6">
-                  <div className="divide-y divide-divider">
+                  <div className="space-y-3">
                     <AnimatePresence mode="popLayout">
                       {items.map((item: ICartItem) => (
-                        <CartItem key={item.productId} item={item} />
+                        <CartItem
+                          key={item.productId}
+                          item={item}
+                          viewMode="compact"
+                        />
                       ))}
                     </AnimatePresence>
                   </div>

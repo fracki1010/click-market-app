@@ -144,7 +144,7 @@ export const AdminCustomerDetailPage: React.FC = () => {
   const canShowAvatar = !!avatarUrl && !avatarLoadError;
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-zinc-950 pb-24">
+    <main className="min-h-screen bg-slate-50 dark:bg-zinc-950 pb-[calc(var(--app-bottom-nav-height)+env(safe-area-inset-bottom,0px)+24px)] md:pb-24">
       <div className="bg-white dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800">
         <div className="container mx-auto max-w-4xl px-4 py-5">
           <Button

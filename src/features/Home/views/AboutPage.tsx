@@ -163,7 +163,7 @@ export const AboutPage: React.FC = () => {
             <Button
               as="a"
               className="bg-content1 text-primary border-2 border-divider font-bold h-12 px-8"
-              href="https://wa.me/2622517447?text=Hola%20buenas,%20tenia%20una%20duda"
+              href="https://wa.me/2622430004?text=Hola%20buenas,%20tenia%20una%20duda"
               radius="full"
               target="_blank"
             >

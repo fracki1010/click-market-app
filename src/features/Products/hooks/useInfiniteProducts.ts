@@ -4,7 +4,12 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { productService } from "../services/productService";
 
-export function useInfiniteProducts(filters: any) {
+export function useInfiniteProducts(
+  filters: any,
+  options?: {
+    enabled?: boolean;
+  },
+) {
   // Excluimos 'page' de los filtros para la queryKey de infinite scroll
   // porque el scroll maneja su propia paginación interna
   const { page, ...otherFilters } = filters;
@@ -20,5 +25,6 @@ export function useInfiniteProducts(filters: any) {
     },
     initialPageParam: 1,
     staleTime: 1000 * 60 * 5,
+    enabled: options?.enabled ?? true,
   });
 }

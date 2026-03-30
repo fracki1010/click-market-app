@@ -4,11 +4,17 @@ import { useQuery } from "@tanstack/react-query";
 
 import { productService } from "../services/productService";
 
-export function useProducts(filters: any) {
+export function useProducts(
+  filters: any,
+  options?: {
+    enabled?: boolean;
+  },
+) {
   return useQuery<PaginatedProducts, Error>({
     queryKey: ["products", filters],
     queryFn: () => productService.getAll(filters),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? true,
   });
 }
