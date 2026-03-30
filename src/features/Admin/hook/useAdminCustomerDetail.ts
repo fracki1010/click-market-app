@@ -12,6 +12,7 @@ export interface AdminCustomerDetail {
   name: string;
   email: string;
   phone: string;
+  avatar?: string;
   role: string;
   authProvider: string;
   source: string;
@@ -56,6 +57,8 @@ export interface UseAdminCustomerDetailParams {
   phone?: string;
   source?: string;
 }
+
+export type CustomerMovementRange = "today" | "last7" | "month" | "last90";
 
 export const useAdminCustomerDetail = ({
   customerId,
@@ -102,4 +105,42 @@ export const useAdminCustomerDetail = ({
     staleTime: 1000 * 20,
     refetchInterval: 1000 * 20,
   });
+};
+
+export const exportAdminCustomerMovementsExcel = async ({
+  customerId,
+  email,
+  firebaseUid,
+  name,
+  phone,
+  source,
+  range,
+}: UseAdminCustomerDetailParams & { range?: CustomerMovementRange }) => {
+  const params = new URLSearchParams();
+
+  if (email) params.set("email", email);
+  if (firebaseUid) params.set("firebaseUid", firebaseUid);
+  if (name) params.set("name", name);
+  if (phone) params.set("phone", phone);
+  if (source) params.set("source", source);
+  if (range) params.set("range", range);
+
+  const queryString = params.toString();
+  const endpoint = `/stats/admin/customers/${encodeURIComponent(customerId)}/movements/export.xlsx${
+    queryString ? `?${queryString}` : ""
+  }`;
+
+  const response = await apiClient.get(endpoint, { responseType: "blob" });
+  const fileURL = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement("a");
+
+  link.href = fileURL;
+  link.setAttribute(
+    "download",
+    `movimientos-cliente-${new Date().toISOString().slice(0, 10)}.xlsx`,
+  );
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(fileURL);
 };

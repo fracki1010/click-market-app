@@ -8,6 +8,7 @@ export interface AdminCustomer {
   name: string;
   email: string;
   phone: string;
+  avatar?: string;
   role: string;
   authProvider: string;
   source: string;

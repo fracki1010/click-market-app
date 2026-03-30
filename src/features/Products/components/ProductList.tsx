@@ -81,7 +81,8 @@ export const ProductList = ({
     );
 
   return (
-    <main className="grid w-full grid-cols-2 gap-2 px-2 sm:grid-cols-3 sm:gap-3 sm:px-0 xl:grid-cols-4">
+    <main className="grid w-full grid-cols-2  sm:grid-cols-3 sm:gap-3 sm:px-0 xl:grid-cols-4">
+
       {products.flatMap((product, index) => {
         const nodes = [
           <div key={product.id} id={`product-card-${product.id}`}>

@@ -1,14 +1,6 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
-import {
-  Button,
-  Card,
-  CardBody,
-  Chip,
-  Divider,
-  Skeleton,
-  Spinner,
-} from "@heroui/react";
+import { Button, Card, CardBody, Chip, Skeleton, Spinner } from "@heroui/react";
 import {
   FaArrowLeft,
   FaArrowRight,
@@ -16,13 +8,19 @@ import {
   FaBoxesStacked,
   FaChartSimple,
   FaClock,
+  FaDownload,
   FaPhone,
   FaUser,
   FaWallet,
 } from "react-icons/fa6";
 
-import { useAdminCustomerDetail } from "../hook/useAdminCustomerDetail";
+import {
+  exportAdminCustomerMovementsExcel,
+  type CustomerMovementRange,
+  useAdminCustomerDetail,
+} from "../hook/useAdminCustomerDetail";
 
+import { useToast } from "@/components/ui/ToastProvider";
 import { formatPrice } from "@/utils/currencyFormat";
 
 const formatDate = (date?: string | null) => {
@@ -44,38 +42,73 @@ const formatHour = (date?: string | null) => {
   });
 };
 
-const movementColor = (
-  status: string,
-): "success" | "primary" | "warning" | "danger" => {
-  if (status === "success") return "success";
-  if (status === "warning") return "warning";
-  if (status === "error") return "danger";
+const getInitials = (name: string) => {
+  const parts = String(name || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
 
-  return "primary";
+  if (!parts.length) return "CL";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 };
+
+const RANGE_OPTIONS: { key: CustomerMovementRange; label: string }[] = [
+  { key: "today", label: "Hoy" },
+  { key: "last7", label: "Últimos 7 días" },
+  { key: "month", label: "Mes" },
+  { key: "last90", label: "Últimos 90 días" },
+];
 
 const SkeletonPage = () => (
   <div className="space-y-4">
     <Skeleton className="h-28 rounded-3xl" />
     <Skeleton className="h-24 rounded-3xl" />
     <Skeleton className="h-44 rounded-3xl" />
-    <Skeleton className="h-56 rounded-3xl" />
+    <Skeleton className="h-28 rounded-3xl" />
   </div>
 );
 
 export const AdminCustomerDetailPage: React.FC = () => {
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const { customerId = "" } = useParams<{ customerId: string }>();
   const [searchParams] = useSearchParams();
+  const [selectedRange, setSelectedRange] =
+    useState<CustomerMovementRange>("today");
+  const [isExporting, setIsExporting] = useState(false);
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
 
-  const { data, isLoading, isError, isFetching } = useAdminCustomerDetail({
-    customerId,
-    email: searchParams.get("email") || undefined,
-    firebaseUid: searchParams.get("firebaseUid") || undefined,
-    name: searchParams.get("name") || undefined,
-    phone: searchParams.get("phone") || undefined,
-    source: searchParams.get("source") || undefined,
-  });
+  const queryParams = useMemo(
+    () => ({
+      customerId,
+      email: searchParams.get("email") || undefined,
+      firebaseUid: searchParams.get("firebaseUid") || undefined,
+      name: searchParams.get("name") || undefined,
+      phone: searchParams.get("phone") || undefined,
+      source: searchParams.get("source") || undefined,
+    }),
+    [customerId, searchParams],
+  );
+
+  const { data, isLoading, isError, isFetching } =
+    useAdminCustomerDetail(queryParams);
+
+  const onExportMovements = async () => {
+    try {
+      setIsExporting(true);
+      await exportAdminCustomerMovementsExcel({
+        ...queryParams,
+        range: selectedRange,
+      });
+      addToast("Movimientos exportados correctamente", "success");
+    } catch {
+      addToast("No se pudo exportar los movimientos", "error");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -106,7 +139,9 @@ export const AdminCustomerDetailPage: React.FC = () => {
     );
   }
 
-  const { customer, stats, orders, movements } = data;
+  const { customer, stats, orders } = data;
+  const avatarUrl = String(customer.avatar || "").trim();
+  const canShowAvatar = !!avatarUrl && !avatarLoadError;
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-zinc-950 pb-24">
@@ -123,23 +158,38 @@ export const AdminCustomerDetailPage: React.FC = () => {
           </Button>
 
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                Admin · Detalle de Cliente
-              </p>
-              <h1 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white mt-1">
-                {customer.name}
-              </h1>
-              <p className="text-sm text-slate-500 mt-1">
-                {customer.email || "Sin email"}
-              </p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                <Chip color="primary" size="sm" variant="flat">
-                  {customer.source || "interno"}
-                </Chip>
-                <Chip color="default" size="sm" variant="flat">
-                  {customer.authProvider || "unknown"}
-                </Chip>
+            <div className="flex items-start gap-3">
+              {canShowAvatar ? (
+                <img
+                  alt={customer.name}
+                  className="w-14 h-14 rounded-2xl object-cover shrink-0 border border-slate-200"
+                  src={avatarUrl}
+                  onError={() => setAvatarLoadError(true)}
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-2xl bg-primary-50 text-primary font-black text-lg flex items-center justify-center shrink-0 border border-primary-100">
+                  {getInitials(customer.name)}
+                </div>
+              )}
+
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Admin · Detalle de Cliente
+                </p>
+                <h1 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white mt-1">
+                  {customer.name}
+                </h1>
+                <p className="text-sm text-slate-500 mt-1">
+                  {customer.email || "Sin email"}
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Chip color="primary" size="sm" variant="flat">
+                    {customer.source || "interno"}
+                  </Chip>
+                  <Chip color="default" size="sm" variant="flat">
+                    {customer.authProvider || "unknown"}
+                  </Chip>
+                </div>
               </div>
             </div>
 
@@ -267,59 +317,46 @@ export const AdminCustomerDetailPage: React.FC = () => {
         </Card>
 
         <Card className="border border-slate-100 dark:border-zinc-800">
-          <CardBody className="p-5">
-            <h2 className="font-black text-slate-800 dark:text-white flex items-center gap-2 mb-4">
-              <FaClock className="text-primary" /> Movimientos relacionados
-            </h2>
+          <CardBody className="p-5 space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-black text-slate-800 dark:text-white flex items-center gap-2">
+                <FaClock className="text-primary" /> Movimientos (Exportar)
+              </h2>
+              <Chip color="primary" variant="flat">
+                {stats.movementsTotal} registros
+              </Chip>
+            </div>
 
-            {movements.length === 0 ? (
-              <p className="text-sm text-slate-500">
-                No hay movimientos registrados para este cliente.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {movements.map((movement) => (
-                  <div
-                    key={movement._id}
-                    className="rounded-2xl border border-slate-100 dark:border-zinc-800 p-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-semibold text-slate-800 dark:text-white text-sm">
-                          {movement.event}
-                        </p>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          {movement.module} · {formatDate(movement.createdAt)}{" "}
-                          {formatHour(movement.createdAt)}
-                        </p>
-                      </div>
-                      <Chip
-                        color={movementColor(movement.status)}
-                        size="sm"
-                        variant="flat"
-                      >
-                        {movement.status}
-                      </Chip>
-                    </div>
+            <p className="text-sm text-slate-500">
+              Selecciona un rango y descarga los movimientos del cliente en
+              Excel (.xlsx).
+            </p>
 
-                    {movement.message ? (
-                      <p className="text-sm text-slate-600 dark:text-zinc-300 mt-2">
-                        {movement.message}
-                      </p>
-                    ) : null}
+            <div className="flex flex-wrap gap-2">
+              {RANGE_OPTIONS.map((option) => (
+                <Button
+                  key={option.key}
+                  color={selectedRange === option.key ? "primary" : "default"}
+                  size="sm"
+                  variant={selectedRange === option.key ? "solid" : "flat"}
+                  onPress={() => setSelectedRange(option.key)}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
 
-                    {movement.request?.path ? (
-                      <>
-                        <Divider className="my-2" />
-                        <p className="text-xs text-slate-500">
-                          {movement.request.method} {movement.request.path}
-                        </p>
-                      </>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="flex justify-end">
+              <Button
+                color="success"
+                isLoading={isExporting}
+                startContent={<FaDownload />}
+                variant="flat"
+                onPress={onExportMovements}
+              >
+                Descargar Excel
+              </Button>
+            </div>
           </CardBody>
         </Card>
       </div>

@@ -18,6 +18,19 @@ import {
   FaArrowRight,
 } from "react-icons/fa6";
 
+import { useShippingSettings } from "@/features/Settings/hooks/useShippingSettings";
+
+const formatAmountNoDecimals = (value: unknown) => {
+  const numericValue = Number(value);
+
+  if (Number.isNaN(numericValue)) return "0";
+
+  return new Intl.NumberFormat("es-AR", {
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  }).format(numericValue);
+};
+
 // Array de zonas habilitadas (Podés editar los nombres según tu ciudad)
 const deliveryZones = [
   {
@@ -49,6 +62,15 @@ const deliveryZones = [
 ];
 
 export const DeliveryZonesPage: React.FC = () => {
+  const { serviceCostConfig, thresholdConfig } = useShippingSettings();
+
+  const freeShippingThreshold = thresholdConfig
+    ? `$${formatAmountNoDecimals(thresholdConfig)}`
+    : "Calculando...";
+  const deliveryCost = serviceCostConfig
+    ? `$${serviceCostConfig}`
+    : "Calculando...";
+
   return (
     <main className="flex-grow bg-background min-h-screen pb-20 transition-colors">
       {/* Hero de la página */}
@@ -119,13 +141,14 @@ export const DeliveryZonesPage: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-bold text-lg text-default-800">
-                  Costo de Envío: $1.500
+                  Costo de Envío: {deliveryCost}
                 </h3>
                 <p className="text-default-500">
                   Llevamos tus compras en vehículos adecuados para asegurar la
                   calidad.
                   <span className="block mt-1 font-semibold text-success">
-                    ¡Envío GRATIS en compras superiores a $20.000!
+                    ¡Envío GRATIS en compras superiores a{" "}
+                    {freeShippingThreshold}!
                   </span>
                 </p>
               </div>
@@ -140,17 +163,11 @@ export const DeliveryZonesPage: React.FC = () => {
                   Franjas Horarias
                 </h3>
                 <p className="text-default-500">
-                  Podés elegir cuándo recibirlo en el checkout:
+                  Se realizan entregas de lunes a sábado entre
                 </p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   <Chip color="warning" size="sm" variant="flat">
-                    Mañana (09:00 - 13:00)
-                  </Chip>
-                  <Chip color="warning" size="sm" variant="flat">
-                    Tarde (14:00 - 18:00)
-                  </Chip>
-                  <Chip color="warning" size="sm" variant="flat">
-                    Noche (18:00 - 21:00)
+                    (16:00 - 20:00)
                   </Chip>
                 </div>
               </div>
