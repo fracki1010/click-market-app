@@ -43,6 +43,19 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
   onSubmit,
   isLoading,
 }) => {
+  const scrollFocusedFieldIntoView = (
+    event: React.FocusEvent<HTMLElement>,
+  ) => {
+    const target = event.target as HTMLElement | null;
+
+    if (!target) return;
+
+    // Gives mobile keyboards a moment to resize the visual viewport first.
+    window.setTimeout(() => {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 220);
+  };
+
   const validate = (
     field: keyof AddressFormValues,
     value: any,
@@ -73,7 +86,18 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
   });
 
   return (
-    <Modal backdrop="blur" isOpen={isOpen} size="lg" onClose={onClose}>
+    <Modal
+      backdrop="blur"
+      classNames={{
+        base: "mx-2 my-2 max-h-[calc(100dvh-1rem)] sm:mx-0 sm:my-6",
+        body: "overflow-y-auto pb-safe",
+      }}
+      isOpen={isOpen}
+      placement="top-center"
+      scrollBehavior="inside"
+      size="lg"
+      onClose={onClose}
+    >
       <ModalContent>
         {(onClose) => (
           <form
@@ -86,7 +110,7 @@ export const AddAddressModal: React.FC<AddAddressModalProps> = ({
             <ModalHeader className="flex flex-col gap-1">
               Nueva Dirección
             </ModalHeader>
-            <ModalBody className="gap-4">
+            <ModalBody className="gap-4" onFocusCapture={scrollFocusedFieldIntoView}>
               <form.Field
                 children={(field) => (
                   <Input

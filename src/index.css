@@ -4,6 +4,7 @@
   :root {
     --app-header-height: 64px;
     --app-bottom-nav-height: 80px;
+    --app-bottom-nav-buffer: 20px;
   }
 
   html {
@@ -28,7 +29,8 @@
 
   .pb-app-nav {
     padding-bottom: calc(
-      var(--app-bottom-nav-height) + env(safe-area-inset-bottom, 0px)
+      var(--app-bottom-nav-height) + env(safe-area-inset-bottom, 0px) +
+        var(--app-bottom-nav-buffer)
     );
   }
 
