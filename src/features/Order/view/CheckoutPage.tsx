@@ -20,6 +20,7 @@ import {
   FaCreditCard,
   FaLandmark,
   FaPhone,
+  FaTriangleExclamation,
 } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -67,6 +68,12 @@ export const CheckoutPage: React.FC = () => {
       : user?.phone || "",
   );
   const [isSavingPhone, setIsSavingPhone] = useState(false);
+  const selectedPaymentLabel =
+    paymentMethod === "Cash"
+      ? "Efectivo"
+      : paymentMethod === "Card"
+        ? "Tarjeta MP"
+        : "Transferencia";
 
   // Lógica de costo del servicio
   const serviceCost = calculateServiceCost(total);
@@ -404,6 +411,31 @@ export const CheckoutPage: React.FC = () => {
                     </Radio>
                   ))}
                 </RadioGroup>
+
+                <motion.div
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-5 rounded-2xl border border-warning/30 bg-gradient-to-r from-warning-50 via-amber-50 to-orange-50 p-4"
+                  initial={{ opacity: 0, y: 8 }}
+                  transition={{ delay: 0.38 }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 text-warning text-lg">
+                      <FaTriangleExclamation />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-black text-default-800 uppercase tracking-wide">
+                        Importante
+                      </p>
+                      <p className="text-sm md:text-[15px] font-semibold text-default-700 leading-relaxed">
+                        El pago se realiza al momento de la entrega del pedido
+                        (contra entrega).
+                      </p>
+                      <Chip color="warning" size="sm" variant="flat">
+                        Método elegido: {selectedPaymentLabel}
+                      </Chip>
+                    </div>
+                  </div>
+                </motion.div>
               </motion.section>
 
               {!hasValidPhone && (
