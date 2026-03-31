@@ -36,8 +36,35 @@ export const useAdminInventory = () => {
   const updateProductMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       productService.update(id, data),
-    onSuccess: () => {
+    onSuccess: (updatedProduct, variables) => {
+      // Actualización inmediata en detalle
+      queryClient.setQueryData(["product", variables.id], updatedProduct);
+
+      // Actualización inmediata en todas las listas de productos cacheadas
+      queryClient.setQueriesData({ queryKey: ["products"] }, (old: any) => {
+        if (!old) return old;
+
+        if (Array.isArray(old)) {
+          return old.map((product) =>
+            product?.id === updatedProduct.id ? updatedProduct : product,
+          );
+        }
+
+        if (Array.isArray(old.data)) {
+          return {
+            ...old,
+            data: old.data.map((product: any) =>
+              product?.id === updatedProduct.id ? updatedProduct : product,
+            ),
+          };
+        }
+
+        return old;
+      });
+
+      // Sincronización en segundo plano
       queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["product", variables.id] });
       addToast("Producto actualizado correctamente", "success");
     },
     onError: () => addToast("Error al actualizar", "error"),

@@ -22,6 +22,8 @@ export interface IShippingDetails {
   address: string;
   neighborhood: string;
   deliveryNotes?: string;
+  deliveryDate: string;
+  deliveryTime: string;
   deliverySlot: string;
 }
 
@@ -64,6 +66,8 @@ export interface OrderApi {
     address: string;
     neighborhood: string;
     deliveryNotes: string;
+    deliveryDate?: string;
+    deliveryTime?: string;
     deliverySlot: string;
   };
 

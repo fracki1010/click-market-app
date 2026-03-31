@@ -175,7 +175,7 @@ export const OrderPage: React.FC = () => {
     );
 
   return (
-    <main className="bg-background min-h-screen pb-[calc(var(--app-bottom-nav-height)+env(safe-area-inset-bottom,0px)+20px)] transition-colors md:pb-20">
+    <main className="bg-background min-h-screen pb-[calc(var(--app-bottom-nav-height)+env(safe-area-inset-bottom,0px)+var(--app-bottom-nav-buffer))] transition-colors md:pb-20">
       {/* Header Section */}
       <div className="bg-content1 border-b border-divider pt-16 pb-10">
         <div className="container mx-auto max-w-5xl px-4">

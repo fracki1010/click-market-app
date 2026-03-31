@@ -168,7 +168,7 @@ export const AdminMovementsPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-7xl space-y-5 pb-[calc(var(--app-bottom-nav-height)+env(safe-area-inset-bottom,0px)+20px)] md:pb-6">
+    <div className="container mx-auto px-4 py-6 max-w-7xl space-y-5 pb-[calc(var(--app-bottom-nav-height)+env(safe-area-inset-bottom,0px)+var(--app-bottom-nav-buffer))] md:pb-6">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-indigo-600 font-bold uppercase tracking-widest text-xs">

@@ -657,7 +657,7 @@ export const ProductsPage: React.FC = () => {
 
       <div
         ref={productsStartRef}
-        className="container mx-auto max-w-7xl px-0 pb-[calc(var(--app-bottom-nav-height)+env(safe-area-inset-bottom,0px)+20px)] sm:px-4 md:pb-20"
+        className="container mx-auto max-w-7xl px-0 pb-[calc(var(--app-bottom-nav-height)+env(safe-area-inset-bottom,0px)+var(--app-bottom-nav-buffer))] sm:px-4 md:pb-20"
       >
         {/* 3. Rejilla de Productos Principal */}
         <div className="relative">

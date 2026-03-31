@@ -21,6 +21,7 @@ import {
 import { motion } from "framer-motion";
 
 import { useProduct } from "../../Products/hooks/useProduct";
+import { useCategories } from "../../Products/hooks/useCategory";
 import { useAdminInventory } from "../hook/useAdminInventory";
 import { ProductModal } from "../components/ProductModal";
 
@@ -30,6 +31,7 @@ export const AdminProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: product, isLoading, isError } = useProduct(id || "");
+  const { data: categories = [] } = useCategories();
   const { deleteProduct, updateProduct, isUpdating } = useAdminInventory();
 
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
@@ -279,7 +281,31 @@ export const AdminProductDetailPage: React.FC = () => {
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         onSubmit={async (data) => {
-          await updateProduct({ id: product.id, ...data });
+          const selectedCategories = (data.category_ids || [])
+            .map((categoryId: string) => {
+              const found = categories.find(
+                (category) => String(category.id) === String(categoryId),
+              );
+
+              return found ? { id: found.id, name: found.name } : null;
+            })
+            .filter(Boolean);
+
+          const payload = {
+            ...data,
+            price: Number(data.price),
+            costPrice: Number(data.costPrice || 0),
+            stock: Number(data.stock),
+            stock_min: Number(data.stock_min),
+            categories:
+              selectedCategories.length > 0
+                ? selectedCategories
+                : product.categories,
+          };
+
+          delete (payload as any).category_ids;
+
+          await updateProduct({ id: product.id, data: payload });
           setIsEditModalOpen(false);
         }}
       />

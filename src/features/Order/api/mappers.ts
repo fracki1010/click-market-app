@@ -27,6 +27,29 @@ export function toOrder(api: any): IOrder {
   const customerPhone = isUserObject ? api.user.phone : api.userPhone || "";
 
   const resolvedServiceCost = api.serviceCost ?? api.shippingPrice ?? 0;
+  const rawDeliveryDate = api.shipping?.deliveryDate;
+  const rawDeliveryTime = api.shipping?.deliveryTime;
+  const rawDeliverySlot = api.shipping?.deliverySlot || api.deliverySlot || "";
+
+  const fallbackDeliveryDate =
+    typeof api.createdAt === "string" ? api.createdAt.slice(0, 10) : "";
+  const inferredSlotDate =
+    typeof rawDeliverySlot === "string" ? rawDeliverySlot.slice(0, 10) : "";
+
+  const deliveryDate =
+    typeof rawDeliveryDate === "string" && rawDeliveryDate.trim() !== ""
+      ? rawDeliveryDate
+      : inferredSlotDate || fallbackDeliveryDate;
+
+  const deliveryTime =
+    typeof rawDeliveryTime === "string" && rawDeliveryTime.trim() !== ""
+      ? rawDeliveryTime
+      : "16:00 - 20:00";
+
+  const deliverySlot =
+    typeof rawDeliverySlot === "string" && rawDeliverySlot.trim() !== ""
+      ? rawDeliverySlot
+      : [deliveryDate, deliveryTime].filter(Boolean).join(" ");
 
   return {
     id: api._id || api.id,
@@ -65,10 +88,9 @@ export function toOrder(api: any): IOrder {
         typeof api.shipping?.deliveryNotes === "string"
           ? api.shipping.deliveryNotes
           : "",
-      deliverySlot:
-        typeof api.shipping?.deliverySlot === "string"
-          ? api.shipping.deliverySlot
-          : api.deliverySlot || "Estándar",
+      deliveryDate,
+      deliveryTime,
+      deliverySlot: deliverySlot || "Estándar",
     },
 
     payment: {
