@@ -414,25 +414,30 @@ export const CheckoutPage: React.FC = () => {
 
                 <motion.div
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-5 rounded-2xl border border-warning/30 bg-gradient-to-r from-warning-50 via-amber-50 to-orange-50 p-4"
+                  className="mt-6 rounded-2xl border border-slate-900/10 bg-slate-950 text-slate-50 p-5 shadow-[0_16px_36px_-24px_rgba(15,23,42,0.9)]"
                   initial={{ opacity: 0, y: 8 }}
                   transition={{ delay: 0.38 }}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5 text-warning text-lg">
+                  <div className="flex items-start gap-4">
+                    <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300 text-lg">
                       <FaTriangleExclamation />
                     </div>
-                    <div className="space-y-2">
-                      <p className="text-sm font-black text-default-800 uppercase tracking-wide">
-                        Importante
+                    <div className="space-y-3 flex-1">
+                      <p className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-300">
+                        Aviso de pago
                       </p>
-                      <p className="text-sm md:text-[15px] font-semibold text-default-700 leading-relaxed">
+                      <p className="text-sm md:text-[15px] font-bold leading-relaxed text-slate-50">
                         El pago se realiza al momento de la entrega del pedido
                         (contra entrega).
                       </p>
-                      <Chip color="warning" size="sm" variant="flat">
-                        Método elegido: {selectedPaymentLabel}
-                      </Chip>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-slate-100">
+                          Metodo elegido: {selectedPaymentLabel}
+                        </span>
+                        <span className="inline-flex items-center rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-semibold text-emerald-200">
+                          Te cobramos al entregar
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
