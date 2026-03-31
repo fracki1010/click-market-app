@@ -23,6 +23,7 @@ export const useAuth = () => {
   const normalizeAuthPayload = (data: any) => {
     const {
       access_token,
+      refresh_token,
       name: nameData,
       _id,
       role,
@@ -35,6 +36,7 @@ export const useAuth = () => {
 
     return {
       token: access_token,
+      refreshToken: refresh_token,
       user: {
         id: _id,
         username: usernameData,
@@ -58,14 +60,17 @@ export const useAuth = () => {
         password,
       });
 
-      const { user, token: access_token } = normalizeAuthPayload(response.data);
+      const { user, token: access_token, refreshToken } = normalizeAuthPayload(
+        response.data,
+      );
 
       //Tiempo para el loading
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
       // Guardar en Redux + localStorage
-      dispatch(loginSuccess({ user, token: access_token }));
+      dispatch(loginSuccess({ user, token: access_token, refreshToken }));
       localStorage.setItem("token", access_token);
+      localStorage.setItem("refresh_token", refreshToken);
     } catch (err: any) {
       console.error("Error en login:", err);
       dispatch(loginFailure("Credenciales inválidas o error del servidor"));
@@ -80,10 +85,13 @@ export const useAuth = () => {
       const idToken = await firebaseResult.user.getIdToken();
 
       const response = await apiClient.post("/auth/google", { idToken });
-      const { user, token: access_token } = normalizeAuthPayload(response.data);
+      const { user, token: access_token, refreshToken } = normalizeAuthPayload(
+        response.data,
+      );
 
-      dispatch(loginSuccess({ user, token: access_token }));
+      dispatch(loginSuccess({ user, token: access_token, refreshToken }));
       localStorage.setItem("token", access_token);
+      localStorage.setItem("refresh_token", refreshToken);
     } catch (err: any) {
       console.error("Error en login con Google:", err);
 
@@ -105,12 +113,21 @@ export const useAuth = () => {
   };
 
   const logoutUser = () => {
+    const refreshToken = localStorage.getItem("refresh_token");
+
+    if (refreshToken) {
+      apiClient
+        .post("/auth/logout", { refresh_token: refreshToken })
+        .catch(() => undefined);
+    }
+
     firebaseSignOut(auth).catch((error) => {
       console.error("Error cerrando sesión de Firebase:", error);
     });
 
     dispatch(logout());
     localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
   };
 

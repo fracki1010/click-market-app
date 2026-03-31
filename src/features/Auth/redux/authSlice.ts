@@ -16,16 +16,19 @@ interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   loading: boolean;
   error: string | null;
 }
 
 const tokenFromStorage = localStorage.getItem("token");
+const refreshTokenFromStorage = localStorage.getItem("refresh_token");
 const userFromStorage = localStorage.getItem("user");
 
 const initialState: AuthState = {
   user: userFromStorage ? JSON.parse(userFromStorage) : null,
   token: tokenFromStorage,
+  refreshToken: refreshTokenFromStorage,
   loading: false,
   error: null,
 };
@@ -40,15 +43,27 @@ const authSlice = createSlice({
     },
     loginSuccess: (
       state,
-      action: PayloadAction<{ user: User; token: string }>,
+      action: PayloadAction<{ user: User; token: string; refreshToken: string }>,
     ) => {
       state.loading = false;
       state.user = action.payload.user;
       state.token = action.payload.token;
+      state.refreshToken = action.payload.refreshToken;
 
       // Guardar en localStorage
       localStorage.setItem("token", action.payload.token);
+      localStorage.setItem("refresh_token", action.payload.refreshToken);
       localStorage.setItem("user", JSON.stringify(action.payload.user));
+    },
+    setSessionTokens: (
+      state,
+      action: PayloadAction<{ token: string; refreshToken: string }>,
+    ) => {
+      state.token = action.payload.token;
+      state.refreshToken = action.payload.refreshToken;
+
+      localStorage.setItem("token", action.payload.token);
+      localStorage.setItem("refresh_token", action.payload.refreshToken);
     },
     loginFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
@@ -57,10 +72,12 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.token = null;
+      state.refreshToken = null;
       state.loading = false;
       state.error = null;
 
       localStorage.removeItem("token");
+      localStorage.removeItem("refresh_token");
       localStorage.removeItem("user");
     },
 
@@ -82,6 +99,7 @@ export const {
   loginStart,
   loginSuccess,
   loginFailure,
+  setSessionTokens,
   logout,
   setErrorRegister,
   updateUser,
